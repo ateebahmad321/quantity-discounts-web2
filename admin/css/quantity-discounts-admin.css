@@ -1,0 +1,431 @@
+.field-blocks{
+    position:relative;
+    display:inline-block;
+    width:100%;
+}
+.field-blocks .block{
+    width:calc(25% - 10px);
+    float:left;
+    position:relative;
+    padding:0 10px 0 0;
+}
+
+.field-blocks .block input,
+.field-blocks .block textarea{
+    width:100% !important;
+}
+.quantity_discount_block {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.field-blocks {
+    display: flex;
+    flex-grow: 1;
+}
+.quantity_discount_block {
+    border-bottom: 1px solid #ccc;
+    padding: 10px;
+    margin-top: 5px;
+}
+.block {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.block:last-child {
+    margin-right: 0;
+}
+
+.block input,
+.block textarea {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.delete_quantity_discount {
+    margin-left: 20px;
+    height: fit-content;
+}
+
+
+#quantity_discounts .tabs {
+    margin-bottom: 20px;
+}
+#quantity_discounts .tabs li {
+    display: inline-block;
+    margin-right: 5px;
+}
+#quantity_discounts .tabs a {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #f1f1f1;
+    border: 1px solid #ccc;
+    border-bottom: none;
+}
+#quantity_discounts .tabs a.active {
+    text-decoration: none;
+    color: #000;
+    background: #fff;
+    border-color: #ccc #ccc #fff;
+}
+#quantity_discounts .tabs a {
+    text-decoration: none;
+    color: #000;
+    border-color: #ccc #ccc #fff;
+}
+
+#quantity_discounts .panel.active {
+    display: block !important;
+}
+
+/*Preview block*/
+
+.wpiqd-swatch {
+    right: 0;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: block;
+    position:relative;
+}
+
+.preview-block{
+    width:calc(100% - 20px);
+    position:relative;
+    display: inline;
+    padding:10px;
+}
+#quantity_discounts_preview{
+    max-width: 500px;
+    margin: 0 auto;
+}
+#quantity_discounts_preview_preview{
+    max-width: 500px;
+    margin: 0 auto;
+}
+.wpiqd-inner {
+    justify-content: space-between;
+}
+.wpiqd-radio,
+.wpiqd-middle{
+    display: inline-block;
+}
+.wpiqd-middle {
+    margin-left: 20px;
+}
+.wpiqd-right{
+    float: right;
+    text-align:right;
+}
+
+.wpiqd-inner {
+    display: flex;
+    align-items: center;
+}
+
+.one-block {
+    flex-shrink: 0; /* Prevent the radio button container from shrinking */
+}
+
+.second-block {
+    flex-grow: 1; /* Take up the remaining space */
+    display: flex;
+    justify-content: space-between; /* Distribute space between the middle and right sections */
+    align-items: center;
+}
+
+.second-block.badge-inside{
+    padding-right: 80px;
+}
+.second-block.badge-inside-no{
+    padding-right: 0;
+}
+
+.wpiqd-middle,
+.wpiqd-right {
+    flex-shrink: 0; /* Prevent these sections from shrinking */
+}
+.old-price{
+    color: #c0c0c0;
+}
+
+.wpiqd-swatch {
+    cursor: pointer;
+}
+
+.wpiqd-swatch:hover {
+    background-color: unset;
+    color: unset;
+}
+
+.wpiqd-swatch.active .wpiqd-radio span {
+    background-color: white; /* Change the color of the custom radio button when active */
+}
+.blocks_3{
+    display: inline-block;
+    padding: 0 20px;
+    width:calc(33.333% - 40px);
+    clear: both;
+}
+.blocks_3:first-child{
+    padding-left:0;
+}
+.blocks_3:nth-child(4){
+    padding-left:0;
+}
+.quantity-discounts-settings-label {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.wp-picker-container {
+    display: inline-block;
+    vertical-align: top;
+}
+
+
+/*RADIO BUTTON*/
+
+/* Custom Radio Button Styles */
+.wpiqd-radio input[type="radio"] {
+    display: none; /* Hide the default radio button */
+}
+
+/*badges*/
+
+.badges-preview{
+
+}
+
+#badge-container{
+    position: absolute;
+    top: -25px;
+    left: 50%; /* Centers it horizontally */
+    transform: translateX(-50%); /* Shifts the badge container to the left by half its width */
+    z-index: 999;
+}
+
+#badge-container.badge-price-star_container{
+    position: absolute;
+    top: -25px;
+    right: -5px;
+    left:inherit;
+    transform: inherit;
+    z-index: 999;
+}
+
+#badge-container.circle-badge_container{
+    top: -12px;
+    position: absolute;
+    right: -10px;
+    transform: inherit;
+    left:inherit;
+    z-index: 999;
+}
+
+.badge-price-star,
+.badge-price-star:before,
+.badge-price-star:after,
+.badge-price-star .price {
+    height: 5em;
+    width: 5em;
+    background: #d32f2f;
+}
+
+.badge-price-star:before,
+.badge-price-star:after {
+    content: "";
+    position: absolute;
+}
+
+.badge-price-star {
+    margin: 20px 0; /* Centering for demo */
+    position: relative; /* Context */
+    top: 0;
+    left: 0;
+    background-color: #e53935;
+    transform-origin: center;
+    transition: 0.3s all ease-out;
+}
+
+.badge-price-star:before {
+    top: 0;
+    left: 0;
+    -webkit-transform: rotate(22.5deg);
+    -moz-transform: rotate(22.5deg);
+    -ms-transform: rotate(22.5deg);
+    -o-transform: rotate(22.5deg);
+    transform: rotate(22.5deg);
+    z-index: 1;
+}
+
+.badge-price-star:after {
+    top: 0;
+    left: 0;
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+    background-color: #e53935;
+}
+
+.badge-price-star .price {
+    padding: 1em 0em;
+    height: 3em; /* height minus padding */
+    position: absolute;
+    bottom: 0;
+    display:flex;
+    right: 0;
+    -webkit-transform: rotate(-22.5deg);
+    -moz-transform: rotate(-22.5deg);
+    -ms-transform: rotate(-22.5deg);
+    -o-transform: rotate(-22.5deg);
+    transform: rotate(-22.5deg);
+    z-index: 1; /* important so the text shows up */
+}
+
+.badge-price-star .price span {
+    position: relative;
+    z-index: 100;
+    align-items: center;
+    display: grid;
+    text-align: center;
+    color: #fff;
+    font: 14px Sans-Serif;
+    text-transform: uppercase;
+}
+
+.badge-price-star .price span.number {
+    font-weight: bold;
+    font-size: 1.625em;
+    line-height: .9em;
+    color: #ffebee;
+}
+
+.circle-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #fff;
+    font: 14px Sans-Serif;
+    background-color: #e53935;
+    width: 80px;
+    height: 80px;
+    text-align: center;
+}
+
+.rect-badge {
+    display: inline-block;
+    color: white;
+    font: 14px Sans-Serif;
+    background-color: #e53935;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.ribbon-badge {
+    position: relative;
+    padding: 10px 40px;
+    background-color: #e53935;
+    color: white;
+    display: inline-block;
+    font-size: 16px;
+    margin: 30px;
+}
+.ribbon-badge:before, .ribbon-badge:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    font: 17px Sans-Serif;
+    border: 20px solid transparent;
+    z-index: -1;
+}
+.ribbon-badge:before {
+    left: -40px;
+    border-right-color: #e53935;
+}
+.ribbon-badge:after {
+    right: -40px;
+    border-left-color: #e53935;
+}
+
+
+
+.wpiqd-radio span {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    border-width: 1px; /* Inactive border color */
+    border-style: solid;
+    border-radius: 50%; /* Circular border */
+    position: relative;
+    cursor: pointer;
+    vertical-align: middle; /* Align with the text */
+}
+
+/* Style for the custom radio button when it's active/checked */
+.wpiqd-radio input[type="radio"]:checked + span::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+}
+
+
+/* Hover styles for the custom radio */
+.wpiqd-radio span:hover {
+    border-color: #aaa; /* Hover border color */
+}
+
+.badge-price-star_preview,
+.circle-badge_preview,
+.rect-badge_preview {
+    display:none;
+}
+.badge-price-star_preview.active,
+.circle-badge_preview.active,
+.rect-badge_preview.active {
+    display:flex;
+}
+
+.circle-badge_container{
+    top:-8px !important;
+}
+
+.rect-badge_container{
+    top: -7px !important;
+}
+
+#minmax_preview{
+    padding:0 30px;
+}
+
+
+#quantity_discounts_container .delete_quantity_discount
+{
+    color:#fff;
+    background-color: #914552;
+    border:none;
+    padding:5px 20px;
+    margin:0;
+    border-radius: 10px;
+}
+
+#quantity_pricing #add_quantity_discount{
+    color:#fff;
+    background-color: #5e9145;
+    border:none;
+    padding:5px 20px;
+    margin:0;
+    border-radius: 10px;
+}

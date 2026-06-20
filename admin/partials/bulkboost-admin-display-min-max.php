@@ -2,7 +2,7 @@
     <h2>Min Max Design Settings</h2>
     <form method="post" action="options.php">
         <?php
-        settings_fields('min_max_quantity_discounts_settings');
+        settings_fields('min_max_bulkboost_settings');
         // Default values
         $defaults = [
             'min_max_background_color_active' => '#000000',
@@ -16,7 +16,7 @@
             'min_max_border_color_hover' => '#333333',
             'min_max_size' => '16',
         ];
-        $options = get_option('min_max_quantity_discounts_settings', $defaults);
+        $options = get_option('min_max_bulkboost_settings', $defaults);
 
         ?>
         <hr>
@@ -25,12 +25,12 @@
         1️⃣ Head over to an <strong>Existing Product</strong> or spark creativity by adding a <strong>New
             Product</strong>.<br/>
         2️⃣ Scroll down to the <strong>Product Data</strong> section. <br>
-        3️⃣ Spot the <strong>"Quantity Discounts"</strong> tab on the left menu. 👈 <br>
+        3️⃣ Spot the <strong>"BulkBoost"</strong> tab on the left menu. 👈 <br>
         4️⃣ Click to unleash amazing discounts for your products! 💸 <br>
         <p>Happy discounting! 🚀</p>
         <hr>
         <h2>Preview</h2>
-        <div id="quantity_discounts_preview_preview">
+        <div id="bulkboost_preview_preview">
 
         </div>
         <hr>
@@ -44,15 +44,15 @@
                     <th scope="row">Background Color</th>
                     <td>
                         <input type="text" id="min_max_background_color_active"
-                               name="min_max_quantity_discounts_settings[min_max_background_color_active]"
+                               name="min_max_bulkboost_settings[min_max_background_color_active]"
                                value="<?php echo esc_attr($options['min_max_background_color_active']); ?>"
                                class="color-field"/>
                         <input type="text" id="min_max_background_color_inactive"
-                               name="min_max_quantity_discounts_settings[min_max_background_color_inactive]"
+                               name="min_max_bulkboost_settings[min_max_background_color_inactive]"
                                value="<?php echo esc_attr($options['min_max_background_color_inactive']); ?>"
                                class="color-field"/>
                         <input type="text" id="min_max_background_color_hover"
-                               name="min_max_quantity_discounts_settings[min_max_background_color_hover]"
+                               name="min_max_bulkboost_settings[min_max_background_color_hover]"
                                value="<?php echo esc_attr($options['min_max_background_color_hover']); ?>"
                                class="color-field"/>
                     </td>
@@ -63,15 +63,15 @@
                     <th scope="row">Text Color</th>
                     <td>
                         <input type="text" id="min_max_text_color_active"
-                               name="min_max_quantity_discounts_settings[min_max_text_color_active]"
+                               name="min_max_bulkboost_settings[min_max_text_color_active]"
                                value="<?php echo esc_attr($options['min_max_text_color_active']); ?>"
                                class="color-field"/>
                         <input type="text" id="min_max_text_color_inactive"
-                               name="min_max_quantity_discounts_settings[min_max_text_color_inactive]"
+                               name="min_max_bulkboost_settings[min_max_text_color_inactive]"
                                value="<?php echo esc_attr($options['min_max_text_color_inactive']); ?>"
                                class="color-field"/>
                         <input type="text" id="min_max_text_color_hover"
-                               name="min_max_quantity_discounts_settings[min_max_text_color_hover]"
+                               name="min_max_bulkboost_settings[min_max_text_color_hover]"
                                value="<?php echo esc_attr($options['min_max_text_color_hover']); ?>"
                                class="color-field"/>
                     </td>
@@ -82,15 +82,15 @@
                     <th scope="row">Border Color</th>
                     <td>
                         <input type="text" id="min_max_border_color_active"
-                               name="min_max_quantity_discounts_settings[min_max_border_color_active]"
+                               name="min_max_bulkboost_settings[min_max_border_color_active]"
                                value="<?php echo esc_attr($options['min_max_border_color_active']); ?>"
                                class="color-field"/>
                         <input type="text" id="min_max_border_color_inactive"
-                               name="min_max_quantity_discounts_settings[min_max_border_color_inactive]"
+                               name="min_max_bulkboost_settings[min_max_border_color_inactive]"
                                value="<?php echo esc_attr($options['min_max_border_color_inactive']); ?>"
                                class="color-field"/>
                         <input type="text" id="min_max_border_color_hover"
-                               name="min_max_quantity_discounts_settings[min_max_border_color_hover]"
+                               name="min_max_bulkboost_settings[min_max_border_color_hover]"
                                value="<?php echo esc_attr($options['min_max_border_color_hover']); ?>"
                                class="color-field"/>
                     </td>
@@ -101,7 +101,7 @@
                     <th scope="row">Button Size</th>
                     <td>
                         <input type="number" id="min_max_size"
-                               name="min_max_quantity_discounts_settings[min_max_size]"
+                               name="min_max_bulkboost_settings[min_max_size]"
                                value="<?php echo esc_attr($options['min_max_size']); ?>"/>
                     </td>
                 </tr>
@@ -143,7 +143,7 @@
         const borderColorHover = $('#min_max_border_color_hover');
         const min_max_size = $('#min_max_size');
 
-        const previewArea = $('#quantity_discounts_preview_preview');
+        const previewArea = $('#bulkboost_preview_preview');
 
         // Function to create buttons
         function createButtons() {

@@ -1,6 +1,6 @@
-=== Quantity Discounts, Breaks & Product Bundles for WooCommerce ===
-Contributors: wpiron
-Donate link: https://wpiron.com
+=== BulkBoost, Breaks & Product Bundles for WooCommerce ===
+Contributors: bulkboost
+Donate link: https://bulkboost.com
 Tags: woocommerce, ecommerce, e-commerce, products, product
 Requires at least: 6.7
 Tested up to: 6.8
@@ -9,11 +9,11 @@ Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-🚀 **Boost Your AOV with Quantity Discounts, Breaks & Product Bundles for WooCommerce!**
+🚀 **Boost Your AOV with BulkBoost, Breaks & Product Bundles for WooCommerce!**
 
 == Description ==
 
-🎉 Introducing the [Quantity Discounts & Breaks Plugin for WooCommerce](https://wpiron.com/products/quantity-breaks-and-discounts/)! This versatile tool is designed to boost your store's profitability and customer engagement by empowering you with advanced pricing strategies including simple & variable products.
+🎉 Introducing the [BulkBoost & Breaks Plugin for WooCommerce](https://bulkboost.com/products/quantity-breaks-and-discounts/)! This versatile tool is designed to boost your store's profitability and customer engagement by empowering you with advanced pricing strategies including simple & variable products.
 
 Join our vibrant [Discord Community](https://discord.gg/DbwcKKz6gX) to connect, get support and share insights!
 
@@ -26,7 +26,7 @@ Join our vibrant [Discord Community](https://discord.gg/DbwcKKz6gX) to connect, 
 * **Font Settings**: Exercise complete control over the typography in your bundles. Adjust the font weight and size for labels, prices, descriptions, and manage the display of old prices. These settings ensure that your pricing information is clear and attractive.
 * **Simple products**: Add quantity discounts visuals & setup for simple products
 
-### 🏆 **PREMIUM VERSION BENEFITS** [Upgrade Now!](https://wpiron.com/products/quantity-breaks-and-discounts/)
+### 🏆 **PREMIUM VERSION BENEFITS** [Upgrade Now!](https://bulkboost.com/products/quantity-breaks-and-discounts/)
 
 * **Everything in main features:** +
 * **Enhanced Sales Analytics:** Access detailed sales reports and custom analytics to make informed business decisions.
@@ -39,20 +39,20 @@ Join our vibrant [Discord Community](https://discord.gg/DbwcKKz6gX) to connect, 
 
 🔗 **See It in Action!**
 
-- **Quantity Breaks Demo:** Experience our product page in action. [Visit DEMO](https://quantitybreaks-demo.wpiron.com/product/hat/)
-- **Min/Max Demo:** Discover how the min/max feature can transform your shopping experience. [Visit DEMO](https://quantitybreaks-demo.wpiron.com/product/shirt-green/)
-- **Variable Products Quantity Breaks Demo:** how variables productucts look like [Visit Demo](https://quantitybreaks-demo.wpiron.com/product/variable-product-quantity-breaks/)
+- **Quantity Breaks Demo:** Experience our product page in action. [Visit DEMO](https://quantitybreaks-demo.bulkboost.com/product/hat/)
+- **Min/Max Demo:** Discover how the min/max feature can transform your shopping experience. [Visit DEMO](https://quantitybreaks-demo.bulkboost.com/product/shirt-green/)
+- **Variable Products Quantity Breaks Demo:** how variables productucts look like [Visit Demo](https://quantitybreaks-demo.bulkboost.com/product/variable-product-quantity-breaks/)
 == Video Tutorials ==
 
 🎥 **Learn How to Set Up and Customize:**
 
-Add Quantity Discounts For Variation products
+Add BulkBoost For Variation products
 [youtube https://www.youtube.com/watch?v=o0DeTZ4gcaM]
 
-Setup Product with Quantity Discounts
+Setup Product with BulkBoost
 [youtube https://www.youtube.com/watch?v=Zqm8zoEqq38]
 
-Change Design on Quantity Discounts
+Change Design on BulkBoost
 [youtube https://www.youtube.com/watch?v=2xqk_XSJlac]
 
 ### 💡 **WHY CHOOSE US?**
@@ -86,13 +86,13 @@ We’ve tested our plugin with a variety of free and premium themes. As long as 
 
 = Is it compatible with other plugins? =
 
-We have tested Quantity Discounts & Breaks plugin with many third-party plugins and themes.
+We have tested BulkBoost & Breaks plugin with many third-party plugins and themes.
 
 = Is it possible to use with variable products? =
 
 Yes!
 
-= What are the key features of the Quantity Discounts & Breaks plugin? =
+= What are the key features of the BulkBoost & Breaks plugin? =
 
 The plugin offers dynamic quantity breaks, customizable bundle designs, real-time previews, and a range of settings to manage the appearance of discounts and pricing. It's designed to enhance your WooCommerce store's profitability through strategic bulk discount pricing.
 
@@ -102,7 +102,7 @@ Setting up quantity breaks is straightforward with our plugin. You can define qu
 
 = Can I use this plugin to apply bundle discounts? =
 
-Yes, the Quantity Discounts & Breaks plugin allows you to create customized bundles with specific discounts. You can set these discounts to trigger as customers increase the quantity of items in their carts, effectively using dynamic pricing to encourage larger purchases.
+Yes, the BulkBoost & Breaks plugin allows you to create customized bundles with specific discounts. You can set these discounts to trigger as customers increase the quantity of items in their carts, effectively using dynamic pricing to encourage larger purchases.
 
 = How does the plugin handle WooCommerce dynamic pricing? =
 

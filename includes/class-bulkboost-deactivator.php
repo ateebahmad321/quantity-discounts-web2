@@ -3,11 +3,11 @@
 /**
  * Fired during plugin deactivation
  *
- * @link       https://tallpro.com
+ * @link       https://bulkboost.com
  * @since      1.0.0
  *
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/includes
+ * @package    BulkBoost
+ * @subpackage BulkBoost/includes
  */
 
 /**
@@ -16,11 +16,11 @@
  * This class defines all code necessary to run during the plugin's deactivation.
  *
  * @since      1.0.0
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/includes
- * @author     WPIron <info@tallpro.com>
+ * @package    BulkBoost
+ * @subpackage BulkBoost/includes
+ * @author     BulkBoost <info@bulkboost.com>
  */
-class Quantity_Discounts_Deactivator {
+class BulkBoost_Deactivator {
 
 	/**
 	 * Short Description. (use period)

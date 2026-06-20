@@ -1,57 +1,57 @@
 <div class="wrap">
-    <h2>Quantity Discounts Design Settings</h2>
+    <h2>BulkBoost Design Settings</h2>
     <form method="post" action="options.php">
         <?php
 
-        settings_fields('quantity_discounts_settings'); ?>
+        settings_fields('bulkboost_settings'); ?>
         <hr>
-        <p>🎨 Customize your Quantity Discounts design here! </p>
+        <p>🎨 Customize your BulkBoost design here! </p>
         <p>Once you've tailored it to perfection:</p>
         1️⃣ Head over to an <strong>Existing Product</strong> or spark creativity by adding a <strong>New
             Product</strong>.<br/>
         2️⃣ Scroll down to the <strong>Product Data</strong> section. <br>
-        3️⃣ Spot the <strong>"Quantity Discounts"</strong> tab on the left menu. 👈 <br>
+        3️⃣ Spot the <strong>"BulkBoost"</strong> tab on the left menu. 👈 <br>
         4️⃣ Click to unleash amazing discounts for your products! 💸 <br>
         <p>Happy discounting! 🚀</p>
         <hr>
         <h2>Preview</h2>
-        <div id="quantity_discounts_preview_preview">
-            <span class="wpiqd-swatch active" data-value="1">
-                <div class="wpiqd-inner">
+        <div id="bulkboost_preview_preview">
+            <span class="bulkboost-swatch active" data-value="1">
+                <div class="bulkboost-inner">
                     <div class="one-block">
-                        <label class="wpiqd-radio">
+                        <label class="bulkboost-radio">
                             <input id="radio1" value="1" name="quantity" type="radio" checked>
                             <span></span> <!-- This span is styled as the radio button -->
                         </label>
                     </div>
                     <div class="second-block ">
-                    <div class="wpiqd-middle">
-                        <div class="wpiqd-heading">1 item (active)</div>
-                        <div class="wpiqd-subheading">Get 1 item and enjoy our product</div>
+                    <div class="bulkboost-middle">
+                        <div class="bulkboost-heading">1 item (active)</div>
+                        <div class="bulkboost-subheading">Get 1 item and enjoy our product</div>
                     </div>
-                    <div class="wpiqd-right">
-                        <span class="wpiqd-price"><?php
+                    <div class="bulkboost-right">
+                        <span class="bulkboost-price"><?php
                             echo wc_price(100, array('decimals' => 0)); ?></span>
                         <div class="old-price"></div>
                     </div>
                 </div>
                 </div>
             </span>
-            <span class="wpiqd-swatch " data-value="2">
-                <div class="wpiqd-inner">
+            <span class="bulkboost-swatch " data-value="2">
+                <div class="bulkboost-inner">
                 <div class="one-block">
-                    <label class="wpiqd-radio">
+                    <label class="bulkboost-radio">
                         <input id="radio2" value="2" name="quantity" type="radio">
                         <span></span>
                     </label>
                 </div>
                 <div class="second-block">
-                    <div class="wpiqd-middle">
-                        <div class="wpiqd-heading">2 items (Inactive)</div>
-                        <div class="wpiqd-subheading">Get 2 for better price only now!</div>
+                    <div class="bulkboost-middle">
+                        <div class="bulkboost-heading">2 items (Inactive)</div>
+                        <div class="bulkboost-subheading">Get 2 for better price only now!</div>
                     </div>
-                    <div class="wpiqd-right">
-                        <span class="wpiqd-price"><?php
+                    <div class="bulkboost-right">
+                        <span class="bulkboost-price"><?php
                             echo wc_price(150, array('decimals' => 0)); ?></span>
                         <div class="old-price"><span><s><?php
                                     echo wc_price(200, array('decimals' => 0)); ?></s></span></div>
@@ -80,22 +80,22 @@
                         <div class="blocks_3">
                             <strong>Active (Selected)</strong><br>
                             <input type="text" id="border_color_active"
-                                   name="quantity_discounts_settings[border_color_active]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['border_color_active']); ?>"
+                                   name="bulkboost_settings[border_color_active]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['border_color_active']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>Inactive (Not Selected)</strong><br>
                             <input type="text" id="border_color_inactive"
-                                   name="quantity_discounts_settings[border_color_inactive]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['border_color_inactive']); ?>"
+                                   name="bulkboost_settings[border_color_inactive]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['border_color_inactive']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>On Hover (Mouse over)</strong><br>
                             <input type="text" id="border_color_hover"
-                                   name="quantity_discounts_settings[border_color_hover]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['border_color_hover']); ?>"
+                                   name="bulkboost_settings[border_color_hover]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['border_color_hover']); ?>"
                                    class="color-field"/>
                         </div>
                     </td>
@@ -107,22 +107,22 @@
                         <div class="blocks_3">
                             <strong>Active (Selected)</strong><br>
                             <input type="text" id="background_color_active"
-                                   name="quantity_discounts_settings[background_color_active]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['background_color_active']); ?>"
+                                   name="bulkboost_settings[background_color_active]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['background_color_active']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>Inactive (Not Selected)</strong><br>
                             <input type="text" id="background_color_inactive"
-                                   name="quantity_discounts_settings[background_color_inactive]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['background_color_inactive']); ?>"
+                                   name="bulkboost_settings[background_color_inactive]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['background_color_inactive']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>On Hover (Mouse over)</strong><br>
                             <input type="text" id="background_color_hover"
-                                   name="quantity_discounts_settings[background_color_hover]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['background_color_hover']); ?>"
+                                   name="bulkboost_settings[background_color_hover]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['background_color_hover']); ?>"
                                    class="color-field"/>
                         </div>
                     </td>
@@ -134,24 +134,24 @@
                         <div class="blocks_3">
                             <strong>Active (Selected)</strong><br>
                             <input type="text" id="text_color_active"
-                                   name="quantity_discounts_settings[text_color_active]"
+                                   name="bulkboost_settings[text_color_active]"
                                    value="<?php
-                                   echo esc_attr(get_option('quantity_discounts_settings')['text_color_active']); ?>"
+                                   echo esc_attr(get_option('bulkboost_settings')['text_color_active']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>Inactive (Not Selected)</strong><br>
                             <input type="text" id="text_color_inactive"
-                                   name="quantity_discounts_settings[text_color_inactive]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['text_color_inactive']); ?>"
+                                   name="bulkboost_settings[text_color_inactive]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['text_color_inactive']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>On Hover (Mouse over)</strong><br>
                             <input type="text" id="text_color_hover"
-                                   name="quantity_discounts_settings[text_color_hover]"
+                                   name="bulkboost_settings[text_color_hover]"
                                    value="<?php
-                                   echo esc_attr(get_option('quantity_discounts_settings')['text_color_hover']); ?>"
+                                   echo esc_attr(get_option('bulkboost_settings')['text_color_hover']); ?>"
                                    class="color-field"/>
                         </div>
                     </td>
@@ -163,37 +163,37 @@
                         <div class="blocks_3">
                             <strong>Active Background Color (Selected)</strong><br>
                             <input type="text" id="radio_bg_color_active"
-                                   name="quantity_discounts_settings[radio_bg_color_active]"
+                                   name="bulkboost_settings[radio_bg_color_active]"
                                    value="<?php
                                    echo esc_attr(
-                                       get_option('quantity_discounts_settings')['radio_bg_color_active']
+                                       get_option('bulkboost_settings')['radio_bg_color_active']
                                    ); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>Active Border Color (Selected)</strong><br>
                             <input type="text" id="radio_border_color_active"
-                                   name="quantity_discounts_settings[radio_border_color_active]"
+                                   name="bulkboost_settings[radio_border_color_active]"
                                    value="<?php
                                    echo esc_attr(
-                                       get_option('quantity_discounts_settings')['radio_border_color_active']
+                                       get_option('bulkboost_settings')['radio_border_color_active']
                                    ); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>Inactive Border Color (Not Selected)</strong><br>
                             <input type="text" id="radio_border_color_inactive"
-                                   name="quantity_discounts_settings[radio_border_color_inactive]" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['radio_border_color_inactive']); ?>"
+                                   name="bulkboost_settings[radio_border_color_inactive]" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['radio_border_color_inactive']); ?>"
                                    class="color-field"/>
                         </div>
                         <div class="blocks_3">
                             <strong>Radio Button Size</strong><br>
                             <input type="number" id="radio_button_size"
-                                   name="quantity_discounts_settings[radio_button_size]"
+                                   name="bulkboost_settings[radio_button_size]"
                                    value="<?php
                                    echo esc_attr(
-                                       get_option('quantity_discounts_settings')['radio_button_size']
+                                       get_option('bulkboost_settings')['radio_button_size']
                                    ) ?: '20'; ?>"/>
                         </div>
                     </td>
@@ -202,18 +202,18 @@
                 <tr valign="top">
                     <th scope="row">Border Style</th>
                     <td>
-                        <select id="border_style" name="quantity_discounts_settings[border_style]">
+                        <select id="border_style" name="bulkboost_settings[border_style]">
                             <option value="none" <?php
-                            selected(get_option('quantity_discounts_settings')['border_style'], 'none'); ?> >None
+                            selected(get_option('bulkboost_settings')['border_style'], 'none'); ?> >None
                             </option>
                             <option value="dashed" <?php
-                            selected(get_option('quantity_discounts_settings')['border_style'], 'dashed'); ?> >Dashed
+                            selected(get_option('bulkboost_settings')['border_style'], 'dashed'); ?> >Dashed
                             </option>
                             <option value="dotted" <?php
-                            selected(get_option('quantity_discounts_settings')['border_style'], 'dotted'); ?> >Dotted
+                            selected(get_option('bulkboost_settings')['border_style'], 'dotted'); ?> >Dotted
                             </option>
                             <option value="solid" <?php
-                            selected(get_option('quantity_discounts_settings')['border_style'], 'solid'); ?> >Solid
+                            selected(get_option('bulkboost_settings')['border_style'], 'solid'); ?> >Solid
                             </option>
                         </select>
                     </td>
@@ -223,9 +223,9 @@
                     <th scope="row">Box Corner Radius</th>
                     <td>
                         <input type="number" id="box_corner_radius"
-                               name="quantity_discounts_settings[box_corner_radius]"
+                               name="bulkboost_settings[box_corner_radius]"
                                value="<?php
-                               echo esc_attr(get_option('quantity_discounts_settings')['box_corner_radius']); ?>"/>
+                               echo esc_attr(get_option('bulkboost_settings')['box_corner_radius']); ?>"/>
                     </td>
                 </tr>
             </table>
@@ -255,9 +255,9 @@
                     <td>
                         <div class="blocks_3">
                             <strong>Font Weight</strong><br>
-                            <select id="label_font_weight" name="quantity_discounts_settings[label_font_weight]">
+                            <select id="label_font_weight" name="bulkboost_settings[label_font_weight]">
                                 <?php
-                                $label_font_weight = get_option('quantity_discounts_settings')['label_font_weight'];
+                                $label_font_weight = get_option('bulkboost_settings')['label_font_weight'];
                                 $current_value = $label_font_weight ? $label_font_weight : '300';
                                 ?>
                                 <option <?php
@@ -289,8 +289,8 @@
                         <div class="blocks_3">
                             <strong>Font Size</strong><br>
                             <input type="number" id="label_font_size"
-                                   name="quantity_discounts_settings[label_font_size]" min="5" max="60" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['label_font_size']) ?: '16'; ?>"/>
+                                   name="bulkboost_settings[label_font_size]" min="5" max="60" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['label_font_size']) ?: '16'; ?>"/>
                         </div>
                     </td>
                 </tr>
@@ -301,10 +301,10 @@
                         <div class="blocks_3">
                             <strong>Font Weight</strong><br>
                             <select id="description_font_weight"
-                                    name="quantity_discounts_settings[description_font_weight]">
+                                    name="bulkboost_settings[description_font_weight]">
                                 <?php
                                 $description_font_weight = get_option(
-                                    'quantity_discounts_settings'
+                                    'bulkboost_settings'
                                 )['description_font_weight'];
                                 $current_value = $description_font_weight ? $description_font_weight : '300';
                                 ?>
@@ -337,10 +337,10 @@
                         <div class="blocks_3">
                             <strong>Font Size</strong><br>
                             <input type="number" id="description_font_size"
-                                   name="quantity_discounts_settings[description_font_size]" min="5" max="60"
+                                   name="bulkboost_settings[description_font_size]" min="5" max="60"
                                    value="<?php
                                    echo esc_attr(
-                                       get_option('quantity_discounts_settings')['description_font_size']
+                                       get_option('bulkboost_settings')['description_font_size']
                                    ) ?: '13'; ?>"/>
                         </div>
                     </td>
@@ -352,9 +352,9 @@
                     <td>
                         <div class="blocks_3">
                             <strong>Font Weight</strong><br>
-                            <select id="price_font_weight" name="quantity_discounts_settings[price_font_weight]">
+                            <select id="price_font_weight" name="bulkboost_settings[price_font_weight]">
                                 <?php
-                                $price_font_weight = get_option('quantity_discounts_settings')['price_font_weight'];
+                                $price_font_weight = get_option('bulkboost_settings')['price_font_weight'];
                                 $current_value = $price_font_weight ? $price_font_weight : '300';
                                 ?>
                                 <option <?php
@@ -386,8 +386,8 @@
                         <div class="blocks_3">
                             <strong>Font Size</strong><br>
                             <input type="number" id="price_font_size"
-                                   name="quantity_discounts_settings[price_font_size]" min="5" max="60" value="<?php
-                            echo esc_attr(get_option('quantity_discounts_settings')['price_font_size']) ?: '16'; ?>"/>
+                                   name="bulkboost_settings[price_font_size]" min="5" max="60" value="<?php
+                            echo esc_attr(get_option('bulkboost_settings')['price_font_size']) ?: '16'; ?>"/>
                         </div>
                     </td>
                 </tr>
@@ -398,22 +398,22 @@
                     <td>
                         <div class="blocks_3">
                             <strong>Show Old Price</strong><br>
-                            <select id="show_old_price" name="quantity_discounts_settings[show_old_price]">
+                            <select id="show_old_price" name="bulkboost_settings[show_old_price]">
                                 <option value="yes" <?php
-                                selected(get_option('quantity_discounts_settings')['show_old_price'], 'yes'); ?>>Yes
+                                selected(get_option('bulkboost_settings')['show_old_price'], 'yes'); ?>>Yes
                                 </option>
                                 <option value="no" <?php
-                                selected(get_option('quantity_discounts_settings')['show_old_price'], 'no'); ?>>No
+                                selected(get_option('bulkboost_settings')['show_old_price'], 'no'); ?>>No
                                 </option>
                             </select>
                         </div>
                         <div class="blocks_3 old_price_settings">
                             <strong>Font Weight</strong><br>
                             <select id="old_price_font_weight"
-                                    name="quantity_discounts_settings[old_price_font_weight]">
+                                    name="bulkboost_settings[old_price_font_weight]">
                                 <?php
                                 $old_price_font_weight = get_option(
-                                    'quantity_discounts_settings'
+                                    'bulkboost_settings'
                                 )['old_price_font_weight'];
                                 $current_value = $old_price_font_weight ? $old_price_font_weight : '300';
                                 ?>
@@ -446,9 +446,9 @@
                         <div class="blocks_3 old_price_settings">
                             <strong>Font Size</strong><br>
                             <input type="number" id="old_price_font_size"
-                                   name="quantity_discounts_settings[old_price_font_size]" min="5" max="60" value="<?php
+                                   name="bulkboost_settings[old_price_font_size]" min="5" max="60" value="<?php
                             echo esc_attr(
-                                get_option('quantity_discounts_settings')['old_price_font_size']
+                                get_option('bulkboost_settings')['old_price_font_size']
                             ) ?: '12'; ?>"/>
                         </div>
                     </td>
@@ -512,52 +512,52 @@
             var radioButtonSize = $('#radio_button_size').val();
 
             var dynamicStyles = `
-                .wpiqd-swatch.active {
+                .bulkboost-swatch.active {
                     border-color: ${borderColorActive};
                     background-color: ${backgroundColorActive};
                     color: ${textColorActive};
                     border-style: ${borderStyle};
                     border-radius: ${boxCornerRadius}px;
                 }
-                .wpiqd-radio span {
+                .bulkboost-radio span {
                     border-color: ${radio_border_color_inactive};
                 }
-                .wpiqd-radio input[type="radio"]:checked + span {
+                .bulkboost-radio input[type="radio"]:checked + span {
                     border-color: ${radio_border_color_active};
                 }
-                .wpiqd-swatch.active .wpiqd-radio span {
+                .bulkboost-swatch.active .bulkboost-radio span {
                     border-color: ${radio_border_color_active};
                 }
-                .wpiqd-swatch:not(.active) {
+                .bulkboost-swatch:not(.active) {
                     border-color: ${borderColorInactive};
                     background-color: ${backgroundColorInactive} !important;
                     color: ${textColorInactive};
                     border-style: ${borderStyle};
                     border-radius: ${boxCornerRadius}px;
                 }
-                .wpiqd-heading {
+                .bulkboost-heading {
                     font-size: ${labelFontSize};
                     font-weight: ${labelFontWeight};
                 }
-                .wpiqd-subheading {
+                .bulkboost-subheading {
                     font-size: ${descriptionFontSize};
                     font-weight: ${descriptionFontWeight};
                 }
-                .wpiqd-right span {
+                .bulkboost-right span {
                     font-size: ${priceFontSize};
                     font-weight: ${priceFontWeight};
                 }
-                .wpiqd-right .old-price span {
+                .bulkboost-right .old-price span {
                     font-size: ${oldPriceFontSize};
                     font-weight: ${oldPriceFontWeight};
                 }
-                .wpiqd-radio input[type="radio"]:checked + span::before{
+                .bulkboost-radio input[type="radio"]:checked + span::before{
                     background-color: ${radio_bg_color_active}
                 }
-                .wpiqd-radio input[type="radio"] + span::before{
+                .bulkboost-radio input[type="radio"] + span::before{
                     background-color: ${radio_bg_color_inactive}
                 }
-                .wpiqd-radio span {
+                .bulkboost-radio span {
                     display: inline-block;
                     height: ${radioButtonSize}px;
                     width: ${radioButtonSize}px;
@@ -569,7 +569,7 @@
                     vertical-align: middle;
                 }
 
-                .wpiqd-radio input[type="radio"]:checked + span::before {
+                .bulkboost-radio input[type="radio"]:checked + span::before {
                     content: '';
                     position: absolute;
                     top: 50%;
@@ -600,7 +600,7 @@
 
         function setActiveSwatch(swatch) {
             // Remove active class and uncheck radio button from all swatches
-            $('.wpiqd-swatch').removeClass('active').find('input[type="radio"]').prop('checked', false);
+            $('.bulkboost-swatch').removeClass('active').find('input[type="radio"]').prop('checked', false);
 
             // Add active class and check radio button for the clicked swatch
             swatch.addClass('active').find('input[type="radio"]').prop('checked', true);
@@ -610,7 +610,7 @@
         }
 
 
-        $('.wpiqd-swatch').on('click', function () {
+        $('.bulkboost-swatch').on('click', function () {
             setActiveSwatch($(this));
         });
 
@@ -664,7 +664,7 @@
 
         updatePreview();
 
-        setActiveSwatch($('.wpiqd-swatch.active'));
+        setActiveSwatch($('.bulkboost-swatch.active'));
 
     });
 

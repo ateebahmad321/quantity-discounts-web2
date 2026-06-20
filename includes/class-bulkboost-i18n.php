@@ -6,11 +6,11 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       https://tallpro.com
+ * @link       https://bulkboost.com
  * @since      1.0.0
  *
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/includes
+ * @package    BulkBoost
+ * @subpackage BulkBoost/includes
  */
 
 /**
@@ -20,11 +20,11 @@
  * so that it is ready for translation.
  *
  * @since      1.0.0
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/includes
- * @author     WPIron <info@tallpro.com>
+ * @package    BulkBoost
+ * @subpackage BulkBoost/includes
+ * @author     BulkBoost <info@bulkboost.com>
  */
-class Quantity_Discounts_i18n {
+class BulkBoost_i18n {
 
 
 	/**
@@ -35,7 +35,7 @@ class Quantity_Discounts_i18n {
 	public function load_plugin_textdomain() {
 
 		load_plugin_textdomain(
-			'quantity-discounts',
+			'bulkboost',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);

@@ -1,7 +1,7 @@
 <div class="wrap">
-    <h2>Quantity Discounts Design Dashboard</h2>
+    <h2>BulkBoost Design Dashboard</h2>
     <div class="thank-you-section">
-        <p>Thank you for choosing the Quantity Discounts plugin! This powerful tool offers numerous benefits to enhance
+        <p>Thank you for choosing the BulkBoost plugin! This powerful tool offers numerous benefits to enhance
             your online store:</p>
         <ul>
             <li><strong>Increased Sales:</strong> Encourage larger orders and boost revenue.</li>
@@ -17,7 +17,7 @@
         <hr>
         <br>
         <a style="color:darkgreen; display:inline-block; font-weight:700; font-size:21px;" target="_blank"
-           href="https://wpiron.com/products/quantity-breaks-and-discounts/">Try Premium 14 days for free!</a>
+           href="https://bulkboost.com/products/quantity-breaks-and-discounts/">Try Premium 14 days for free!</a>
         <h3>You will get</h3>
         <div style="max-width:920px;">
             <ol>
@@ -61,22 +61,22 @@
                 <li>
                     🌟 Explore our customizable discount design options for various quantities.
                     <br>
-                    <a href="admin.php?page=wpiron-quantity-design">Quantity Discount Design Settings</a>
+                    <a href="admin.php?page=bulkboost-quantity-design">Quantity Discount Design Settings</a>
                 </li>
                 <li>
                     📐 Discover the settings to define minimum and maximum quantity limits.
                     <br>
-                    <a href="admin.php?page=wpiron-quantity-min-max">Quantity Min Max Design Settings</a>
+                    <a href="admin.php?page=bulkboost-quantity-min-max">Quantity Min Max Design Settings</a>
                 </li>
                 <li>
                     💰 Use our tool to calculate your potential earnings with our plugin.
                     <br>
-                    <a href="admin.php?page=wpiron-earnings">Check How Much You Earn With Our Plugin</a>
+                    <a href="admin.php?page=bulkboost-earnings">Check How Much You Earn With Our Plugin</a>
                 </li>
                 <li>
                     ⚙️General settings - check them out to configure this plugin right!
                     <br>
-                    <a href="admin.php?page=wpiron-settings">General Settings</a>
+                    <a href="admin.php?page=bulkboost-settings">General Settings</a>
                 </li>
             </ol>
 
@@ -85,8 +85,8 @@
             <h3>Tutorial Videos</h3>
             <table>
                 <tr>
-                    <td><strong>How to setup product for Quantity Discounts</strong></td>
-                    <td><strong>How to customise Quantity Discounts Design</strong></td>
+                    <td><strong>How to setup product for BulkBoost</strong></td>
+                    <td><strong>How to customise BulkBoost Design</strong></td>
                     <td><strong>How to add Quantity breaks to Variable products</strong></td>
                 </tr>
                 <tr>

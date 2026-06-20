@@ -29,8 +29,8 @@
         });
 
         // quantity discounts
-        var swatches = document.querySelectorAll('.wpiqd-swatch');
-        var activeSwatch = document.querySelector('.wpiqd-swatch.active');
+        var swatches = document.querySelectorAll('.bulkboost-swatch');
+        var activeSwatch = document.querySelector('.bulkboost-swatch.active');
         var customQuantityInput = document.getElementById('wpi_custom_quantity');
         var customPriceInput = document.getElementById('wpi_custom_price');
 

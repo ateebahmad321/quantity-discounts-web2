@@ -5,11 +5,11 @@
  *
  * This file is used to markup the public-facing aspects of the plugin.
  *
- * @link       https://tallpro.com
+ * @link       https://bulkboost.com
  * @since      1.0.0
  *
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/public/partials
+ * @package    BulkBoost
+ * @subpackage BulkBoost/public/partials
  */
 ?>
 

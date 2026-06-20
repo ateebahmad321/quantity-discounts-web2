@@ -1,22 +1,22 @@
 <div class="wrap">
-    <h2>Quantity Discounts General Settings</h2>
+    <h2>BulkBoost General Settings</h2>
     <hr>
     <form method="post" action="options.php">
 		<?php
-		settings_fields( 'quantity_discounts_general_settings' ); ?>
+		settings_fields( 'bulkboost_general_settings' ); ?>
         <div id="general-settings" class="tab-content">
             <table class="form-table">
                 <!-- Show Quantity Field in Cart Page -->
                 <tr valign="top">
                     <th scope="row">Quantity Field in Cart Page:</th>
                     <td>
-                        <select id="quantity_cart" disabled name="quantity_discounts_general_settings[disable_quantity_cart]">
+                        <select id="quantity_cart" disabled name="bulkboost_general_settings[disable_quantity_cart]">
                             <option value="enabled" <?php
-							selected( get_option( 'quantity_discounts_general_settings' )['disable_quantity_cart'],
+							selected( get_option( 'bulkboost_general_settings' )['disable_quantity_cart'],
 								'enabled' ); ?>>Enabled
                             </option>
                             <option value="disabled" <?php
-							selected( get_option( 'quantity_discounts_general_settings' )['disable_quantity_cart'],
+							selected( get_option( 'bulkboost_general_settings' )['disable_quantity_cart'],
 								'disabled' ); ?>>Disabled
                             </option>
                         </select>
@@ -33,13 +33,13 @@
                     <td>
                         <select id="quantity_checkout"
                                 disabled
-                                name="quantity_discounts_general_settings[disable_quantity_checkout]">
+                                name="bulkboost_general_settings[disable_quantity_checkout]">
                             <option value="enabled" <?php
-							selected( get_option( 'quantity_discounts_general_settings' )['disable_quantity_checkout'],
+							selected( get_option( 'bulkboost_general_settings' )['disable_quantity_checkout'],
 								'enabled' ); ?>>Enabled
                             </option>
                             <option value="disabled" <?php
-							selected( get_option( 'quantity_discounts_general_settings' )['disable_quantity_checkout'],
+							selected( get_option( 'bulkboost_general_settings' )['disable_quantity_checkout'],
 								'disabled' ); ?>>Disabled
                             </option>
                         </select>
@@ -51,7 +51,7 @@
                 </tr>
             </table>
         </div>
-        <a style="color:darkgreen; display:inline-block; font-weight:700;" target="_blank" href="https://wpiron.com/products/quantity-breaks-and-discounts/">Try Premium for 14 days for free!</a>
+        <a style="color:darkgreen; display:inline-block; font-weight:700;" target="_blank" href="https://bulkboost.com/products/quantity-breaks-and-discounts/">Try Premium for 14 days for free!</a>
     </form>
 </div>
 

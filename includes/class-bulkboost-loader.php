@@ -3,11 +3,11 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       https://tallpro.com
+ * @link       https://bulkboost.com
  * @since      1.0.0
  *
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/includes
+ * @package    BulkBoost
+ * @subpackage BulkBoost/includes
  */
 
 /**
@@ -17,11 +17,11 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    Quantity_Discounts
- * @subpackage Quantity_Discounts/includes
- * @author     WPIron <info@tallpro.com>
+ * @package    BulkBoost
+ * @subpackage BulkBoost/includes
+ * @author     BulkBoost <info@bulkboost.com>
  */
-class Quantity_Discounts_Loader {
+class BulkBoost_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

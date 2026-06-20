@@ -10,11 +10,6 @@
     padding:0 10px 0 0;
 }
 
-.custom-quantity-block{
-    width:100%;
-    display:inline-block;
-}
-
 .field-blocks .block input,
 .field-blocks .block textarea{
     width:100% !important;
@@ -56,76 +51,79 @@
     height: fit-content;
 }
 
-.tabs {
+
+#bulkboost .tabs {
     margin-bottom: 20px;
 }
-.tabs li {
+#bulkboost .tabs li {
     display: inline-block;
     margin-right: 5px;
 }
-.tabs a {
+#bulkboost .tabs a {
     display: inline-block;
     padding: 10px 20px;
     background: #f1f1f1;
     border: 1px solid #ccc;
     border-bottom: none;
 }
-.tabs a.active {
+#bulkboost .tabs a.active {
     text-decoration: none;
     color: #000;
     background: #fff;
     border-color: #ccc #ccc #fff;
 }
-.tabs a {
+#bulkboost .tabs a {
     text-decoration: none;
     color: #000;
     border-color: #ccc #ccc #fff;
 }
 
-.panel.active {
+#bulkboost .panel.active {
     display: block !important;
 }
 
 /*Preview block*/
 
-.wpiqd-swatch {
+.bulkboost-swatch {
+    right: 0;
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 10px;
     display: block;
     position:relative;
+    overflow: visible;
 }
 
 .preview-block{
     width:calc(100% - 20px);
     position:relative;
-    display: inline-block;
+    display: inline;
     padding:10px;
 }
-#quantity_discounts_preview{
+#bulkboost_preview{
     max-width: 500px;
     margin: 0 auto;
 }
-#quantity_discounts_preview_preview{
+#bulkboost_preview_preview{
     max-width: 500px;
     margin: 0 auto;
 }
-.wpiqd-inner {
+.bulkboost-inner {
     justify-content: space-between;
 }
-.wpiqd-radio,
-.wpiqd-middle{
+.bulkboost-radio,
+.bulkboost-middle{
     display: inline-block;
 }
-.wpiqd-middle {
+.bulkboost-middle {
     margin-left: 20px;
 }
-.wpiqd-right{
+.bulkboost-right{
     float: right;
     text-align:right;
 }
 
-.wpiqd-inner {
+.bulkboost-inner {
     display: flex;
     align-items: center;
 }
@@ -141,32 +139,46 @@
     align-items: center;
 }
 
+.second-block.badge-inside{
+    padding-right: 80px;
+}
+.second-block.badge-inside-no{
+    padding-right: 0;
+}
 
+.bulkboost-middle,
+.bulkboost-right {
+    flex-shrink: 0; /* Prevent these sections from shrinking */
+}
 .old-price{
     color: #c0c0c0;
 }
 
-.wpiqd-swatch {
+.bulkboost-swatch {
     cursor: pointer;
-    line-height:1.3;
 }
 
-.wpiqd-swatch:hover {
+.bulkboost-swatch:hover {
     background-color: unset;
     color: unset;
 }
 
-.wpiqd-swatch.active .wpiqd-radio span {
+.bulkboost-swatch.active .bulkboost-radio span {
     background-color: white; /* Change the color of the custom radio button when active */
 }
 .blocks_3{
     display: inline-block;
     padding: 0 20px;
+    width:calc(33.333% - 40px);
+    clear: both;
 }
 .blocks_3:first-child{
     padding-left:0;
 }
-.quantity-discounts-settings-label {
+.blocks_3:nth-child(4){
+    padding-left:0;
+}
+.bulkboost-settings-label {
     display: inline-block;
     margin-right: 10px;
 }
@@ -176,19 +188,18 @@
     vertical-align: top;
 }
 
-.wpiqd-radio input[type="radio"] {
+
+/*RADIO BUTTON*/
+
+/* Custom Radio Button Styles */
+.bulkboost-radio input[type="radio"] {
     display: none; /* Hide the default radio button */
 }
 
+/*badges (legacy shapes, retained for compatibility)*/
 
-/*Badges*/
+.badges-preview{
 
-.third-block.badge-inside{
-    padding-right: 80px;
-}
-
-.third-block.badge-inside-no{
-    padding-right: 0;
 }
 
 #badge-container{
@@ -199,11 +210,10 @@
     z-index: 999;
 }
 
-
 #badge-container.badge-price-star_container{
     position: absolute;
     top: -25px;
-    right: -20px;
+    right: -5px;
     left:inherit;
     transform: inherit;
     z-index: 999;
@@ -222,25 +232,25 @@
 .badge-price-star:before,
 .badge-price-star:after,
 .badge-price-star .price {
-    height: 5em !important;
-    width: 5em !important;
+    height: 5em;
+    width: 5em;
     background: #d32f2f;
 }
 
 .badge-price-star:before,
 .badge-price-star:after {
-    content: "" !important;
-    position: absolute !important;
+    content: "";
+    position: absolute;
 }
 
 .badge-price-star {
-    margin: 20px 0 !important;
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
+    margin: 20px 0; /* Centering for demo */
+    position: relative; /* Context */
+    top: 0;
+    left: 0;
     background-color: #e53935;
-    transform-origin: center !important;
-    transition: 0.3s all ease-out !important;
+    transform-origin: center;
+    transition: 0.3s all ease-out;
 }
 
 .badge-price-star:before {
@@ -263,7 +273,6 @@
     -o-transform: rotate(-45deg);
     transform: rotate(-45deg);
     background-color: #e53935;
-    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12)
 }
 
 .badge-price-star .price {
@@ -271,10 +280,7 @@
     height: 3em; /* height minus padding */
     position: absolute;
     bottom: 0;
-    margin-bottom:0 !important;
-    display:grid;
-    text-align: center;
-    align-items: center;
+    display:flex;
     right: 0;
     -webkit-transform: rotate(-22.5deg);
     -moz-transform: rotate(-22.5deg);
@@ -352,7 +358,7 @@
 
 
 
-.wpiqd-radio span {
+.bulkboost-radio span {
     display: inline-block;
     height: 20px;
     width: 20px;
@@ -365,7 +371,7 @@
 }
 
 /* Style for the custom radio button when it's active/checked */
-.wpiqd-radio input[type="radio"]:checked + span::before {
+.bulkboost-radio input[type="radio"]:checked + span::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -378,7 +384,7 @@
 
 
 /* Hover styles for the custom radio */
-.wpiqd-radio span:hover {
+.bulkboost-radio span:hover {
     border-color: #aaa; /* Hover border color */
 }
 
@@ -403,4 +409,147 @@
 
 #minmax_preview{
     padding:0 30px;
+}
+
+
+#bulkboost_container .delete_quantity_discount
+{
+    color:#fff;
+    background-color: #914552;
+    border:none;
+    padding:5px 20px;
+    margin:0;
+    border-radius: 10px;
+}
+
+#quantity_pricing #add_quantity_discount{
+    color:#fff;
+    background-color: #5e9145;
+    border:none;
+    padding:5px 20px;
+    margin:0;
+    border-radius: 10px;
+}
+
+/* =========================================================
+   NEW: Per-block badge controls (Label badge dropdown,
+   Free Shipping checkbox, Save % checkbox + override field)
+   ========================================================= */
+
+.badge-fields-row {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    padding: 10px 0 0 0;
+    margin-top: 10px;
+    border-top: 1px dashed #ccc;
+}
+
+.badge-field-block {
+    flex: 1;
+    min-width: 0;
+}
+
+.badge-field-block select {
+    width: 100%;
+}
+
+.badge-checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: normal;
+}
+
+.badge-save-override {
+    width: 100%;
+    margin-top: 6px;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   NEW: Badge preview layout (matches public-facing styles
+   so what admins see matches the live product page)
+   - Label tab: overlaps the top-left corner of the card
+   - Save % badge: pill inside the card, under the price
+   - Free Shipping: full-width banner below the card
+   ========================================================= */
+
+.bulkboost-tier-wrap {
+    position: relative;
+    margin-bottom: 22px;
+    padding-top: 14px;
+}
+
+.bulkboost-tier-wrap .bulkboost-swatch {
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+}
+
+.bulkboost-label-tab {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 12px;
+    font: 700 12px/1 Sans-Serif;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: #fff;
+    padding: 7px 16px;
+    border-radius: 6px;
+    z-index: 2;
+}
+
+.bulkboost-tab-hot {
+    background: #e53935;
+}
+
+.bulkboost-tab-popular {
+    background: linear-gradient(135deg, #b06ee0, #7b3fd1);
+}
+
+.bulkboost-tab-bestdeal {
+    background: #16a34a;
+}
+
+.bulkboost-price-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.bulkboost-price-row .old-price {
+    margin: 0;
+}
+
+.bulkboost-badge {
+    display: inline-block;
+    white-space: nowrap;
+    font: 700 12px/1 Sans-Serif;
+    letter-spacing: 0.01em;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    margin-top: 6px;
+}
+
+.bulkboost-badge-save {
+    background-color: #16652f;
+}
+
+.bulkboost-shipping-banner {
+    background-color: #c9e6c4;
+    color: #1f3d1f;
+    font: 600 14px/1 Sans-Serif;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bulkboost-shipping-icon {
+    font-size: 15px;
 }

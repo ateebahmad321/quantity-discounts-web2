@@ -68,6 +68,8 @@ class BLKBST_BulkBoost_Public
         // quantity design
         $border_style = esc_html($bulkboost_settings['border_style']);
         $box_corner_radius = esc_html($bulkboost_settings['box_corner_radius']);
+        $border_width = esc_html($bulkboost_settings['border_width'] ?? '1.5');
+        $card_gap = esc_html($bulkboost_settings['card_gap'] ?? '12');
         $border_color_inactive = esc_html($bulkboost_settings['border_color_inactive']);
         $background_color_inactive = esc_html($bulkboost_settings['background_color_inactive']);
         $text_color_inactive = esc_html($bulkboost_settings['text_color_inactive']);
@@ -143,6 +145,7 @@ class BLKBST_BulkBoost_Public
         background-color: " . esc_attr($background_color_active) . ";
         color: " . esc_attr($text_color_active) . ";
         border-style: " . esc_attr($border_style) . ";
+        border-width: " . esc_attr($border_width) . "px;
         border-radius: " . esc_attr($box_corner_radius) . "px;
     }
 
@@ -160,6 +163,7 @@ class BLKBST_BulkBoost_Public
         background-color: " . esc_attr($background_color_inactive) . " !important;
         color: " . esc_attr($text_color_inactive) . ";
         border-style: " . esc_attr($border_style) . ";
+        border-width: " . esc_attr($border_width) . "px;
         border-radius: " . esc_attr($box_corner_radius) . "px;
     }
     .bulkboost-swatch:not(.active):hover {
@@ -212,6 +216,22 @@ class BLKBST_BulkBoost_Public
         height: " . esc_attr($button_size) . "px;
         width: " . esc_attr($button_size) . "px;
         border-radius: 50%;
+    }
+
+    /* Card spacing (gap between offer cards) */
+    .custom-quantity-block .bulkboost-tier-wrap {
+        margin-bottom: " . esc_attr($card_gap) . "px;
+    }
+
+    /* Selector style (radio | checkbox | none) — driven by the wrapper class */
+    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span {
+        border-radius: 4px;
+    }
+    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before {
+        border-radius: 2px;
+    }
+    .custom-quantity-block.bb-selector-none .bulkboost-radio {
+        display: none;
     }
     </style>
     ";
@@ -321,6 +341,10 @@ class BLKBST_BulkBoost_Public
         $quantityDicsountsEnabled = get_post_meta($post_id, '_bulkboost_qd_quantity_enabled', true);
         $minMaxEnabled = get_post_meta($post_id, '_bulkboost_qd_min_max_enabled', true);
 
+        // Global design settings (selector style: radio | checkbox | none).
+        $design_settings = get_option('bulkboost_settings', array());
+        $selector_style = isset($design_settings['selector_style']) ? $design_settings['selector_style'] : 'radio';
+
         $fields = [
             '_bulkboost_qd_quantity',
             '_bulkboost_qd_price',
@@ -347,7 +371,7 @@ class BLKBST_BulkBoost_Public
                 return;
             }
 
-            echo '<div class="custom-quantity-block">';
+            echo '<div class="custom-quantity-block bb-selector-' . esc_attr($selector_style) . '">';
             $count = count($data['_bulkboost_qd_quantity']); // Get the number of sets
             $quantity_one_price = isset($data['_bulkboost_qd_price'][0]) ? $data['_bulkboost_qd_price'][0] : 0;
             for ($i = 0; $i < $count; $i++) {

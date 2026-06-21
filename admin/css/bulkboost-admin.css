@@ -1,81 +1,176 @@
-.field-blocks{
-    position:relative;
-    display:inline-block;
-    width:100%;
+/* =========================================================
+   Product Data -> BulkBoost panel — redesigned UI
+   On-brand (cream/emerald) restyle. All rules scoped under
+   #bulkboost so they can't leak into other admin screens.
+   ========================================================= */
+#bulkboost {
+    --bb-pd-ink: #1b1c18;
+    --bb-pd-muted: #6b6d63;
+    --bb-pd-faint: #8a8c81;
+    --bb-pd-border: #e6e5df;
+    --bb-pd-line: #f0efe9;
+    --bb-pd-surface: #ffffff;
+    --bb-pd-accent: #10976a;
+    color: var(--bb-pd-ink);
 }
-.field-blocks .block{
-    width:calc(25% - 10px);
-    float:left;
-    position:relative;
-    padding:0 10px 0 0;
+#bulkboost .bb-pd-pad { padding: 4px 4px 8px; }
+
+/* WooCommerce floats every bare <label> and fixes it to 150px; undo that
+   for our custom labels so pills/fields don't stretch or overlap. */
+#bulkboost label { float: none !important; }
+#bulkboost .bb-pd-radio,
+#bulkboost .bb-pd-field > label,
+#bulkboost .badge-field-block > h4,
+#bulkboost .badge-checkbox-label { width: auto !important; }
+
+/* Section cards (Settings tab) */
+#bulkboost .bb-pd-section {
+    background: var(--bb-pd-surface);
+    border: 1px solid var(--bb-pd-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+}
+#bulkboost .bb-pd-section > h4 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bb-pd-ink);
+}
+#bulkboost .bb-pd-help { margin: 0 0 12px; font-size: 12px; color: var(--bb-pd-faint); }
+
+/* Pill radios */
+#bulkboost .bb-pd-radios { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+#bulkboost .bb-pd-radio {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 14px; border: 1px solid var(--bb-pd-border); border-radius: 8px;
+    cursor: pointer; font-size: 13px; font-weight: 500; background: #fff;
+    margin: 0; transition: all .15s;
+}
+#bulkboost .bb-pd-radio:hover { border-color: #cfd0c8; }
+#bulkboost .bb-pd-radio input { margin: 0; }
+#bulkboost .bb-pd-radio:has(input:checked) {
+    border-color: var(--bb-pd-accent);
+    background: rgba(16, 151, 106, .08);
+    color: var(--bb-pd-accent);
+    font-weight: 600;
 }
 
-.field-blocks .block input,
-.field-blocks .block textarea{
-    width:100% !important;
-}
-.quantity_discount_block {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    margin-top: 10px;
+/* Labeled fields */
+#bulkboost .bb-pd-grid-2 { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+#bulkboost .bb-pd-field { display: flex; flex-direction: column; gap: 5px; }
+#bulkboost .bb-pd-field > label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--bb-pd-faint);
 }
 
-.field-blocks {
-    display: flex;
-    flex-grow: 1;
-}
-.quantity_discount_block {
-    border-bottom: 1px solid #ccc;
-    padding: 10px;
-    margin-top: 5px;
-}
-.block {
-    flex-grow: 1;
-    margin-right: 10px;
-}
-
-.block:last-child {
-    margin-right: 0;
-}
-
-.block input,
-.block textarea {
-    width: 100%;
+/* Inputs / selects / textareas inside the panel */
+#bulkboost input[type=number],
+#bulkboost input[type=text],
+#bulkboost textarea,
+#bulkboost select {
+    border: 1px solid var(--bb-pd-border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    background: #fff;
+    box-shadow: none;
+    min-height: 36px;
     box-sizing: border-box;
 }
+#bulkboost textarea { min-height: 38px; resize: vertical; }
+#bulkboost input:focus,
+#bulkboost textarea:focus,
+#bulkboost select:focus {
+    border-color: var(--bb-pd-accent);
+    box-shadow: 0 0 0 1px var(--bb-pd-accent);
+    outline: none;
+}
 
-.delete_quantity_discount {
-    margin-left: 20px;
-    height: fit-content;
+/* Tier rows (Quantity Pricing tab) */
+#bulkboost #bulkboost_container { display: flex; flex-direction: column; gap: 12px; padding: 0 4px; }
+#bulkboost .quantity_discount_block {
+    display: flex; flex-direction: column; align-items: stretch;
+    gap: 0; padding: 16px 18px; margin: 0;
+    background: var(--bb-pd-surface); border: 1px solid var(--bb-pd-border);
+    border-radius: 12px; box-shadow: 0 1px 2px rgba(20, 20, 15, .04);
+    position: relative;
+}
+
+/* WooCommerce's options panel floats bare <label>/<textarea>/<input> and
+   forces fixed widths, which collapses our grid and overlaps the fields.
+   Neutralise that inside our panel. */
+#bulkboost .field-blocks .block,
+#bulkboost .badge-field-block,
+#bulkboost .field-blocks input,
+#bulkboost .field-blocks textarea,
+#bulkboost .field-blocks select,
+#bulkboost .badge-fields-row input,
+#bulkboost .badge-fields-row select,
+#bulkboost .badge-fields-row label,
+#bulkboost .badge-fields-row textarea { float: none !important; }
+
+#bulkboost .field-blocks {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 14px;
+    width: 100%;
+    align-items: start;
+}
+#bulkboost .field-blocks .block {
+    width: auto; padding: 0; margin: 0;
+    display: flex; flex-direction: column; gap: 5px; min-width: 0;
+}
+/* Quantity | Price share row 1; Label and Description each take a full row. */
+#bulkboost .field-blocks .block:nth-child(3),
+#bulkboost .field-blocks .block:nth-child(4) { grid-column: 1 / -1; }
+
+#bulkboost .field-blocks .block h4 {
+    margin: 0 !important; padding: 0 !important;
+    font-size: 11px !important; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .04em; color: var(--bb-pd-faint); line-height: 1.3;
+}
+#bulkboost .field-blocks .block input,
+#bulkboost .field-blocks .block textarea {
+    width: 100% !important; max-width: 100% !important; margin: 0 !important;
+}
+
+#bulkboost .delete_quantity_discount { align-self: flex-end; height: fit-content; }
+
+@media screen and (max-width: 600px) {
+    #bulkboost .field-blocks { grid-template-columns: 1fr; }
 }
 
 
 #bulkboost .tabs {
-    margin-bottom: 20px;
+    display: flex;
+    gap: 4px;
+    margin: 0 0 16px;
+    padding: 4px;
+    background: var(--bb-pd-line);
+    border-radius: 10px;
+    width: max-content;
+    max-width: 100%;
+    list-style: none;
+    flex-wrap: wrap;
 }
-#bulkboost .tabs li {
-    display: inline-block;
-    margin-right: 5px;
-}
+#bulkboost .tabs li { display: inline-block; margin: 0; }
 #bulkboost .tabs a {
     display: inline-block;
-    padding: 10px 20px;
-    background: #f1f1f1;
-    border: 1px solid #ccc;
-    border-bottom: none;
+    padding: 8px 18px;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bb-pd-muted);
+    text-decoration: none;
+    transition: all .15s;
 }
+#bulkboost .tabs a:hover { color: var(--bb-pd-ink); }
 #bulkboost .tabs a.active {
-    text-decoration: none;
-    color: #000;
-    background: #fff;
-    border-color: #ccc #ccc #fff;
-}
-#bulkboost .tabs a {
-    text-decoration: none;
-    color: #000;
-    border-color: #ccc #ccc #fff;
+    background: var(--bb-pd-accent);
+    color: #fff;
 }
 
 #bulkboost .panel.active {
@@ -412,59 +507,100 @@
 }
 
 
-#bulkboost_container .delete_quantity_discount
-{
-    color:#fff;
-    background-color: #914552;
-    border:none;
-    padding:5px 20px;
-    margin:0;
-    border-radius: 10px;
+#bulkboost #bulkboost_container .delete_quantity_discount {
+    color: #b3261e;
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 5px 10px;
+    margin: 12px 0 0;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+#bulkboost #bulkboost_container .delete_quantity_discount:hover {
+    background: rgba(179, 38, 30, .08);
 }
 
-#quantity_pricing #add_quantity_discount{
-    color:#fff;
-    background-color: #5e9145;
-    border:none;
-    padding:5px 20px;
-    margin:0;
-    border-radius: 10px;
+#bulkboost #quantity_pricing #add_quantity_discount {
+    color: #fff;
+    background-color: var(--bb-pd-accent);
+    border: none;
+    padding: 9px 18px;
+    margin: 0;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px -2px rgba(16, 151, 106, .5);
+    transition: filter .15s;
 }
+#bulkboost #quantity_pricing #add_quantity_discount:hover { filter: brightness(1.05); }
 
 /* =========================================================
    NEW: Per-block badge controls (Label badge dropdown,
    Free Shipping checkbox, Save % checkbox + override field)
    ========================================================= */
 
-.badge-fields-row {
-    display: flex;
+#bulkboost .badge-fields-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
     width: 100%;
-    gap: 20px;
-    padding: 10px 0 0 0;
-    margin-top: 10px;
-    border-top: 1px dashed #ccc;
+    gap: 14px 16px;
+    padding: 14px 0 0 0;
+    margin-top: 16px;
+    border-top: 1px solid var(--bb-pd-line);
+}
+#bulkboost .badge-fields-row::before {
+    content: "Badges";
+    grid-column: 1 / -1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--bb-pd-faint);
+    margin-bottom: -2px;
 }
 
-.badge-field-block {
-    flex: 1;
+#bulkboost .badge-field-block {
     min-width: 0;
-}
-
-.badge-field-block select {
-    width: 100%;
-}
-
-.badge-checkbox-label {
-    display: inline-flex;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    font-weight: normal;
 }
 
-.badge-save-override {
+#bulkboost .badge-field-block > h4 {
+    font-size: 11px !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--bb-pd-faint);
+}
+
+#bulkboost .badge-field-block select { width: 100%; }
+
+#bulkboost .badge-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1.3;
+    white-space: normal;
+    word-break: break-word;
+}
+#bulkboost .badge-checkbox-label input[type=checkbox] { margin-top: 1px; flex: none; }
+
+#bulkboost .badge-save-override {
     width: 100%;
-    margin-top: 6px;
+    margin-top: 8px;
     box-sizing: border-box;
+}
+
+@media screen and (max-width: 880px) {
+    #bulkboost .badge-fields-row { grid-template-columns: 1fr; }
 }
 
 /* =========================================================

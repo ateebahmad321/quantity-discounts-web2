@@ -413,34 +413,45 @@ class BLKBST_BulkBoost_Admin
                 </li>
             </ul>
             <div id="quantity_settings" class="panel active">
-                <div style="padding:0 20px">
-                    <!-- BulkBoost Setting -->
-                    <div>
-                        <h4 style="margin:0;">BulkBoost Blocks:</h4>
-                        <input type="radio" name="_bulkboost_qd_quantity_enabled" value="enable"> Enable
-                        <input type="radio" name="_bulkboost_qd_quantity_enabled" value="disable"> Disable
+                <div class="bb-pd-pad">
+                    <!-- BulkBoost Blocks -->
+                    <div class="bb-pd-section">
+                        <h4>BulkBoost Blocks</h4>
+                        <p class="bb-pd-help">Show tiered quantity offers (buy more, save more) on this product's page.</p>
+                        <div class="bb-pd-radios">
+                            <label class="bb-pd-radio"><input type="radio" name="_bulkboost_qd_quantity_enabled" value="enable"> Enable</label>
+                            <label class="bb-pd-radio"><input type="radio" name="_bulkboost_qd_quantity_enabled" value="disable"> Disable</label>
+                        </div>
                     </div>
-                    <hr>
+
                     <!-- Min-Max Quantity Selection -->
-                    <div>
-                        <h4 style="margin:0;">Min-Max Quantity selection:</h4>
-                        <input type="radio" name="_bulkboost_qd_min_max_enabled" value="enable"> Enable
-                        <input type="radio" name="_bulkboost_qd_min_max_enabled" value="disable"> Disable
-                    </div>
-                    <hr>
-                    <!-- Min Max Value Fields -->
-                    <div id="min_max_values" style="display:none;">
-                        <h4 style="margin:0;">Min-Max Quantity values:</h4>
-                        <input type="number" name="_bulkboost_qd_min_value" placeholder="Minimum Value" value="">
-                        <input type="number" name="_bulkboost_qd_max_value" placeholder="Maximum Value" value="">
-                    </div>
-                    <br>
-                    <!-- Display Method -->
-                    <div id="display_method" style="display:none">
-                        <br>
-                        <input type="radio" style="display: none;" name="_bulkboost_qd_display_method" disabled
-                               value="dropdown">
-                        <input type="radio" style="display: none;" name="_bulkboost_qd_display_method" value="buttons">
+                    <div class="bb-pd-section">
+                        <h4>Min&ndash;Max Quantity Selection</h4>
+                        <p class="bb-pd-help">Let customers choose any quantity within a range instead of fixed tiers.</p>
+                        <div class="bb-pd-radios">
+                            <label class="bb-pd-radio"><input type="radio" name="_bulkboost_qd_min_max_enabled" value="enable"> Enable</label>
+                            <label class="bb-pd-radio"><input type="radio" name="_bulkboost_qd_min_max_enabled" value="disable"> Disable</label>
+                        </div>
+
+                        <!-- Min Max Value Fields -->
+                        <div id="min_max_values" style="display:none;">
+                            <div class="bb-pd-grid-2">
+                                <div class="bb-pd-field">
+                                    <label>Minimum value</label>
+                                    <input type="number" name="_bulkboost_qd_min_value" placeholder="e.g. 1" value="">
+                                </div>
+                                <div class="bb-pd-field">
+                                    <label>Maximum value</label>
+                                    <input type="number" name="_bulkboost_qd_max_value" placeholder="e.g. 10" value="">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Display Method (internal) -->
+                        <div id="display_method" style="display:none">
+                            <input type="radio" style="display:none;" name="_bulkboost_qd_display_method" disabled value="dropdown">
+                            <input type="radio" style="display:none;" name="_bulkboost_qd_display_method" value="buttons">
+                        </div>
                     </div>
                 </div>
             </div>

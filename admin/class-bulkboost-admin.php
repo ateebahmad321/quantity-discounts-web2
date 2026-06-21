@@ -27,7 +27,7 @@ class BLKBST_BulkBoost_Admin
             $this->plugin_name,
             plugin_dir_url(__FILE__) . 'css/bulkboost-admin.css',
             array(),
-            time(),
+            $this->version,
             'all'
         );
     }
@@ -40,7 +40,7 @@ class BLKBST_BulkBoost_Admin
             $this->plugin_name,
             plugin_dir_url(__FILE__) . 'js/bulkboost-admin.min.js',
             array('jquery'),
-            time(),
+            $this->version,
             false
         );
         if (class_exists('WooCommerce')) {
@@ -131,12 +131,6 @@ class BLKBST_BulkBoost_Admin
             return;
         }
 
-        wp_enqueue_style(
-            'bulkboost-fonts',
-            'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
-            array(),
-            null
-        );
         wp_enqueue_style(
             'bulkboost-dashboard',
             plugin_dir_url(__FILE__) . 'css/bulkboost-dashboard.css',
@@ -292,11 +286,6 @@ class BLKBST_BulkBoost_Admin
         echo '<div class="wrap"><h2>Submenu Page Title</h2><p>This is the content of the submenu page.</p></div>';
     }
 
-    public function displayPluginAdminGift()
-    {
-        require_once 'partials/' . $this->plugin_name . '-admin-display-gift.php';
-    }
-
     public function displayPluginAdminSettings()
     {
         require_once 'partials/' . $this->plugin_name . '-admin-display-settings.php';
@@ -322,56 +311,17 @@ class BLKBST_BulkBoost_Admin
         require_once 'partials/' . $this->plugin_name . '-admin-display-earnings.php';
     }
 
-    public function handle_form_submission()
-    {
-        $name = sanitize_text_field($_POST['name']);
-        $email = sanitize_email($_POST['email']);
-
-        if (!is_email($email)) {
-            wp_die('Invalid email address.');
-        }
-
-        $url = 'https://api.mailerlite.com/api/v2/groups/108373864349697182/subscribers';
-        $apiKey = 'YOUR_MAILERLITE_API_KEY'; // Replace with your MailerLite API key
-
-        $subscriberData = wp_json_encode([
-            'email' => $email,
-            'name' => $name
-        ]);
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $subscriberData);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'X-MailerLite-ApiKey: ' . $apiKey
-        ]);
-
-        $response = curl_exec($ch);
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($statusCode === 200) {
-            wp_redirect(add_query_arg('success', '1', wp_get_referer()));
-        } else {
-            wp_die('An error occurred: ' . esc_html($response));
-        }
-
-        exit;
-    }
-
-    public function BLKBST_bulkboost_product_data_panels__premium_only()
+    public function BLKBST_bulkboost_product_data_panels()
     {
         ?>
         <div id="quantity_breaks" class="panel woocommerce_options_panel hidden"></div>
         <?php
     }
 
-    public function BLKBST_bulkboost_product_data_tabs__premium_only($tabs)
+    public function BLKBST_bulkboost_product_data_tabs($tabs)
     {
         $tabs['bulkboost'] = [
-            'label' => __('BulkBoost', 'bulkboost-bulkboost'),
+            'label' => __('BulkBoost', 'bulkboost'),
             'target' => 'bulkboost',
             'class' => ['hide_if_variable', 'hide_if_external', 'hide_if_grouped'],
             'priority' => 70
@@ -388,11 +338,12 @@ class BLKBST_BulkBoost_Admin
                 </style>';
     }
 
-    public function BLKBST_quantity_breaks_product_data_panels__premium_only($post_id)
+    public function BLKBST_quantity_breaks_product_data_panels($post_id)
     {
         $this->output_custom_styles();
         ?>
         <div id="bulkboost" class="panel woocommerce_options_panel hidden">
+            <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
             <div id="bulkboost_notice" class="inline notice woocommerce-message is-dismissible" style="width:90%; margin:10px auto; position:realtive; display: inline-blockl;">
                 <p style="margin:0;">
@@ -494,6 +445,12 @@ class BLKBST_BulkBoost_Admin
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
             return;
         }
+        // Bail unless this is our product-data panel submission (also skips
+        // every unrelated save_post call).
+        if (!isset($_POST['bulkboost_meta_nonce'])
+            || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['bulkboost_meta_nonce'])), 'bulkboost_save_meta')) {
+            return;
+        }
         if (!current_user_can('edit_post', $post_id)) {
             return;
         }
@@ -514,19 +471,15 @@ class BLKBST_BulkBoost_Admin
             '_bulkboost_qd_badge_save_enabled',    // yes|no
             '_bulkboost_qd_badge_save_override',   // manual % text override, blank = auto-calc
         ];
-        $error = false;
-
-        if (!$_POST['_bulkboost_qd_quantity']) {
-            $error = true;
-        }
-
-        if ($error) {
-            set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
+        // No tiers submitted — BulkBoost simply isn't configured on this product.
+        if (empty($_POST['_bulkboost_qd_quantity']) || !is_array($_POST['_bulkboost_qd_quantity'])) {
             return;
         }
+        $error = false;
 
-        foreach ($_POST['_bulkboost_qd_quantity'] as $index => $quantity) {
-            $price = $_POST['_bulkboost_qd_price'][$index];
+        $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
+        foreach ($posted_quantities as $index => $quantity) {
+            $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
             if (empty($quantity) || empty($price)) {
                 $error = true;
                 break;
@@ -538,26 +491,24 @@ class BLKBST_BulkBoost_Admin
             return;
         }
 
-        $block_count = count($_POST['_bulkboost_qd_quantity']);
+        $block_count = count($posted_quantities);
 
         // If no error, save the fields
         foreach ($fields as $field) {
             if (isset($_POST[$field])) {
-                $value = $_POST[$field];
+                $value = wp_unslash($_POST[$field]);
 
-                // Sanitize and validate specific fields if needed
-                if (in_array($field, ['_bulkboost_qd_min_value', '_bulkboost_qd_max_value'])) {
-                    $value = (int)$value;
-                } elseif (in_array($field, [
-                    '_bulkboost_qd_badge_label',
-                    '_bulkboost_qd_badge_free_shipping',
-                    '_bulkboost_qd_badge_save_enabled',
-                    '_bulkboost_qd_badge_save_override',
-                    '_bulkboost_qd_label',
-                    '_bulkboost_qd_description',
-                    '_bulkboost_qd_badge_text',
-                ]) && is_array($value)) {
+                // Sanitize and validate per field type.
+                if (in_array($field, ['_bulkboost_qd_min_value', '_bulkboost_qd_max_value'], true)) {
+                    $value = (int) $value;
+                } elseif (in_array($field, ['_bulkboost_qd_quantity', '_bulkboost_qd_price'], true) && is_array($value)) {
+                    $value = array_map(static function ($v) {
+                        return is_numeric($v) ? $v + 0 : 0;
+                    }, $value);
+                } elseif (is_array($value)) {
                     $value = array_map('sanitize_text_field', $value);
+                } else {
+                    $value = sanitize_text_field($value);
                 }
 
                 update_post_meta($post_id, $field, $value);
@@ -650,7 +601,7 @@ class BLKBST_BulkBoost_Admin
         wp_localize_script($this->plugin_name, 'bulkboost_data_extra', $bulkboost_extra);
     }
 
-    function BLKBST_bulkboost_register_settings__premium_only()
+    function BLKBST_bulkboost_register_settings()
     {
         register_setting(
             'bulkboost_settings',

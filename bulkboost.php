@@ -6,10 +6,12 @@
  * @package           BulkBoost
  *
  * @wordpress-plugin
- * Plugin Name:       BulkBoost For WooCommerce
+ * Plugin Name:       BulkBoost – Quantity Discounts & Bundles
  * Plugin URI:        https://bulkboost.com
- * Description:       The "BulkBoost" plugin integrates with WooCommerce to offer bulk purchase discounts, encouraging customers to buy more.
+ * Description:       Boost average order value with tiered quantity discounts, breaks and bundle offers for WooCommerce products.
  * Version:           2.6.10
+ * Requires at least: 6.7
+ * Requires PHP:      7.4
  * Author:            BulkBoost
  * Author URI:        https://bulkboost.com/
  * License:           GPL-2.0+
@@ -30,6 +32,15 @@ if (!defined('WPINC')) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define('BLKBST_VERSION', '2.6.10');
+
+/**
+ * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS).
+ */
+add_action('before_woocommerce_init', function () {
+    if (class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    }
+});
 
 /**
  * The code that runs during plugin activation.

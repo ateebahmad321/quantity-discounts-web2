@@ -76,6 +76,20 @@
         var n = parseInt(h, 16);
         return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
     }
+    function safeHex(v) { return /^#[0-9a-fA-F]{6}$/.test(v) ? v : '#000000'; }
+
+    // Keep the preset swatches, native color input, and hex field in sync for one key.
+    function syncColor(key, exceptEl) {
+        root.querySelectorAll('.bb-swatch[data-key="' + key + '"]').forEach(function (s) {
+            s.classList.toggle('is-selected', String(s.dataset.val).toLowerCase() === String(state[key]).toLowerCase());
+        });
+        root.querySelectorAll('.bb-color-input[data-key="' + key + '"]').forEach(function (c) {
+            if (c !== exceptEl) { c.value = safeHex(state[key]); }
+        });
+        root.querySelectorAll('.bb-hex-input[data-key="' + key + '"]').forEach(function (h) {
+            if (h !== exceptEl) { h.value = state[key]; }
+        });
+    }
 
     /* ---------- status / dirty ---------- */
     function markDirty() {
@@ -116,9 +130,13 @@
         });
         // selects
         root.querySelectorAll('select[data-key]').forEach(function (s) { s.value = state[s.dataset.key]; });
-        // numbers + text
+        // numbers + text (incl. hex fields, which are type=text)
         root.querySelectorAll('input[type=number][data-key], input[type=text][data-key]').forEach(function (i) {
             i.value = state[i.dataset.key];
+        });
+        // native color inputs
+        root.querySelectorAll('.bb-color-input[data-key]').forEach(function (c) {
+            c.value = safeHex(state[c.dataset.key]);
         });
         // conditional dimming
         root.querySelectorAll('[data-dim-key]').forEach(function (el) {
@@ -137,10 +155,31 @@
             b.addEventListener('click', function () {
                 var k = b.dataset.key;
                 setVal(k, b.dataset.val);
-                root.querySelectorAll('.bb-swatch[data-key="' + k + '"]').forEach(function (s) {
-                    s.classList.toggle('is-selected', s === b);
-                });
+                syncColor(k);
                 if (k === 'accent') { root.style.setProperty('--bb-accent', b.dataset.val); }
+            });
+        });
+        // native color picker
+        root.querySelectorAll('.bb-color-input[data-key]').forEach(function (c) {
+            c.addEventListener('input', function () {
+                var k = c.dataset.key;
+                state[k] = c.value; markDirty();
+                syncColor(k, c);
+                if (k === 'accent') { root.style.setProperty('--bb-accent', c.value); }
+                renderPreview();
+            });
+        });
+        // hex text field (only applies a valid 6-digit hex)
+        root.querySelectorAll('.bb-hex-input[data-key]').forEach(function (h) {
+            h.addEventListener('input', function () {
+                var v = h.value.trim();
+                if (!/^#?[0-9a-fA-F]{6}$/.test(v)) { return; }
+                if (v.charAt(0) !== '#') { v = '#' + v; }
+                var k = h.dataset.key;
+                state[k] = v.toLowerCase(); markDirty();
+                syncColor(k, h);
+                if (k === 'accent') { root.style.setProperty('--bb-accent', state[k]); }
+                renderPreview();
             });
         });
         root.querySelectorAll('.bb-seg-opt[data-key]').forEach(function (b) {
@@ -177,7 +216,7 @@
         root.querySelectorAll('input[type=number][data-key]').forEach(function (i) {
             i.addEventListener('input', function () { setVal(i.dataset.key, Number(i.value) || 0); });
         });
-        root.querySelectorAll('input[type=text][data-key]').forEach(function (i) {
+        root.querySelectorAll('input[type=text][data-key]:not(.bb-hex-input)').forEach(function (i) {
             i.addEventListener('input', function () { setVal(i.dataset.key, i.value); });
         });
         // tabs (UI only)

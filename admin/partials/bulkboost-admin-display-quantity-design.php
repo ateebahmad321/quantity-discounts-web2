@@ -33,6 +33,27 @@ if (!function_exists('bb_swatches')) {
         echo '</div>';
     }
 }
+if (!function_exists('bb_color_picker')) {
+    function bb_color_picker($key)
+    {
+        printf(
+            '<span class="bb-color-pick">'
+            . '<input type="color" class="bb-color-input" data-key="%1$s" aria-label="Pick a custom color">'
+            . '<input type="text" class="bb-hex-input" data-key="%1$s" maxlength="7" spellcheck="false" aria-label="Hex color value">'
+            . '</span>',
+            esc_attr($key)
+        );
+    }
+}
+if (!function_exists('bb_color_row')) {
+    function bb_color_row($key, $colors)
+    {
+        echo '<div class="bb-color-control">';
+        bb_swatches($key, $colors);
+        bb_color_picker($key);
+        echo '</div>';
+    }
+}
 if (!function_exists('bb_segmented')) {
     function bb_segmented($key, $opts)
     {
@@ -101,19 +122,19 @@ bb_admin_shell_open(array(
         <div class="bb-card-label">Colors</div>
         <div class="bb-rowx">
             <div><div class="name">Active background</div><div class="help">Fill of the selected offer</div></div>
-            <?php bb_swatches('activeBg', array('#16231d', '#1c1c22', '#21303a', '#2a1f2e')); ?>
+            <?php bb_color_row('activeBg', array('#16231d', '#1c1c22', '#21303a', '#2a1f2e')); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Active text</div><div class="help">Text color inside the selected offer</div></div>
-            <?php bb_swatches('activeText', array('#ffffff', '#1b1c18')); ?>
+            <?php bb_color_row('activeText', array('#ffffff', '#1b1c18')); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Accent</div><div class="help">Selected ring &amp; radio fill</div></div>
-            <?php bb_swatches('accent', array('#10976a', '#4f5bd5', '#e8643c', '#c2870e')); ?>
+            <?php bb_color_row('accent', array('#10976a', '#4f5bd5', '#e8643c', '#c2870e')); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Inactive border</div><div class="help">Outline of unselected offers</div></div>
-            <?php bb_swatches('inactiveBorder', array('#e6e5df', '#cfd0c8', '#10976a')); ?>
+            <?php bb_color_row('inactiveBorder', array('#e6e5df', '#cfd0c8', '#10976a')); ?>
         </div>
     </div>
 
@@ -197,11 +218,11 @@ bb_admin_shell_open(array(
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_swatches('badgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
+                <?php bb_color_row('badgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_swatches('badgeColor', array('#ffffff', '#1b1c18')); ?>
+                <?php bb_color_row('badgeColor', array('#ffffff', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Position</div></div>

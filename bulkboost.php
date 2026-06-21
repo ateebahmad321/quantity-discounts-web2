@@ -9,7 +9,7 @@
  * Plugin Name:       BulkBoost – Quantity Discounts & Bundles
  * Plugin URI:        https://bulkboost.com
  * Description:       Boost average order value with tiered quantity discounts, breaks and bundle offers for WooCommerce products.
- * Version:           2.6.10
+ * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            BulkBoost
@@ -31,7 +31,7 @@ if (!defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('BLKBST_VERSION', '2.6.10');
+define('BLKBST_VERSION', '1.0.0');
 
 /**
  * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS).
@@ -41,6 +41,27 @@ add_action('before_woocommerce_init', function () {
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
     }
 });
+
+/**
+ * Whether premium (Pro) features are available.
+ *
+ * Single gate for all Pro-only functionality. Until the Freemius SDK is wired
+ * up this returns false (overridable via the `bulkboost_is_premium` filter for
+ * local testing). Once Freemius is connected, replace the body with:
+ *     return bulkboost_fs()->can_use_premium_code();
+ */
+function bulkboost_is_premium()
+{
+    return (bool) apply_filters('bulkboost_is_premium', false);
+}
+
+/**
+ * URL shown on Pro upsell prompts.
+ */
+function bulkboost_upgrade_url()
+{
+    return apply_filters('bulkboost_upgrade_url', 'https://bulkboost.com/products/quantity-breaks-and-discounts/');
+}
 
 /**
  * The code that runs during plugin activation.

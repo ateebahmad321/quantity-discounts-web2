@@ -113,12 +113,26 @@ class BLKBST_BulkBoost_Admin
             'show_old_price'          => 'yes',
             'old_price_font_weight'   => 400,
             'old_price_font_size'     => 13,
-            'badge_enabled'           => 'yes',
-            'badge_text'              => 'MOST POPULAR',
-            'badge_bg_color'          => '#10976a',
-            'badge_text_color'        => '#ffffff',
-            'badge_position'          => 'right',
-            'badge_target'            => 'active',
+            // Badge styling (Pro). One background + text color per badge type.
+            'label_badge_bg'          => '#e8643c',
+            'label_badge_text'        => '#ffffff',
+            'save_badge_bg'           => '#10976a',
+            'save_badge_text'         => '#ffffff',
+            'shipping_badge_bg'       => '#1b1c18',
+            'shipping_badge_text'     => '#ffffff',
+        );
+    }
+
+    /**
+     * Design-settings keys that are Pro-only (badge styling). Stripped from the
+     * payload on save when the site isn't premium.
+     */
+    public static function premium_design_keys()
+    {
+        return array(
+            'label_badge_bg', 'label_badge_text',
+            'save_badge_bg', 'save_badge_text',
+            'shipping_badge_bg', 'shipping_badge_text',
         );
     }
 
@@ -148,11 +162,12 @@ class BLKBST_BulkBoost_Admin
         $currency = class_exists('WooCommerce') ? get_woocommerce_currency_symbol() : '$';
         $saved = get_option('bulkboost_settings', array());
         wp_localize_script('bulkboost-dashboard', 'BulkBoostDash', array(
-            'ajaxUrl'  => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('bulkboost_save_design'),
-            'currency' => html_entity_decode($currency),
-            'defaults' => self::design_defaults(),
-            'settings' => is_array($saved) ? $saved : array(),
+            'ajaxUrl'    => admin_url('admin-ajax.php'),
+            'nonce'      => wp_create_nonce('bulkboost_save_design'),
+            'currency'   => html_entity_decode($currency),
+            'defaults'   => self::design_defaults(),
+            'settings'   => is_array($saved) ? $saved : array(),
+            'isPremium'  => function_exists('bulkboost_is_premium') ? bulkboost_is_premium() : false,
         ));
     }
 
@@ -163,7 +178,10 @@ class BLKBST_BulkBoost_Admin
     {
         $colors = array(
             'background_color_active', 'text_color_active', 'accent_color',
-            'border_color_inactive', 'badge_bg_color', 'badge_text_color',
+            'border_color_inactive',
+            'label_badge_bg', 'label_badge_text',
+            'save_badge_bg', 'save_badge_text',
+            'shipping_badge_bg', 'shipping_badge_text',
         );
         $ints = array(
             'box_corner_radius', 'card_gap', 'label_font_weight', 'label_font_size',
@@ -172,10 +190,8 @@ class BLKBST_BulkBoost_Admin
         );
         $enums = array(
             'selector_style'  => array('radio', 'checkbox', 'none'),
-            'badge_position'  => array('left', 'right', 'ribbon'),
-            'badge_target'    => array('active', 'all', 'best'),
         );
-        $yesno = array('show_old_price', 'badge_enabled');
+        $yesno = array('show_old_price');
 
         $clean = array();
         foreach ($this->sanitize_design_keys() as $key) {
@@ -193,8 +209,6 @@ class BLKBST_BulkBoost_Admin
                 $clean[$key] = in_array($val, $enums[$key], true) ? $val : $enums[$key][0];
             } elseif (in_array($key, $yesno, true)) {
                 $clean[$key] = ($val === 'yes') ? 'yes' : 'no';
-            } elseif ($key === 'badge_text') {
-                $clean[$key] = sanitize_text_field($val);
             }
         }
         return $clean;
@@ -225,6 +239,14 @@ class BLKBST_BulkBoost_Admin
             : array();
 
         $clean = $this->sanitize_design_settings($input);
+
+        // Pro-only keys (badge styling) are dropped for non-premium sites.
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            foreach (self::premium_design_keys() as $pro_key) {
+                unset($clean[$pro_key]);
+            }
+        }
+
         $existing = get_option('bulkboost_settings', array());
         $merged = array_merge(is_array($existing) ? $existing : array(), $clean);
         update_option('bulkboost_settings', $merged);

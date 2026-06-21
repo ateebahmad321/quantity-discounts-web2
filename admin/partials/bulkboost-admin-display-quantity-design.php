@@ -108,7 +108,7 @@ bb_admin_shell_open(array(
 <div class="bb-tabs" role="tablist">
     <button type="button" class="bb-tab is-active" data-tab="design">Design</button>
     <button type="button" class="bb-tab" data-tab="typography">Typography</button>
-    <button type="button" class="bb-tab" data-tab="badge">Badge</button>
+    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!bulkboost_is_premium()) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
 </div>
 
 <!-- ============ DESIGN ============ -->
@@ -202,35 +202,68 @@ bb_admin_shell_open(array(
 <!-- ============ BADGE ============ -->
 <div data-tab-panel="badge" style="display:none;">
     <div class="bb-intro">
-        <h2>Badge</h2>
-        <p>Highlight an offer with a promotional badge.</p>
+        <h2>Badges</h2>
+        <p>Style the three promotional badges. Turn each one on per offer inside a product's BulkBoost panel.</p>
     </div>
 
-    <div class="bb-card">
-        <div class="bb-rowx no-border">
-            <div><div class="name">Enable badge</div><div class="help">Show a badge on a highlighted offer</div></div>
-            <button type="button" class="bb-toggle" data-key="badgeOn"><span class="knob"></span></button>
-        </div>
-        <div data-dim-key="badgeOn">
+    <?php $bb_premium = bulkboost_is_premium(); ?>
+    <div class="bb-premium-gate<?php echo $bb_premium ? '' : ' is-locked'; ?>">
+        <?php if (!$bb_premium) : ?>
+            <div class="bb-lock">
+                <div class="bb-lock-card">
+                    <div class="bb-lock-icon">★</div>
+                    <strong>Badges are a Pro feature</strong>
+                    <p>Unlock label, savings and free-shipping badge styling with BulkBoost Pro.</p>
+                    <a class="bb-btn bb-btn-primary" href="<?php echo esc_url(bulkboost_upgrade_url()); ?>" target="_blank" rel="noopener">Upgrade to Pro</a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <div class="bb-card">
+            <div class="bb-card-label">Label badge</div>
             <div class="bb-rowx">
-                <div><div class="name">Badge text</div></div>
-                <input type="text" class="bb-text" data-key="badgeText" maxlength="32">
+                <div><div class="name">Preview</div><div class="help">HOT · MOST POPULAR · BEST DEAL</div></div>
+                <span class="bb-badge-chip" data-badge-chip="label">HOT</span>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('badgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
+                <?php bb_color_row('labelBadgeBg', array('#e8643c', '#d4537e', '#4f5bd5', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('badgeColor', array('#ffffff', '#1b1c18')); ?>
+                <?php bb_color_row('labelBadgeText', array('#ffffff', '#1b1c18')); ?>
+            </div>
+        </div>
+
+        <div class="bb-card">
+            <div class="bb-card-label">Savings badge</div>
+            <div class="bb-rowx">
+                <div><div class="name">Preview</div><div class="help">Shows the percentage saved on a tier</div></div>
+                <span class="bb-badge-chip" data-badge-chip="save">Save 20%</span>
             </div>
             <div class="bb-rowx">
-                <div><div class="name">Position</div></div>
-                <?php bb_segmented('badgePos', array('left' => 'Left', 'right' => 'Right', 'ribbon' => 'Ribbon')); ?>
+                <div><div class="name">Background</div></div>
+                <?php bb_color_row('saveBadgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
-                <div><div class="name">Show on</div></div>
-                <?php bb_segmented('badgeTarget', array('active' => 'Active', 'all' => 'All', 'best' => 'Best value')); ?>
+                <div><div class="name">Text color</div></div>
+                <?php bb_color_row('saveBadgeText', array('#ffffff', '#1b1c18')); ?>
+            </div>
+        </div>
+
+        <div class="bb-card">
+            <div class="bb-card-label">Free shipping badge</div>
+            <div class="bb-rowx">
+                <div><div class="name">Preview</div><div class="help">Banner shown under a tier</div></div>
+                <span class="bb-badge-chip" data-badge-chip="shipping">🚚 Free shipping</span>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Background</div></div>
+                <?php bb_color_row('shippingBadgeBg', array('#1b1c18', '#10976a', '#4f5bd5', '#e8643c')); ?>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Text color</div></div>
+                <?php bb_color_row('shippingBadgeText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
     </div>

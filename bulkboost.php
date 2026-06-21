@@ -43,6 +43,27 @@ add_action('before_woocommerce_init', function () {
 });
 
 /**
+ * Whether premium (Pro) features are available.
+ *
+ * Single gate for all Pro-only functionality. Until the Freemius SDK is wired
+ * up this returns false (overridable via the `bulkboost_is_premium` filter for
+ * local testing). Once Freemius is connected, replace the body with:
+ *     return bulkboost_fs()->can_use_premium_code();
+ */
+function bulkboost_is_premium()
+{
+    return (bool) apply_filters('bulkboost_is_premium', false);
+}
+
+/**
+ * URL shown on Pro upsell prompts.
+ */
+function bulkboost_upgrade_url()
+{
+    return apply_filters('bulkboost_upgrade_url', 'https://bulkboost.com/products/quantity-breaks-and-discounts/');
+}
+
+/**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-bulkboost-activator.php
  */

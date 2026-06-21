@@ -31,11 +31,11 @@
         priceWeight: 'price_font_weight', priceSize: 'price_font_size',
         showOld: 'show_old_price',
         oldWeight: 'old_price_font_weight', oldSize: 'old_price_font_size',
-        badgeOn: 'badge_enabled', badgeText: 'badge_text',
-        badgeBg: 'badge_bg_color', badgeColor: 'badge_text_color',
-        badgePos: 'badge_position', badgeTarget: 'badge_target'
+        labelBadgeBg: 'label_badge_bg', labelBadgeText: 'label_badge_text',
+        saveBadgeBg: 'save_badge_bg', saveBadgeText: 'save_badge_text',
+        shippingBadgeBg: 'shipping_badge_bg', shippingBadgeText: 'shipping_badge_text'
     };
-    var BOOLS = { showOld: 1, badgeOn: 1 };       // stored as yes/no
+    var BOOLS = { showOld: 1 };       // stored as yes/no
     var NUMS = {
         radius: 1, borderW: 1, gap: 1, labelSize: 1, descSize: 1,
         priceSize: 1, oldSize: 1
@@ -144,6 +144,7 @@
         });
         // accent-driven CSS var (sliders, etc.)
         root.style.setProperty('--bb-accent', state.accent || '#10976a');
+        renderBadgeChips();
         renderStatus();
     }
 
@@ -247,8 +248,24 @@
     ];
     function money(n) { return cur + n; }
 
+    // Live sample chips in the Badge tab, one per badge type.
+    function renderBadgeChips() {
+        var map = {
+            label: ['labelBadgeBg', 'labelBadgeText'],
+            save: ['saveBadgeBg', 'saveBadgeText'],
+            shipping: ['shippingBadgeBg', 'shippingBadgeText']
+        };
+        root.querySelectorAll('[data-badge-chip]').forEach(function (el) {
+            var keys = map[el.dataset.badgeChip];
+            if (!keys) { return; }
+            el.style.background = state[keys[0]];
+            el.style.color = state[keys[1]];
+        });
+    }
+
     function renderPreview() {
         var s = state;
+        renderBadgeChips();
         var wrap = root.querySelector('[data-bb-offers]');
         if (!wrap) { return; }
         wrap.style.gap = s.gap + 'px';
@@ -259,13 +276,6 @@
             var tCol = active ? s.activeText : '#1b1c18';
             var dCol = active ? hexA(s.activeText, 0.68) : '#7a7c71';
             var oCol = active ? hexA(s.activeText, 0.5) : '#a6a89d';
-
-            var showBadge = false;
-            if (s.badgeOn) {
-                if (s.badgeTarget === 'all') showBadge = true;
-                else if (s.badgeTarget === 'active') showBadge = active;
-                else if (s.badgeTarget === 'best') showBadge = (i === BASE.length - 1);
-            }
 
             var card = document.createElement('div');
             card.className = 'bb-offer';
@@ -279,23 +289,17 @@
                 s.selected = i; renderPreview();
             });
 
-            // badge
-            if (showBadge) {
+            // Label-tab badge on the best-value offer (styling preview).
+            if (i === BASE.length - 1) {
                 var badge = document.createElement('div');
-                badge.textContent = s.badgeText;
+                badge.textContent = 'BEST DEAL';
                 var bs = badge.style;
-                bs.position = 'absolute'; bs.fontSize = '10px'; bs.fontWeight = '700';
-                bs.letterSpacing = '.06em'; bs.textTransform = 'uppercase';
-                bs.background = s.badgeBg; bs.color = s.badgeColor; bs.whiteSpace = 'nowrap';
+                bs.position = 'absolute'; bs.top = '-9px'; bs.left = '16px';
+                bs.padding = '4px 9px'; bs.borderRadius = '999px';
+                bs.fontSize = '10px'; bs.fontWeight = '700'; bs.letterSpacing = '.06em';
+                bs.textTransform = 'uppercase'; bs.whiteSpace = 'nowrap';
+                bs.background = s.labelBadgeBg; bs.color = s.labelBadgeText;
                 bs.boxShadow = '0 3px 8px -2px rgba(0,0,0,.3)';
-                if (s.badgePos === 'ribbon') {
-                    bs.top = '0'; bs.left = '0'; bs.padding = '4px 12px';
-                    bs.borderRadius = s.radius + 'px 0 10px 0';
-                } else if (s.badgePos === 'left') {
-                    bs.top = '-9px'; bs.left = '16px'; bs.padding = '4px 9px'; bs.borderRadius = '999px';
-                } else {
-                    bs.top = '-9px'; bs.right = '16px'; bs.padding = '4px 9px'; bs.borderRadius = '999px';
-                }
                 card.appendChild(badge);
             }
 

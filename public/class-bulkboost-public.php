@@ -70,6 +70,27 @@ class BLKBST_BulkBoost_Public
         $box_corner_radius = esc_html($bulkboost_settings['box_corner_radius']);
         $border_width = esc_html($bulkboost_settings['border_width'] ?? '1.5');
         $card_gap = esc_html($bulkboost_settings['card_gap'] ?? '12');
+
+        // Badge styling is a Pro feature: only apply the saved colors when premium.
+        $badge_css = '';
+        if (function_exists('bulkboost_is_premium') && bulkboost_is_premium()) {
+            $label_badge_bg      = sanitize_hex_color($bulkboost_settings['label_badge_bg'] ?? '') ?: '#e8643c';
+            $label_badge_text    = sanitize_hex_color($bulkboost_settings['label_badge_text'] ?? '') ?: '#ffffff';
+            $save_badge_bg       = sanitize_hex_color($bulkboost_settings['save_badge_bg'] ?? '') ?: '#10976a';
+            $save_badge_text     = sanitize_hex_color($bulkboost_settings['save_badge_text'] ?? '') ?: '#ffffff';
+            $shipping_badge_bg   = sanitize_hex_color($bulkboost_settings['shipping_badge_bg'] ?? '') ?: '#1b1c18';
+            $shipping_badge_text = sanitize_hex_color($bulkboost_settings['shipping_badge_text'] ?? '') ?: '#ffffff';
+
+            $badge_css =
+                '.bulkboost-label-tab,'
+                . '.bulkboost-label-tab.bulkboost-tab-hot,'
+                . '.bulkboost-label-tab.bulkboost-tab-popular,'
+                . '.bulkboost-label-tab.bulkboost-tab-bestdeal{'
+                . 'background:' . $label_badge_bg . ';color:' . $label_badge_text . ';}'
+                . '.bulkboost-badge-save{background-color:' . $save_badge_bg . ';color:' . $save_badge_text . ';}'
+                . '.bulkboost-shipping-banner{background-color:' . $shipping_badge_bg . ';color:' . $shipping_badge_text . ';}'
+                . '.bulkboost-shipping-banner .bulkboost-shipping-icon{color:inherit;}';
+        }
         $border_color_inactive = esc_html($bulkboost_settings['border_color_inactive']);
         $background_color_inactive = esc_html($bulkboost_settings['background_color_inactive']);
         $text_color_inactive = esc_html($bulkboost_settings['text_color_inactive']);
@@ -233,6 +254,7 @@ class BLKBST_BulkBoost_Public
     .custom-quantity-block.bb-selector-none .bulkboost-radio {
         display: none;
     }
+    " . $badge_css . "
     </style>
     ";
     }

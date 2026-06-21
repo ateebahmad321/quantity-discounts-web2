@@ -19,19 +19,6 @@ bb_admin_shell_open(array(
 ));
 ?>
 
-<div class="bb-card" style="padding:22px;">
-    <p class="bb-prose" style="margin-top:0;">Thank you for choosing <strong>BulkBoost</strong>! This powerful tool helps you turn
-        bigger carts into bigger revenue:</p>
-    <ul class="bb-prose">
-        <li><strong>Increased Sales:</strong> Encourage larger orders and boost revenue.</li>
-        <li><strong>Improved Average Order Value (AOV):</strong> Incentivize customers to spend more.</li>
-        <li><strong>Customizable Discounts:</strong> Tailor discounts to suit your business needs.</li>
-        <li><strong>Enhanced Customer Experience:</strong> Simplify purchasing with clear discounts.</li>
-        <li><strong>Flexible Pricing Options:</strong> Offer discounts on specific products or entire orders.</li>
-        <li><strong>Real-time Savings Display:</strong> Show customers how much they save instantly.</li>
-    </ul>
-    
-</div>
 
 <div class="bb-card" style="padding:22px;">
     <div class="bb-card-label" style="padding-top:0;">Quick links</div>

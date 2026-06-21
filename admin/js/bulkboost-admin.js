@@ -15,19 +15,6 @@
             $(tab_id).addClass('active');
         });
 
-        $(document).on('click', '.notice.is-dismissible', function () {
-
-            var data = {
-                'action': 'BLKBST_dismiss_admin_notice',
-                'nonce': bulkboostscripts.nonce
-            };
-
-            $.post(bulkboostscripts.ajaxurl, data, function (response) {
-                console.log('Notice dismissed');
-            });
-
-        });
-
         var container = $('#bulkboost_container');
 
         // Badge label options shown in the per-block dropdown

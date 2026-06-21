@@ -162,32 +162,28 @@ class BLKBST_BulkBoost
         // Settings menu
         $this->loader->add_action('admin_menu', $plugin_admin, 'BLKBST_bulkboost_admin_menu_page');
 
-        // submit form
-        $this->loader->add_action('admin_post_nopriv_submit_form', $plugin_admin, 'handle_form_submission');
-        $this->loader->add_action('admin_post_submit_form', $plugin_admin, 'handle_form_submission');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'BLKBST_enqueue_quantity_breaks_scripts');
 
         // product panel
         $this->loader->add_filter(
             'woocommerce_product_data_tabs',
             $plugin_admin,
-            'BLKBST_bulkboost_product_data_tabs__premium_only'
+            'BLKBST_bulkboost_product_data_tabs'
         );
         $this->loader->add_action('admin_head', $plugin_admin, 'quantity_breaks_icon_change');
         $this->loader->add_action(
             'woocommerce_product_data_panels',
             $plugin_admin,
-            'BLKBST_quantity_breaks_product_data_panels__premium_only'
+            'BLKBST_quantity_breaks_product_data_panels'
         );
         $this->loader->add_action('save_post', $plugin_admin, 'BLKBST_save_bulkboost');
         $this->loader->add_action('admin_init', $plugin_admin, 'BLKBST_ignore_notice_bulkboost');
-        $this->loader->add_action('wp_ajax_dismiss_admin_notice', $plugin_admin, 'BLKBST_dismiss_admin_notice');
         $this->loader->add_action('admin_notices', $plugin_admin, 'BLKBST_bulkboost_admin_notices');
         // settings page
         $this->loader->add_action(
             'admin_init',
             $plugin_admin,
-            'BLKBST_bulkboost_register_settings__premium_only'
+            'BLKBST_bulkboost_register_settings'
         );
         $this->loader->add_filter(
             'plugin_action_links_bulkboost/bulkboost.php',

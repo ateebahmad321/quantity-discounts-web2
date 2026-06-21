@@ -1,4 +1,4 @@
-=== BulkBoost, Breaks & Product Bundles for WooCommerce ===
+=== BulkBoost – Quantity Discounts & Bundles ===
 Contributors: bulkboost
 Donate link: https://bulkboost.com
 Tags: woocommerce, ecommerce, e-commerce, products, product

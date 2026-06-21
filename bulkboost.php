@@ -9,7 +9,7 @@
  * Plugin Name:       BulkBoost – Quantity Discounts & Bundles
  * Plugin URI:        https://bulkboost.com
  * Description:       Boost average order value with tiered quantity discounts, breaks and bundle offers for WooCommerce products.
- * Version:           2.6.10
+ * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            BulkBoost
@@ -31,7 +31,7 @@ if (!defined('WPINC')) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define('BLKBST_VERSION', '2.6.10');
+define('BLKBST_VERSION', '1.0.0');
 
 /**
  * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS).

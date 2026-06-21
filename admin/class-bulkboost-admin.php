@@ -58,6 +58,186 @@ class BLKBST_BulkBoost_Admin
         }
     }
 
+    /**
+     * Slugs of the plugin's own admin pages (admin.php?page=...).
+     */
+    public function plugin_pages()
+    {
+        return array(
+            'bulkboost-' . $this->plugin_name,
+            'bulkboost-quantity-design',
+            'bulkboost-quantity-min-max',
+            'bulkboost-earnings',
+            'bulkboost-settings',
+        );
+    }
+
+    private function is_plugin_page()
+    {
+        $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
+        return in_array($page, $this->plugin_pages(), true);
+    }
+
+    /**
+     * Adds a body class on our pages so the dashboard CSS can run full-bleed.
+     */
+    public function bb_admin_body_class($classes)
+    {
+        if ($this->is_plugin_page()) {
+            $classes .= ' bb-admin-page';
+        }
+        return $classes;
+    }
+
+    /**
+     * Canonical default design settings (the handoff defaults). Single source
+     * of truth shared by the dashboard JS, the AJAX save, and activation.
+     */
+    public static function design_defaults()
+    {
+        return array(
+            'background_color_active' => '#16231d',
+            'text_color_active'       => '#ffffff',
+            'accent_color'            => '#10976a',
+            'border_color_inactive'   => '#e6e5df',
+            'box_corner_radius'       => 14,
+            'border_width'            => 1.5,
+            'card_gap'                => 12,
+            'selector_style'          => 'radio',
+            'label_font_weight'       => 600,
+            'label_font_size'         => 17,
+            'description_font_weight' => 400,
+            'description_font_size'   => 13,
+            'price_font_weight'       => 700,
+            'price_font_size'         => 18,
+            'show_old_price'          => 'yes',
+            'old_price_font_weight'   => 400,
+            'old_price_font_size'     => 13,
+            'badge_enabled'           => 'yes',
+            'badge_text'              => 'MOST POPULAR',
+            'badge_bg_color'          => '#10976a',
+            'badge_text_color'        => '#ffffff',
+            'badge_position'          => 'right',
+            'badge_target'            => 'active',
+        );
+    }
+
+    /**
+     * Enqueue the redesigned dashboard CSS/JS + webfonts on our pages only.
+     */
+    public function enqueue_dashboard_assets()
+    {
+        if (!$this->is_plugin_page()) {
+            return;
+        }
+
+        wp_enqueue_style(
+            'bulkboost-fonts',
+            'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap',
+            array(),
+            null
+        );
+        wp_enqueue_style(
+            'bulkboost-dashboard',
+            plugin_dir_url(__FILE__) . 'css/bulkboost-dashboard.css',
+            array(),
+            $this->version
+        );
+        wp_enqueue_script(
+            'bulkboost-dashboard',
+            plugin_dir_url(__FILE__) . 'js/bulkboost-dashboard.js',
+            array(),
+            $this->version,
+            true
+        );
+
+        $currency = class_exists('WooCommerce') ? get_woocommerce_currency_symbol() : '$';
+        $saved = get_option('bulkboost_settings', array());
+        wp_localize_script('bulkboost-dashboard', 'BulkBoostDash', array(
+            'ajaxUrl'  => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('bulkboost_save_design'),
+            'currency' => html_entity_decode($currency),
+            'defaults' => self::design_defaults(),
+            'settings' => is_array($saved) ? $saved : array(),
+        ));
+    }
+
+    /**
+     * Sanitize an incoming design-settings payload against known keys/types.
+     */
+    private function sanitize_design_settings($input)
+    {
+        $colors = array(
+            'background_color_active', 'text_color_active', 'accent_color',
+            'border_color_inactive', 'badge_bg_color', 'badge_text_color',
+        );
+        $ints = array(
+            'box_corner_radius', 'card_gap', 'label_font_weight', 'label_font_size',
+            'description_font_weight', 'description_font_size', 'price_font_weight',
+            'price_font_size', 'old_price_font_weight', 'old_price_font_size',
+        );
+        $enums = array(
+            'selector_style'  => array('radio', 'checkbox', 'none'),
+            'badge_position'  => array('left', 'right', 'ribbon'),
+            'badge_target'    => array('active', 'all', 'best'),
+        );
+        $yesno = array('show_old_price', 'badge_enabled');
+
+        $clean = array();
+        foreach ($this->sanitize_design_keys() as $key) {
+            if (!isset($input[$key])) {
+                continue;
+            }
+            $val = $input[$key];
+            if (in_array($key, $colors, true)) {
+                $clean[$key] = sanitize_hex_color($val);
+            } elseif ($key === 'border_width') {
+                $clean[$key] = max(0, min(8, floatval($val)));
+            } elseif (in_array($key, $ints, true)) {
+                $clean[$key] = absint($val);
+            } elseif (isset($enums[$key])) {
+                $clean[$key] = in_array($val, $enums[$key], true) ? $val : $enums[$key][0];
+            } elseif (in_array($key, $yesno, true)) {
+                $clean[$key] = ($val === 'yes') ? 'yes' : 'no';
+            } elseif ($key === 'badge_text') {
+                $clean[$key] = sanitize_text_field($val);
+            }
+        }
+        return $clean;
+    }
+
+    private function sanitize_design_keys()
+    {
+        $keys = array_keys(self::design_defaults());
+        $keys[] = 'border_width';
+        return array_unique($keys);
+    }
+
+    /**
+     * AJAX: persist the dashboard's design settings into bulkboost_settings.
+     */
+    public function BLKBST_save_design_settings()
+    {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'You are not allowed to do this.'), 403);
+        }
+        $nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'bulkboost_save_design')) {
+            wp_send_json_error(array('message' => 'Security check failed. Please reload the page.'), 403);
+        }
+
+        $input = (isset($_POST['settings']) && is_array($_POST['settings']))
+            ? wp_unslash($_POST['settings'])
+            : array();
+
+        $clean = $this->sanitize_design_settings($input);
+        $existing = get_option('bulkboost_settings', array());
+        $merged = array_merge(is_array($existing) ? $existing : array(), $clean);
+        update_option('bulkboost_settings', $merged);
+
+        wp_send_json_success(array('settings' => $merged));
+    }
+
     public function BLKBST_bulkboost_admin_menu_page()
     {
         add_menu_page(

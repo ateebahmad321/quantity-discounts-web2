@@ -1,678 +1,235 @@
-<div class="wrap">
-    <h2>BulkBoost Design Settings</h2>
-    <form method="post" action="options.php">
-        <?php
+<?php
+/**
+ * BulkBoost — Design Settings dashboard.
+ *
+ * High-fidelity rebuild of the "BulkBoost — Design Settings Dashboard" handoff.
+ * Three tabs (Design / Typography / Badge) + a live storefront preview rail.
+ * Controls are static markup bound by data-key/data-val; bulkboost-dashboard.js
+ * hydrates them from saved settings, renders the preview, and saves via AJAX.
+ *
+ * @package BulkBoost/admin
+ */
 
-        settings_fields('bulkboost_settings'); ?>
-        <hr>
-        <p>🎨 Customize your BulkBoost design here! </p>
-        <p>Once you've tailored it to perfection:</p>
-        1️⃣ Head over to an <strong>Existing Product</strong> or spark creativity by adding a <strong>New
-            Product</strong>.<br/>
-        2️⃣ Scroll down to the <strong>Product Data</strong> section. <br>
-        3️⃣ Spot the <strong>"BulkBoost"</strong> tab on the left menu. 👈 <br>
-        4️⃣ Click to unleash amazing discounts for your products! 💸 <br>
-        <p>Happy discounting! 🚀</p>
-        <hr>
-        <h2>Preview</h2>
-        <div id="bulkboost_preview_preview">
-            <span class="bulkboost-swatch active" data-value="1">
-                <div class="bulkboost-inner">
-                    <div class="one-block">
-                        <label class="bulkboost-radio">
-                            <input id="radio1" value="1" name="quantity" type="radio" checked>
-                            <span></span> <!-- This span is styled as the radio button -->
-                        </label>
-                    </div>
-                    <div class="second-block ">
-                    <div class="bulkboost-middle">
-                        <div class="bulkboost-heading">1 item (active)</div>
-                        <div class="bulkboost-subheading">Get 1 item and enjoy our product</div>
-                    </div>
-                    <div class="bulkboost-right">
-                        <span class="bulkboost-price"><?php
-                            echo wc_price(100, array('decimals' => 0)); ?></span>
-                        <div class="old-price"></div>
-                    </div>
-                </div>
-                </div>
-            </span>
-            <span class="bulkboost-swatch " data-value="2">
-                <div class="bulkboost-inner">
-                <div class="one-block">
-                    <label class="bulkboost-radio">
-                        <input id="radio2" value="2" name="quantity" type="radio">
-                        <span></span>
-                    </label>
-                </div>
-                <div class="second-block">
-                    <div class="bulkboost-middle">
-                        <div class="bulkboost-heading">2 items (Inactive)</div>
-                        <div class="bulkboost-subheading">Get 2 for better price only now!</div>
-                    </div>
-                    <div class="bulkboost-right">
-                        <span class="bulkboost-price"><?php
-                            echo wc_price(150, array('decimals' => 0)); ?></span>
-                        <div class="old-price"><span><s><?php
-                                    echo wc_price(200, array('decimals' => 0)); ?></s></span></div>
-                    </div>
-                </div>
-                </div>
-            </span>
-        </div>
-        <hr>
-        <h2 class="nav-tab-wrapper">
-            <a href="#design-settings" class="nav-tab nav-tab-active">Design Settings</a>
-            <a href="#typographic" class="nav-tab">Typographic</a>
-            <a href="#badge" class="nav-tab">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12">
-                    <rect x="2" y="6" width="8" height="5" rx="1" fill="#F00"/>
-                    <path fill="none" stroke="#F00" d="m3.5,6V4a2.5,2.5 0 0,1 5,0v2"/>
-                </svg>
-                Badge</a>
-        </h2>
-        <div id="design-settings" class="tab-content">
-            <table class="form-table">
-                <!-- Border Color -->
-                <tr valign="top">
-                    <th scope="row">Border Color</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Active (Selected)</strong><br>
-                            <input type="text" id="border_color_active"
-                                   name="bulkboost_settings[border_color_active]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['border_color_active']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Inactive (Not Selected)</strong><br>
-                            <input type="text" id="border_color_inactive"
-                                   name="bulkboost_settings[border_color_inactive]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['border_color_inactive']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>On Hover (Mouse over)</strong><br>
-                            <input type="text" id="border_color_hover"
-                                   name="bulkboost_settings[border_color_hover]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['border_color_hover']); ?>"
-                                   class="color-field"/>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Background Color -->
-                <tr valign="top" style="border-top:1px solid grey; border-bottom: 1px solid grey;">
-                    <th scope="row">Background Color</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Active (Selected)</strong><br>
-                            <input type="text" id="background_color_active"
-                                   name="bulkboost_settings[background_color_active]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['background_color_active']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Inactive (Not Selected)</strong><br>
-                            <input type="text" id="background_color_inactive"
-                                   name="bulkboost_settings[background_color_inactive]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['background_color_inactive']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>On Hover (Mouse over)</strong><br>
-                            <input type="text" id="background_color_hover"
-                                   name="bulkboost_settings[background_color_hover]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['background_color_hover']); ?>"
-                                   class="color-field"/>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Text Color -->
-                <tr valign="top" style="border-bottom: 1px solid grey;">
-                    <th scope="row">Text Color</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Active (Selected)</strong><br>
-                            <input type="text" id="text_color_active"
-                                   name="bulkboost_settings[text_color_active]"
-                                   value="<?php
-                                   echo esc_attr(get_option('bulkboost_settings')['text_color_active']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Inactive (Not Selected)</strong><br>
-                            <input type="text" id="text_color_inactive"
-                                   name="bulkboost_settings[text_color_inactive]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['text_color_inactive']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>On Hover (Mouse over)</strong><br>
-                            <input type="text" id="text_color_hover"
-                                   name="bulkboost_settings[text_color_hover]"
-                                   value="<?php
-                                   echo esc_attr(get_option('bulkboost_settings')['text_color_hover']); ?>"
-                                   class="color-field"/>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Button Style -->
-                <tr valign="top" style="border-bottom: 1px solid grey;">
-                    <th scope="row">Radio Button Styling</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Active Background Color (Selected)</strong><br>
-                            <input type="text" id="radio_bg_color_active"
-                                   name="bulkboost_settings[radio_bg_color_active]"
-                                   value="<?php
-                                   echo esc_attr(
-                                       get_option('bulkboost_settings')['radio_bg_color_active']
-                                   ); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Active Border Color (Selected)</strong><br>
-                            <input type="text" id="radio_border_color_active"
-                                   name="bulkboost_settings[radio_border_color_active]"
-                                   value="<?php
-                                   echo esc_attr(
-                                       get_option('bulkboost_settings')['radio_border_color_active']
-                                   ); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Inactive Border Color (Not Selected)</strong><br>
-                            <input type="text" id="radio_border_color_inactive"
-                                   name="bulkboost_settings[radio_border_color_inactive]" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['radio_border_color_inactive']); ?>"
-                                   class="color-field"/>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Radio Button Size</strong><br>
-                            <input type="number" id="radio_button_size"
-                                   name="bulkboost_settings[radio_button_size]"
-                                   value="<?php
-                                   echo esc_attr(
-                                       get_option('bulkboost_settings')['radio_button_size']
-                                   ) ?: '20'; ?>"/>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Border Style -->
-                <tr valign="top">
-                    <th scope="row">Border Style</th>
-                    <td>
-                        <select id="border_style" name="bulkboost_settings[border_style]">
-                            <option value="none" <?php
-                            selected(get_option('bulkboost_settings')['border_style'], 'none'); ?> >None
-                            </option>
-                            <option value="dashed" <?php
-                            selected(get_option('bulkboost_settings')['border_style'], 'dashed'); ?> >Dashed
-                            </option>
-                            <option value="dotted" <?php
-                            selected(get_option('bulkboost_settings')['border_style'], 'dotted'); ?> >Dotted
-                            </option>
-                            <option value="solid" <?php
-                            selected(get_option('bulkboost_settings')['border_style'], 'solid'); ?> >Solid
-                            </option>
-                        </select>
-                    </td>
-                </tr>
-                <!-- Box Corner Radius -->
-                <tr valign="top">
-                    <th scope="row">Box Corner Radius</th>
-                    <td>
-                        <input type="number" id="box_corner_radius"
-                               name="bulkboost_settings[box_corner_radius]"
-                               value="<?php
-                               echo esc_attr(get_option('bulkboost_settings')['box_corner_radius']); ?>"/>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="badge" class="tab-content" style="display:none;">
-            <p style="max-width:920px; margin:30px auto 5px auto;">
-                Badges play a crucial role in guiding customer purchases, highlighting key product features or
-                promotions.
-            </p>
-            <p style="max-width:920px; margin:5px auto;">
-                Badges can positively influence buyer behavior, boosting sales and building trust.
-            </p>
-            <p style="max-width:920px; margin:5px auto;">
-                In terms of pricing, badges that emphasize discounts or limited-time offers can create urgency, but it’s
-                vital for businesses to use them responsibly to avoid badge fatigue and maintain credibility.</p>
-            <p style="max-width:920px; margin:5px auto; text-align: center;">
-                <strong><a href="" style="">Try Premium 14 days For FREE Now!</a></strong></p>
-            <img src="<?php
-            echo esc_url(plugin_dir_url(__FILE__) . 'img/badge_example.png'); ?>" alt=""
-                 style="max-width:600px; display:block; margin:0 auto;">
-        </div>
-        <div id="typographic" class="tab-content" style="display:none;">
-            <table class="form-table">
-                <!-- Title Settings -->
-                <tr valign="top">
-                    <th scope="row">Label</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Font Weight</strong><br>
-                            <select id="label_font_weight" name="bulkboost_settings[label_font_weight]">
-                                <?php
-                                $label_font_weight = get_option('bulkboost_settings')['label_font_weight'];
-                                $current_value = $label_font_weight ? $label_font_weight : '300';
-                                ?>
-                                <option <?php
-                                selected($current_value, '100'); ?> value="100">Thin
-                                </option>
-                                <option <?php
-                                selected($current_value, '200'); ?> value="200">Extra Light (Ultra Light)
-                                </option>
-                                <option <?php
-                                selected($current_value, '300'); ?> value="300">Light
-                                </option>
-                                <option <?php
-                                selected($current_value, '400'); ?> value="400">Normal
-                                </option>
-                                <option <?php
-                                selected($current_value, '500'); ?> value="500">Medium
-                                </option>
-                                <option <?php
-                                selected($current_value, '600'); ?> value="600">Semi Bold (Demi Bold)
-                                </option>
-                                <option <?php
-                                selected($current_value, '700'); ?> value="700">Bold
-                                </option>
-                                <option <?php
-                                selected($current_value, '800'); ?> value="800"> Extra Bold (Ultra Bold)
-                                </option>
-                            </select>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Font Size</strong><br>
-                            <input type="number" id="label_font_size"
-                                   name="bulkboost_settings[label_font_size]" min="5" max="60" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['label_font_size']) ?: '16'; ?>"/>
-                        </div>
-                    </td>
-                </tr>
-                <!-- Description Settings -->
-                <tr valign="top">
-                    <th scope="row">Description</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Font Weight</strong><br>
-                            <select id="description_font_weight"
-                                    name="bulkboost_settings[description_font_weight]">
-                                <?php
-                                $description_font_weight = get_option(
-                                    'bulkboost_settings'
-                                )['description_font_weight'];
-                                $current_value = $description_font_weight ? $description_font_weight : '300';
-                                ?>
-                                <option <?php
-                                selected($current_value, '100'); ?> value="100">Thin
-                                </option>
-                                <option <?php
-                                selected($current_value, '200'); ?> value="200">Extra Light (Ultra Light)
-                                </option>
-                                <option <?php
-                                selected($current_value, '300'); ?> value="300">Light
-                                </option>
-                                <option <?php
-                                selected($current_value, '400'); ?> value="400">Normal
-                                </option>
-                                <option <?php
-                                selected($current_value, '500'); ?> value="500">Medium
-                                </option>
-                                <option <?php
-                                selected($current_value, '600'); ?> value="600">Semi Bold (Demi Bold)
-                                </option>
-                                <option <?php
-                                selected($current_value, '700'); ?> value="700">Bold
-                                </option>
-                                <option <?php
-                                selected($current_value, '800'); ?> value="800">Extra Bold (Ultra Bold)
-                                </option>
-                            </select>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Font Size</strong><br>
-                            <input type="number" id="description_font_size"
-                                   name="bulkboost_settings[description_font_size]" min="5" max="60"
-                                   value="<?php
-                                   echo esc_attr(
-                                       get_option('bulkboost_settings')['description_font_size']
-                                   ) ?: '13'; ?>"/>
-                        </div>
-                    </td>
-                </tr>
+if (!defined('WPINC')) {
+    die;
+}
 
-                <!-- Price Settings -->
-                <tr valign="top">
-                    <th scope="row">Price</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Font Weight</strong><br>
-                            <select id="price_font_weight" name="bulkboost_settings[price_font_weight]">
-                                <?php
-                                $price_font_weight = get_option('bulkboost_settings')['price_font_weight'];
-                                $current_value = $price_font_weight ? $price_font_weight : '300';
-                                ?>
-                                <option <?php
-                                selected($current_value, '100'); ?> value="100">Thin
-                                </option>
-                                <option <?php
-                                selected($current_value, '200'); ?> value="200">Extra Light (Ultra Light)
-                                </option>
-                                <option <?php
-                                selected($current_value, '300'); ?> value="300">Light
-                                </option>
-                                <option <?php
-                                selected($current_value, '400'); ?> value="400">Normal
-                                </option>
-                                <option <?php
-                                selected($current_value, '500'); ?> value="500">Medium
-                                </option>
-                                <option <?php
-                                selected($current_value, '600'); ?> value="600">Semi Bold (Demi Bold)
-                                </option>
-                                <option <?php
-                                selected($current_value, '700'); ?> value="700">Bold
-                                </option>
-                                <option <?php
-                                selected($current_value, '800'); ?> value="800">Extra Bold (Ultra Bold)
-                                </option>
-                            </select>
-                        </div>
-                        <div class="blocks_3">
-                            <strong>Font Size</strong><br>
-                            <input type="number" id="price_font_size"
-                                   name="bulkboost_settings[price_font_size]" min="5" max="60" value="<?php
-                            echo esc_attr(get_option('bulkboost_settings')['price_font_size']) ?: '16'; ?>"/>
-                        </div>
-                    </td>
-                </tr>
+require_once __DIR__ . '/bulkboost-admin-shell.php';
 
-                <!-- Old Price Settings -->
-                <tr valign="top">
-                    <th scope="row">Old Price</th>
-                    <td>
-                        <div class="blocks_3">
-                            <strong>Show Old Price</strong><br>
-                            <select id="show_old_price" name="bulkboost_settings[show_old_price]">
-                                <option value="yes" <?php
-                                selected(get_option('bulkboost_settings')['show_old_price'], 'yes'); ?>>Yes
-                                </option>
-                                <option value="no" <?php
-                                selected(get_option('bulkboost_settings')['show_old_price'], 'no'); ?>>No
-                                </option>
-                            </select>
-                        </div>
-                        <div class="blocks_3 old_price_settings">
-                            <strong>Font Weight</strong><br>
-                            <select id="old_price_font_weight"
-                                    name="bulkboost_settings[old_price_font_weight]">
-                                <?php
-                                $old_price_font_weight = get_option(
-                                    'bulkboost_settings'
-                                )['old_price_font_weight'];
-                                $current_value = $old_price_font_weight ? $old_price_font_weight : '300';
-                                ?>
-                                <option <?php
-                                selected($current_value, '100'); ?> value="100">Thin
-                                </option>
-                                <option <?php
-                                selected($current_value, '200'); ?> value="200">Extra Light (Ultra Light)
-                                </option>
-                                <option <?php
-                                selected($current_value, '300'); ?> value="300">Light
-                                </option>
-                                <option <?php
-                                selected($current_value, '400'); ?> value="400">Normal
-                                </option>
-                                <option <?php
-                                selected($current_value, '500'); ?> value="500">Medium
-                                </option>
-                                <option <?php
-                                selected($current_value, '600'); ?> value="600">Semi Bold (Demi Bold)
-                                </option>
-                                <option <?php
-                                selected($current_value, '700'); ?> value="700">Bold
-                                </option>
-                                <option <?php
-                                selected($current_value, '800'); ?> value="800">Extra Bold (Ultra Bold)
-                                </option>
-                            </select>
-                        </div>
-                        <div class="blocks_3 old_price_settings">
-                            <strong>Font Size</strong><br>
-                            <input type="number" id="old_price_font_size"
-                                   name="bulkboost_settings[old_price_font_size]" min="5" max="60" value="<?php
-                            echo esc_attr(
-                                get_option('bulkboost_settings')['old_price_font_size']
-                            ) ?: '12'; ?>"/>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="general-settings" class="tab-content" style="display:none;">
-            <!-- General Settings Content -->
-        </div>
-        <?php
-        submit_button(); ?>
-    </form>
+/* ---- tiny render helpers (guarded so the partial can include safely) ---- */
+if (!function_exists('bb_swatches')) {
+    function bb_swatches($key, $colors)
+    {
+        echo '<div class="bb-swatches">';
+        foreach ($colors as $c) {
+            printf(
+                '<button type="button" class="bb-swatch" data-key="%s" data-val="%s" style="background:%s" aria-label="%s"></button>',
+                esc_attr($key),
+                esc_attr($c),
+                esc_attr($c),
+                esc_attr($c)
+            );
+        }
+        echo '</div>';
+    }
+}
+if (!function_exists('bb_segmented')) {
+    function bb_segmented($key, $opts)
+    {
+        echo '<div class="bb-seg">';
+        foreach ($opts as $val => $label) {
+            printf(
+                '<button type="button" class="bb-seg-opt" data-key="%s" data-val="%s">%s</button>',
+                esc_attr($key),
+                esc_attr($val),
+                esc_html($label)
+            );
+        }
+        echo '</div>';
+    }
+}
+if (!function_exists('bb_slider')) {
+    function bb_slider($key, $min, $max, $step)
+    {
+        printf(
+            '<div class="bb-slider"><input type="range" min="%s" max="%s" step="%s" data-key="%s"><span class="val"></span></div>',
+            esc_attr($min),
+            esc_attr($max),
+            esc_attr($step),
+            esc_attr($key)
+        );
+    }
+}
+if (!function_exists('bb_weight_size')) {
+    function bb_weight_size($weight_key, $size_key)
+    {
+        $weights = array('300' => 'Light', '400' => 'Normal', '500' => 'Medium', '600' => 'Semibold', '700' => 'Bold');
+        echo '<div class="bb-fields">';
+        echo '<div class="bb-field"><label>Weight</label><select class="bb-select" data-key="' . esc_attr($weight_key) . '">';
+        foreach ($weights as $v => $l) {
+            echo '<option value="' . esc_attr($v) . '">' . esc_html($l) . '</option>';
+        }
+        echo '</select></div>';
+        echo '<div class="bb-field"><label>Size</label><div class="bb-stepper"><input type="number" min="8" max="48" data-key="' . esc_attr($size_key) . '"><span class="suffix">px</span></div></div>';
+        echo '</div>';
+    }
+}
+
+bb_admin_shell_open(array(
+    'active'    => 'bulkboost-quantity-design',
+    'crumb'     => 'Settings',
+    'title'     => 'Design Settings',
+    'actions'   => true,
+    'dashboard' => true,
+));
+?>
+
+<div class="bb-tabs" role="tablist">
+    <button type="button" class="bb-tab is-active" data-tab="design">Design</button>
+    <button type="button" class="bb-tab" data-tab="typography">Typography</button>
+    <button type="button" class="bb-tab" data-tab="badge">Badge</button>
 </div>
 
-<script type="text/javascript">
-    jQuery(document).ready(function ($) {
+<!-- ============ DESIGN ============ -->
+<div data-tab-panel="design">
+    <div class="bb-intro">
+        <h2>Design Settings</h2>
+        <p>Style the offer cards — colors, corners, borders and the selector control.</p>
+    </div>
 
-        $('.nav-tab').click(function () {
-            var tab_id = $(this).attr('href');
+    <div class="bb-card">
+        <div class="bb-card-label">Colors</div>
+        <div class="bb-rowx">
+            <div><div class="name">Active background</div><div class="help">Fill of the selected offer</div></div>
+            <?php bb_swatches('activeBg', array('#16231d', '#1c1c22', '#21303a', '#2a1f2e')); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Active text</div><div class="help">Text color inside the selected offer</div></div>
+            <?php bb_swatches('activeText', array('#ffffff', '#1b1c18')); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Accent</div><div class="help">Selected ring &amp; radio fill</div></div>
+            <?php bb_swatches('accent', array('#10976a', '#4f5bd5', '#e8643c', '#c2870e')); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Inactive border</div><div class="help">Outline of unselected offers</div></div>
+            <?php bb_swatches('inactiveBorder', array('#e6e5df', '#cfd0c8', '#10976a')); ?>
+        </div>
+    </div>
 
-            $('.nav-tab').removeClass('nav-tab-active');
-            $('.tab-content').hide();
+    <div class="bb-card">
+        <div class="bb-card-label">Shape &amp; spacing</div>
+        <div class="bb-rowx">
+            <div><div class="name">Corner radius</div></div>
+            <?php bb_slider('radius', 0, 24, 1); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Border width</div></div>
+            <?php bb_slider('borderW', 0, 4, 0.5); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Card spacing</div></div>
+            <?php bb_slider('gap', 4, 24, 1); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Selector style</div><div class="help">Control shown on each offer</div></div>
+            <?php bb_segmented('selector', array('radio' => 'Radio', 'checkbox' => 'Checkbox', 'none' => 'None')); ?>
+        </div>
+    </div>
+</div>
 
-            $(this).addClass('nav-tab-active');
-            $(tab_id).show();
+<!-- ============ TYPOGRAPHY ============ -->
+<div data-tab-panel="typography" style="display:none;">
+    <div class="bb-intro">
+        <h2>Typography</h2>
+        <p>Set the weight and size of each text element in the offer cards.</p>
+    </div>
 
-            return false;
-        });
+    <div class="bb-card">
+        <div class="bb-card-label">Text styles</div>
+        <div class="bb-rowx">
+            <div><div class="name">Label</div><div class="help">The offer title</div></div>
+            <?php bb_weight_size('labelWeight', 'labelSize'); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Description</div><div class="help">Supporting line under the label</div></div>
+            <?php bb_weight_size('descWeight', 'descSize'); ?>
+        </div>
+        <div class="bb-rowx">
+            <div><div class="name">Price</div><div class="help">The current price</div></div>
+            <?php bb_weight_size('priceWeight', 'priceSize'); ?>
+        </div>
+    </div>
 
-        function updatePreview() {
-            var borderColorActive = $('#border_color_active').val();
-            var borderColorInactive = $('#border_color_inactive').val();
-            var borderColorHover = $('#border_color_hover').val();
-            var backgroundColorActive = $('#background_color_active').val();
-            var backgroundColorInactive = $('#background_color_inactive').val();
-            var backgroundColorHover = $('#background_color_hover').val();
-            var textColorActive = $('#text_color_active').val();
-            var textColorInactive = $('#text_color_inactive').val();
-            var textColorHover = $('#text_color_hover').val();
-            var borderStyle = $('#border_style').val();
-            var boxCornerRadius = $('#box_corner_radius').val();
+    <div class="bb-card">
+        <div class="bb-rowx no-border">
+            <div><div class="name">Old price</div><div class="help">Strikethrough compare-at price</div></div>
+            <div class="bb-control">
+                <span class="bb-toggle-label">Show</span>
+                <button type="button" class="bb-toggle" data-key="showOld"><span class="knob"></span></button>
+            </div>
+        </div>
+        <div data-dim-key="showOld">
+            <div class="bb-rowx">
+                <div class="name" style="color:#5a5c52;">Old price style</div>
+                <?php bb_weight_size('oldWeight', 'oldSize'); ?>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // radio button
-            var radio_bg_color_active = $('#radio_bg_color_active').val();
-            var radio_bg_color_inactive = $('#radio_bg_color_inactive').val();
-            var radio_bg_color_hover = $('#radio_bg_color_hover').val();
-            var radio_border_color_active = $('#radio_border_color_active').val();
-            var radio_border_color_inactive = $('#radio_border_color_inactive').val();
+<!-- ============ BADGE ============ -->
+<div data-tab-panel="badge" style="display:none;">
+    <div class="bb-intro">
+        <h2>Badge</h2>
+        <p>Highlight an offer with a promotional badge.</p>
+    </div>
 
-            var radio_border_color_hover = $('#radio_border_color_hover').val();
+    <div class="bb-card">
+        <div class="bb-rowx no-border">
+            <div><div class="name">Enable badge</div><div class="help">Show a badge on a highlighted offer</div></div>
+            <button type="button" class="bb-toggle" data-key="badgeOn"><span class="knob"></span></button>
+        </div>
+        <div data-dim-key="badgeOn">
+            <div class="bb-rowx">
+                <div><div class="name">Badge text</div></div>
+                <input type="text" class="bb-text" data-key="badgeText" maxlength="32">
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Background</div></div>
+                <?php bb_swatches('badgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Text color</div></div>
+                <?php bb_swatches('badgeColor', array('#ffffff', '#1b1c18')); ?>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Position</div></div>
+                <?php bb_segmented('badgePos', array('left' => 'Left', 'right' => 'Right', 'ribbon' => 'Ribbon')); ?>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Show on</div></div>
+                <?php bb_segmented('badgeTarget', array('active' => 'Active', 'all' => 'All', 'best' => 'Best value')); ?>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Typographic settings
-            var labelFontSize = $('#label_font_size').val() + 'px';
-            var labelFontWeight = $('#label_font_weight').val();
-            var descriptionFontSize = $('#description_font_size').val() + 'px';
-            var descriptionFontWeight = $('#description_font_weight').val();
-            var priceFontSize = $('#price_font_size').val() + 'px';
-            var priceFontWeight = $('#price_font_weight').val();
-            var oldPriceFontSize = $('#old_price_font_size').val() + 'px';
-            var oldPriceFontWeight = $('#old_price_font_weight').val();
-            var radioButtonSize = $('#radio_button_size').val();
-
-            var dynamicStyles = `
-                .bulkboost-swatch.active {
-                    border-color: ${borderColorActive};
-                    background-color: ${backgroundColorActive};
-                    color: ${textColorActive};
-                    border-style: ${borderStyle};
-                    border-radius: ${boxCornerRadius}px;
-                }
-                .bulkboost-radio span {
-                    border-color: ${radio_border_color_inactive};
-                }
-                .bulkboost-radio input[type="radio"]:checked + span {
-                    border-color: ${radio_border_color_active};
-                }
-                .bulkboost-swatch.active .bulkboost-radio span {
-                    border-color: ${radio_border_color_active};
-                }
-                .bulkboost-swatch:not(.active) {
-                    border-color: ${borderColorInactive};
-                    background-color: ${backgroundColorInactive} !important;
-                    color: ${textColorInactive};
-                    border-style: ${borderStyle};
-                    border-radius: ${boxCornerRadius}px;
-                }
-                .bulkboost-heading {
-                    font-size: ${labelFontSize};
-                    font-weight: ${labelFontWeight};
-                }
-                .bulkboost-subheading {
-                    font-size: ${descriptionFontSize};
-                    font-weight: ${descriptionFontWeight};
-                }
-                .bulkboost-right span {
-                    font-size: ${priceFontSize};
-                    font-weight: ${priceFontWeight};
-                }
-                .bulkboost-right .old-price span {
-                    font-size: ${oldPriceFontSize};
-                    font-weight: ${oldPriceFontWeight};
-                }
-                .bulkboost-radio input[type="radio"]:checked + span::before{
-                    background-color: ${radio_bg_color_active}
-                }
-                .bulkboost-radio input[type="radio"] + span::before{
-                    background-color: ${radio_bg_color_inactive}
-                }
-                .bulkboost-radio span {
-                    display: inline-block;
-                    height: ${radioButtonSize}px;
-                    width: ${radioButtonSize}px;
-                    border-width: 1px;
-                    border-style: solid;
-                    border-radius: 50%;
-                    position: relative;
-                    cursor: pointer;
-                    vertical-align: middle;
-                }
-
-                .bulkboost-radio input[type="radio"]:checked + span::before {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    height: calc(${radioButtonSize}px - 5px);
-                    width: calc(${radioButtonSize}px - 5px);
-                    border-radius: 50%;
-                }
-            `;
-
-            setDynamicStyles(dynamicStyles);
-
-        }
-
-        function setDynamicStyles(dynamicStyles) {
-            var styleSheet = document.getElementById("dynamicStyles");
-
-            // If it doesn't exist, create it and append it to the <head>
-            if (!styleSheet) {
-                styleSheet = document.createElement("style");
-                styleSheet.id = "dynamicStyles";
-                document.head.appendChild(styleSheet);
-            }
-
-            styleSheet.innerHTML = dynamicStyles;
-        }
-
-        function setActiveSwatch(swatch) {
-            // Remove active class and uncheck radio button from all swatches
-            $('.bulkboost-swatch').removeClass('active').find('input[type="radio"]').prop('checked', false);
-
-            // Add active class and check radio button for the clicked swatch
-            swatch.addClass('active').find('input[type="radio"]').prop('checked', true);
-
-            // Update the preview
-            updatePreview();
-        }
-
-
-        $('.bulkboost-swatch').on('click', function () {
-            setActiveSwatch($(this));
-        });
-
-        $('.color-field').wpColorPicker({
-            change: function (event, ui) {
-                // This function is called whenever a color is selected in the color picker.
-                var element = $(event.target);
-                var color = ui.color.toString();
-                element.val(color);
-                updatePreview();
-
-            },
-            clear: function (event) {
-                // This function is called whenever the "Clear" button is clicked in the color picker.
-                var element = $(event.target).closest('.wp-picker-input-wrap').find('.wp-color-picker');
-                element.val('');
-                updatePreview();
-            }
-        });
-
-        // Update preview on input change
-        $('input#label_font_size, select#label_font_weight, input#description_font_size, input#radio_button_size, select#description_font_weight, input#price_font_size, select#price_font_weight, input#old_price_font_size, select#old_price_font_weight').on('input change', function () {
-            updatePreview();
-        });
-
-        $('select#border_style, input#box_corner_radius').on('input change', function () {
-            updatePreview();
-        });
-
-        function toggleOldPriceSettings() {
-            $('#show_old_price').on('change', function () {
-                if ($(this).val() === 'no') {
-                    $('.old-price').hide();
-                } else {
-                    $('.old-price').show();
-                }
-            });
-            if ($('#show_old_price').val() === 'no') {
-                $('.old-price').hide();
-            } else {
-                $('.old-price').show();
-            }
-        }
-
-        $('#show_old_price').on('change', function () {
-            toggleOldPriceSettings();
-        });
-
-        // Initial toggle on page load
-        toggleOldPriceSettings();
-
-        updatePreview();
-
-        setActiveSwatch($('.bulkboost-swatch.active'));
-
-    });
-
-
-</script>
-<style>
-    .selected {
-        background-color: #f0f0f0;
-    }
-</style>
-<style id="dynamicStyles"></style>
+<?php
+ob_start();
+?>
+<div class="bb-preview-label">Live preview <span class="dot"></span></div>
+<div class="bb-preview-card">
+    <div class="bb-prod">
+        <div class="bb-prod-img"></div>
+        <div style="min-width:0;">
+            <div class="bb-prod-name">Sample Product</div>
+            <div class="bb-prod-sub">Choose your bundle</div>
+        </div>
+    </div>
+    <div class="bb-offers" data-bb-offers></div>
+    <button type="button" class="bb-add-cart">Add to cart</button>
+</div>
+<?php
+$aside = ob_get_clean();
+bb_admin_shell_close($aside);

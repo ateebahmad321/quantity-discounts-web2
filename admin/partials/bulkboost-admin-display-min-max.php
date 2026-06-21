@@ -1,231 +1,138 @@
-<div class="wrap">
-    <h2>Min Max Design Settings</h2>
-    <form method="post" action="options.php">
-        <?php
-        settings_fields('min_max_bulkboost_settings');
-        // Default values
-        $defaults = [
-            'min_max_background_color_active' => '#000000',
-            'min_max_background_color_inactive' => '#FFFFFF',
-            'min_max_background_color_hover' => '#DDDDDD',
-            'min_max_text_color_active' => '#FFFFFF',
-            'min_max_text_color_inactive' => '#000000',
-            'min_max_text_color_hover' => '#333333',
-            'min_max_border_color_active' => '#000000',
-            'min_max_border_color_inactive' => '#FFFFFF',
-            'min_max_border_color_hover' => '#333333',
-            'min_max_size' => '16',
-        ];
-        $options = get_option('min_max_bulkboost_settings', $defaults);
+<?php
+/**
+ * BulkBoost — Min / Max quantity design page.
+ *
+ * @package BulkBoost/admin
+ */
 
-        ?>
-        <hr>
-        <p>🎨 Customize your Min Max Quantity design here! </p>
-        <p>Once you've tailored it to perfection:</p>
-        1️⃣ Head over to an <strong>Existing Product</strong> or spark creativity by adding a <strong>New
-            Product</strong>.<br/>
-        2️⃣ Scroll down to the <strong>Product Data</strong> section. <br>
-        3️⃣ Spot the <strong>"BulkBoost"</strong> tab on the left menu. 👈 <br>
-        4️⃣ Click to unleash amazing discounts for your products! 💸 <br>
-        <p>Happy discounting! 🚀</p>
-        <hr>
-        <h2>Preview</h2>
-        <div id="bulkboost_preview_preview">
+if (!defined('WPINC')) {
+    die;
+}
 
-        </div>
-        <hr>
-        <h2 class="nav-tab-wrapper">
-            <a href="#design-settings" class="nav-tab nav-tab-active">Design Settings</a>
-        </h2>
-        <div id="design-settings" class="tab-content">
-            <table class="form-table">
-                <!-- Background Color -->
-                <tr valign="top">
-                    <th scope="row">Background Color</th>
-                    <td>
-                        <input type="text" id="min_max_background_color_active"
-                               name="min_max_bulkboost_settings[min_max_background_color_active]"
-                               value="<?php echo esc_attr($options['min_max_background_color_active']); ?>"
-                               class="color-field"/>
-                        <input type="text" id="min_max_background_color_inactive"
-                               name="min_max_bulkboost_settings[min_max_background_color_inactive]"
-                               value="<?php echo esc_attr($options['min_max_background_color_inactive']); ?>"
-                               class="color-field"/>
-                        <input type="text" id="min_max_background_color_hover"
-                               name="min_max_bulkboost_settings[min_max_background_color_hover]"
-                               value="<?php echo esc_attr($options['min_max_background_color_hover']); ?>"
-                               class="color-field"/>
-                    </td>
-                </tr>
+require_once __DIR__ . '/bulkboost-admin-shell.php';
 
-                <!-- Text Color -->
-                <tr valign="top">
-                    <th scope="row">Text Color</th>
-                    <td>
-                        <input type="text" id="min_max_text_color_active"
-                               name="min_max_bulkboost_settings[min_max_text_color_active]"
-                               value="<?php echo esc_attr($options['min_max_text_color_active']); ?>"
-                               class="color-field"/>
-                        <input type="text" id="min_max_text_color_inactive"
-                               name="min_max_bulkboost_settings[min_max_text_color_inactive]"
-                               value="<?php echo esc_attr($options['min_max_text_color_inactive']); ?>"
-                               class="color-field"/>
-                        <input type="text" id="min_max_text_color_hover"
-                               name="min_max_bulkboost_settings[min_max_text_color_hover]"
-                               value="<?php echo esc_attr($options['min_max_text_color_hover']); ?>"
-                               class="color-field"/>
-                    </td>
-                </tr>
+$defaults = array(
+    'min_max_background_color_active'   => '#000000',
+    'min_max_background_color_inactive' => '#FFFFFF',
+    'min_max_background_color_hover'    => '#DDDDDD',
+    'min_max_text_color_active'         => '#FFFFFF',
+    'min_max_text_color_inactive'       => '#000000',
+    'min_max_text_color_hover'          => '#333333',
+    'min_max_border_color_active'       => '#000000',
+    'min_max_border_color_inactive'     => '#FFFFFF',
+    'min_max_border_color_hover'        => '#333333',
+    'min_max_size'                      => '16',
+);
+$options = wp_parse_args(get_option('min_max_bulkboost_settings', array()), $defaults);
 
-                <!-- Border Color -->
-                <tr valign="top">
-                    <th scope="row">Border Color</th>
-                    <td>
-                        <input type="text" id="min_max_border_color_active"
-                               name="min_max_bulkboost_settings[min_max_border_color_active]"
-                               value="<?php echo esc_attr($options['min_max_border_color_active']); ?>"
-                               class="color-field"/>
-                        <input type="text" id="min_max_border_color_inactive"
-                               name="min_max_bulkboost_settings[min_max_border_color_inactive]"
-                               value="<?php echo esc_attr($options['min_max_border_color_inactive']); ?>"
-                               class="color-field"/>
-                        <input type="text" id="min_max_border_color_hover"
-                               name="min_max_bulkboost_settings[min_max_border_color_hover]"
-                               value="<?php echo esc_attr($options['min_max_border_color_hover']); ?>"
-                               class="color-field"/>
-                    </td>
-                </tr>
+bb_admin_shell_open(array(
+    'active' => 'bulkboost-quantity-min-max',
+    'crumb'  => 'Settings',
+    'title'  => 'Min / Max Quantity',
+    'wide'   => true,
+));
 
-                <!-- min_max_size -->
-                <tr valign="top">
-                    <th scope="row">Button Size</th>
-                    <td>
-                        <input type="number" id="min_max_size"
-                               name="min_max_bulkboost_settings[min_max_size]"
-                               value="<?php echo esc_attr($options['min_max_size']); ?>"/>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <?php
-        submit_button(); ?>
-    </form>
+/**
+ * Render one color row with active / inactive / hover pickers.
+ */
+$row = function ($name, $prefix) use ($options) {
+    echo '<div class="bb-rowx"><div><div class="name">' . esc_html($name) . '</div></div><div class="bb-control">';
+    foreach (array('active' => 'Active', 'inactive' => 'Inactive', 'hover' => 'Hover') as $suffix => $label) {
+        $key = 'min_max_' . $prefix . '_color_' . $suffix;
+        printf(
+            '<span style="display:inline-flex;flex-direction:column;gap:4px;"><span style="font-size:11px;color:#9a9c91;text-transform:uppercase;letter-spacing:.05em;">%s</span><input type="text" id="%s" name="min_max_bulkboost_settings[%s]" value="%s" class="color-field"></span>',
+            esc_html($label),
+            esc_attr($key),
+            esc_attr($key),
+            esc_attr($options[$key])
+        );
+    }
+    echo '</div></div>';
+};
+?>
+
+<div class="bb-intro">
+    <h2>Min / Max Quantity</h2>
+    <p>Style the quantity selector buttons. Customize the colors below and preview updates instantly.</p>
 </div>
+
+<form method="post" action="options.php">
+    <?php settings_fields('min_max_bulkboost_settings'); ?>
+
+    <div class="bb-card">
+        <div class="bb-card-label">Preview</div>
+        <div class="bb-rowx no-border">
+            <div id="bulkboost_preview_preview" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
+        </div>
+    </div>
+
+    <div class="bb-card">
+        <div class="bb-card-label">Colors</div>
+        <?php
+        $row('Background color', 'background');
+        $row('Text color', 'text');
+        $row('Border color', 'border');
+        ?>
+        <div class="bb-rowx">
+            <div><div class="name">Button size</div></div>
+            <div class="bb-stepper" style="width:110px;">
+                <input type="number" id="min_max_size" name="min_max_bulkboost_settings[min_max_size]"
+                       value="<?php echo esc_attr($options['min_max_size']); ?>">
+                <span class="suffix">px</span>
+            </div>
+        </div>
+    </div>
+
+    <?php submit_button('Save Changes', 'primary', 'submit', true, array('class' => 'bb-btn bb-btn-primary')); ?>
+</form>
 
 <script type="text/javascript">
     jQuery(document).ready(function ($) {
-
         $('.color-field').wpColorPicker({
             change: function (event, ui) {
-                // Update the preview when a color is selected
-                var element = $(event.target);
-                var color = ui.color.toString();
-                element.val(color);
-                updatePreview();
+                $(event.target).val(ui.color.toString());
+                createButtons();
             },
-            clear: function (event) {
-                // Update the preview when the color is cleared
-                var element = $(event.target).closest('.wp-picker-input-wrap').find('.wp-color-picker');
-                element.val('');
-                updatePreview();
-            }
+            clear: function () { createButtons(); }
         });
 
-        // Selectors for the input fields
-        const backgroundColorActive = $('#min_max_background_color_active');
-        const backgroundColorInactive = $('#min_max_background_color_inactive');
-        const backgroundColorHover = $('#min_max_background_color_hover');
-        const textColorActive = $('#min_max_text_color_active');
-        const textColorInactive = $('#min_max_text_color_inactive');
-        const textColorHover = $('#min_max_text_color_hover');
-        const borderColorActive = $('#min_max_border_color_active');
-        const borderColorInactive = $('#min_max_border_color_inactive');
-        const borderColorHover = $('#min_max_border_color_hover');
-        const min_max_size = $('#min_max_size');
+        var bgA = $('#min_max_background_color_active'), bgI = $('#min_max_background_color_inactive'), bgH = $('#min_max_background_color_hover');
+        var tA = $('#min_max_text_color_active'), tI = $('#min_max_text_color_inactive'), tH = $('#min_max_text_color_hover');
+        var brA = $('#min_max_border_color_active'), brI = $('#min_max_border_color_inactive'), brH = $('#min_max_border_color_hover');
+        var size = $('#min_max_size');
+        var area = $('#bulkboost_preview_preview');
 
-        const previewArea = $('#bulkboost_preview_preview');
-
-        // Function to create buttons
         function createButtons() {
-            previewArea.empty();
-            for (let i = 1; i <= 10; i++) { // Adjust the number of buttons as needed
-                const button = $('<span></span>');
-                button.text(i);
-                button.css({
-                    'padding': `${min_max_size.val() / 2}px ${min_max_size.val()}px`,
-                    'margin': '2px',
-                    'display': 'inline-block',
-                    'backgroundColor': backgroundColorInactive.val(),
-                    'color': textColorInactive.val(),
-                    'border': `1px solid ${borderColorInactive.val()}`,
-                    'fontmin_max_size': min_max_size.val() + 'px',
-                    'cursor': 'pointer'
+            area.empty();
+            for (var i = 1; i <= 10; i++) {
+                var b = $('<span></span>').text(i).css({
+                    padding: (size.val() / 2) + 'px ' + size.val() + 'px',
+                    display: 'inline-block', cursor: 'pointer', borderRadius: '6px',
+                    backgroundColor: bgI.val(), color: tI.val(),
+                    border: '1px solid ' + brI.val(), fontSize: size.val() + 'px'
                 });
-
-                // Check if it's the third button
                 if (i === 3) {
-                    button.addClass('quantity-button-active').css({
-                        'backgroundColor': backgroundColorActive.val(),
-                        'color': textColorActive.val(),
-                        'borderColor': borderColorActive.val()
-                    });
+                    b.addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
                 }
-
-                // Hover effect
-                button.hover(
-                    function () {
-                        $(this).css({
-                            'backgroundColor': backgroundColorHover.val(),
-                            'color': textColorHover.val(),
-                            'borderColor': borderColorHover.val()
-                        });
-                    }, function () {
-                        if (!$(this).hasClass('quantity-button-active')) {
-                            $(this).css({
-                                'backgroundColor': backgroundColorInactive.val(),
-                                'color': textColorInactive.val(),
-                                'borderColor': borderColorInactive.val()
-                            });
-                        }
+                b.hover(function () {
+                    $(this).css({ backgroundColor: bgH.val(), color: tH.val(), borderColor: brH.val() });
+                }, function () {
+                    if (!$(this).hasClass('is-active')) {
+                        $(this).css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
                     }
-                );
-
-                // Exclusive active effect
-                button.click(function () {
-                    // Remove active class and reset style for all buttons
-                    $('.quantity-button-active').removeClass('quantity-button-active').css({
-                        'backgroundColor': backgroundColorInactive.val(),
-                        'color': textColorInactive.val(),
-                        'borderColor': borderColorInactive.val()
-                    });
-
-                    // Add active class and set active style for clicked button
-                    $(this).addClass('quantity-button-active').css({
-                        'backgroundColor': backgroundColorActive.val(),
-                        'color': textColorActive.val(),
-                        'borderColor': borderColorActive.val()
-                    });
                 });
-
-                previewArea.append(button);
+                b.on('click', function () {
+                    $('.is-active', area).removeClass('is-active').css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
+                    $(this).addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
+                });
+                area.append(b);
             }
         }
 
-
-        // Initial creation of buttons
         createButtons();
-
-        // Update buttons on input change
-        $('.color-field, #min_max_size').on('change', function () {
-            createButtons();
-        });
-
-        // Function to update the preview based on the current settings
-        function updatePreview() {
-            createButtons();
-        }
-
+        $('#min_max_size').on('change input', createButtons);
     });
-
 </script>
-<style id="dynamicStyles"></style>
+
+<?php
+bb_admin_shell_close();

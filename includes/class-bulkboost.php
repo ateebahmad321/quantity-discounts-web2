@@ -155,6 +155,9 @@ class BLKBST_BulkBoost
 
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+        $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_dashboard_assets');
+        $this->loader->add_filter('admin_body_class', $plugin_admin, 'bb_admin_body_class');
+        $this->loader->add_action('wp_ajax_bulkboost_save_design', $plugin_admin, 'BLKBST_save_design_settings');
         $this->loader->add_action('admin_notices', $plugin_admin, 'BLKBST_update_notice');
         // Settings menu
         $this->loader->add_action('admin_menu', $plugin_admin, 'BLKBST_bulkboost_admin_menu_page');

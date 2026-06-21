@@ -1,0 +1,268 @@
+/**
+ * BulkBoost admin dashboard — design system.
+ * Scoped under .bb-admin so it never leaks into WP chrome or the
+ * WooCommerce product-edit meta box (which still uses bulkboost-admin.css).
+ *
+ * Implements the "BulkBoost — Design Settings Dashboard" handoff.
+ */
+
+/* ---- Full-bleed: neutralise the default admin content padding on our pages ---- */
+.bb-admin-page #wpcontent { padding-left: 0; }
+.bb-admin-page #wpbody-content { padding-bottom: 0; }
+.bb-admin-page .notice,
+.bb-admin-page .update-nag,
+.bb-admin-page #screen-meta-links { display: none !important; }
+
+/* ---- Tokens ---- */
+.bb-admin {
+    --bb-bg: #f3f3f0;
+    --bb-surface: #ffffff;
+    --bb-surface-2: #fbfbf9;
+    --bb-tip: #f3f3ee;
+    --bb-track: #f0efe9;
+    --bb-ink: #1b1c18;
+    --bb-ink-2: #5a5c52;
+    --bb-ink-3: #6b6d63;
+    --bb-muted: #8a8c81;
+    --bb-faint: #9a9c91;
+    --bb-faint-2: #a0a296;
+    --bb-faintest: #b4b6aa;
+    --bb-border: #ecebe5;
+    --bb-divider: #f0efe9;
+    --bb-input-border: #e0dfd8;
+    --bb-accent: #10976a;
+
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    background: var(--bb-bg);
+    color: var(--bb-ink);
+    min-height: 100vh;
+    display: flex;
+    margin: 0 0 0 -20px;          /* pull under the WP admin menu gutter */
+    -webkit-font-smoothing: antialiased;
+}
+.bb-admin *,
+.bb-admin *::before,
+.bb-admin *::after { box-sizing: border-box; }
+@media screen and (max-width: 782px) {
+    .bb-admin { margin-left: -10px; }
+}
+
+/* ---- Sidebar ---- */
+.bb-sidebar {
+    width: 248px;
+    flex: none;
+    background: var(--bb-surface-2);
+    border-right: 1px solid var(--bb-border);
+    min-height: 100vh;
+    position: sticky;
+    top: 32px;                    /* below the WP admin bar */
+    align-self: flex-start;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.bb-brand { display: flex; align-items: center; gap: 11px; padding: 4px 6px; }
+.bb-logo {
+    width: 34px; height: 34px; border-radius: 9px; background: var(--bb-accent);
+    display: flex; align-items: flex-end; justify-content: center; gap: 2.5px; padding: 8px 7px;
+}
+.bb-logo i { width: 4px; border-radius: 1.5px; background: #fff; display: block; }
+.bb-logo i:nth-child(1) { height: 8px; opacity: .55; }
+.bb-logo i:nth-child(2) { height: 12px; opacity: .8; }
+.bb-logo i:nth-child(3) { height: 17px; }
+.bb-brand-name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; line-height: 1.1; }
+.bb-brand-sub { font-size: 11px; color: var(--bb-faint); font-weight: 500; }
+
+.bb-nav { display: flex; flex-direction: column; gap: 4px; }
+.bb-nav-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--bb-faintest); padding: 4px 8px 6px;
+}
+.bb-nav-item {
+    display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 9px;
+    font-size: 14px; font-weight: 500; color: var(--bb-ink-3); cursor: pointer;
+    text-decoration: none; border: 1px solid transparent; transition: all .15s;
+}
+.bb-nav-item svg { width: 18px; height: 18px; flex: none; }
+.bb-nav-item:hover { color: var(--bb-ink); }
+.bb-nav-item.is-active {
+    font-weight: 600; color: var(--bb-ink); background: var(--bb-surface);
+    box-shadow: 0 1px 2px rgba(20, 20, 15, .06); border: 1px solid var(--bb-border);
+}
+.bb-tip {
+    margin-top: auto; background: var(--bb-tip); border: 1px solid var(--bb-border);
+    border-radius: 12px; padding: 14px;
+}
+.bb-tip-title { font-size: 12.5px; font-weight: 600; color: var(--bb-ink); }
+.bb-tip-body { font-size: 12px; color: var(--bb-muted); margin-top: 4px; line-height: 1.45; }
+
+/* ---- Main ---- */
+.bb-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.bb-header {
+    position: sticky; top: 32px; z-index: 5;
+    background: rgba(243, 243, 240, .82); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--bb-border); padding: 16px 32px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.bb-crumb { font-size: 12px; color: var(--bb-faint-2); font-weight: 500; }
+.bb-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin: 2px 0 0; }
+.bb-header-actions { display: flex; align-items: center; gap: 18px; }
+
+.bb-status { font-size: 13px; display: flex; align-items: center; gap: 7px; }
+.bb-status .dot { width: 7px; height: 7px; border-radius: 50%; }
+.bb-status.is-saved { color: var(--bb-muted); }
+.bb-status.is-saved .dot { background: var(--bb-accent); }
+.bb-status.is-dirty { color: #b9821b; }
+.bb-status.is-dirty .dot { background: #d99a14; }
+
+.bb-btn {
+    height: 38px; border-radius: 9px; font-size: 13.5px; font-weight: 600;
+    font-family: inherit; cursor: pointer; display: inline-flex; align-items: center;
+    justify-content: center; border: 1px solid transparent; transition: all .15s;
+}
+.bb-btn-secondary { padding: 0 16px; border-color: var(--bb-input-border); background: #fff; color: var(--bb-ink-2); }
+.bb-btn-secondary:hover { background: #faf9f6; }
+.bb-btn-primary { padding: 0 20px; background: var(--bb-accent); color: #fff; box-shadow: 0 2px 8px -2px rgba(16, 151, 106, .5); }
+.bb-btn-primary:hover { filter: brightness(1.05); }
+.bb-btn[disabled] { opacity: .55; cursor: default; }
+
+/* ---- Body / layout ---- */
+.bb-body { display: flex; gap: 32px; align-items: flex-start; padding: 28px 32px 56px; }
+.bb-content { flex: 1; min-width: 0; max-width: 700px; }
+.bb-content.is-wide { max-width: 960px; }
+.bb-aside { width: 380px; flex: none; position: sticky; top: 136px; }
+
+.bb-intro { margin-bottom: 22px; }
+.bb-intro h2 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -.01em; }
+.bb-intro p { margin: 6px 0 0; font-size: 13.5px; color: var(--bb-muted); max-width: 520px; }
+
+/* ---- Tabs (in-content sub-nav for the Design page) ---- */
+.bb-tabs { display: flex; gap: 3px; background: var(--bb-track); padding: 3px; border-radius: 9px; width: max-content; margin-bottom: 22px; }
+.bb-tab {
+    padding: 7px 16px; font-size: 12.5px; font-weight: 600; border-radius: 7px;
+    color: var(--bb-ink-3); cursor: pointer; transition: all .15s; border: none; background: transparent;
+    font-family: inherit;
+}
+.bb-tab.is-active { color: #fff; background: var(--bb-accent); }
+
+/* ---- Cards / rows ---- */
+.bb-card {
+    background: var(--bb-surface); border: 1px solid var(--bb-border); border-radius: 16px;
+    padding: 6px 22px 16px; box-shadow: 0 1px 2px rgba(20, 20, 15, .04); margin-bottom: 20px;
+}
+.bb-card-label {
+    padding: 18px 0 6px; font-size: 12px; font-weight: 700; letter-spacing: .07em;
+    text-transform: uppercase; color: var(--bb-faint-2);
+}
+.bb-rowx {
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    padding: 16px 0; border-top: 1px solid var(--bb-divider);
+}
+.bb-rowx.no-border { border-top: none; }
+.bb-rowx .name { font-size: 14px; font-weight: 600; }
+.bb-rowx .help { font-size: 12.5px; color: var(--bb-muted); margin-top: 2px; }
+.bb-control { display: flex; align-items: center; gap: 10px; }
+.bb-dim { opacity: .4; pointer-events: none; transition: opacity .15s; }
+
+/* ---- Swatches ---- */
+.bb-swatches { display: flex; align-items: center; gap: 10px; }
+.bb-swatch {
+    width: 28px; height: 28px; border-radius: 8px; cursor: pointer; padding: 0; border: none;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .14); transition: box-shadow .15s;
+}
+.bb-swatch.is-selected { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--bb-ink); }
+
+/* ---- Segmented control ---- */
+.bb-seg { display: flex; gap: 3px; background: var(--bb-track); padding: 3px; border-radius: 9px; width: 264px; }
+.bb-seg-opt {
+    flex: 1; text-align: center; padding: 7px 6px; font-size: 12.5px; font-weight: 600;
+    border-radius: 7px; color: var(--bb-ink-3); cursor: pointer; transition: all .15s;
+    white-space: nowrap; border: none; background: transparent; font-family: inherit;
+}
+.bb-seg-opt.is-active { color: #fff; background: var(--bb-accent); }
+
+/* ---- Toggle ---- */
+.bb-toggle { width: 42px; height: 24px; border-radius: 999px; background: #d6d5cd; position: relative; cursor: pointer; transition: background .18s; flex: none; border: none; padding: 0; }
+.bb-toggle.is-on { background: var(--bb-accent); }
+.bb-toggle .knob { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: left .18s; box-shadow: 0 1px 3px rgba(0, 0, 0, .25); }
+.bb-toggle.is-on .knob { left: 21px; }
+.bb-toggle-label { font-size: 12.5px; color: var(--bb-muted); }
+
+/* ---- Range slider ---- */
+.bb-slider { display: flex; align-items: center; gap: 14px; width: 220px; }
+.bb-admin input[type=range] {
+    -webkit-appearance: none; appearance: none; height: 4px; border-radius: 999px;
+    background: #e2e1da; outline: none; width: 150px; cursor: pointer; accent-color: var(--bb-accent);
+}
+.bb-admin input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #fff;
+    border: 1px solid #cdccc3; box-shadow: 0 1px 3px rgba(20, 20, 15, .2); cursor: pointer;
+}
+.bb-admin input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%; background: #fff; border: 1px solid #cdccc3;
+    box-shadow: 0 1px 3px rgba(20, 20, 15, .2); cursor: pointer;
+}
+.bb-slider .val { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--bb-ink-3); width: 44px; text-align: right; }
+
+/* ---- Field group (weight + size) ---- */
+.bb-fields { display: flex; align-items: flex-end; gap: 14px; }
+.bb-field { display: flex; flex-direction: column; gap: 5px; }
+.bb-field > label { font-size: 11px; font-weight: 600; color: var(--bb-faint); text-transform: uppercase; letter-spacing: .05em; }
+
+/* ---- Select ---- */
+.bb-admin select.bb-select {
+    width: 130px; height: 38px; border: 1px solid var(--bb-input-border); border-radius: 9px;
+    padding: 0 32px 0 12px; font-size: 13px; font-family: inherit; color: var(--bb-ink);
+    background-color: #fff; cursor: pointer; appearance: none; -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8c81' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat; background-position: right 11px center;
+}
+
+/* ---- Number stepper ---- */
+.bb-stepper { display: flex; align-items: center; width: 94px; height: 38px; border: 1px solid var(--bb-input-border); border-radius: 9px; background: #fff; overflow: hidden; }
+.bb-stepper input { width: 100%; border: none; outline: none; padding: 0 6px 0 12px; font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--bb-ink); background: transparent; }
+.bb-stepper .suffix { font-size: 11px; color: var(--bb-faint-2); padding-right: 11px; font-family: 'JetBrains Mono', monospace; }
+.bb-admin input[type=number]::-webkit-inner-spin-button { opacity: .5; }
+
+/* ---- Text input ---- */
+.bb-admin input[type=text].bb-text {
+    width: 240px; height: 38px; border: 1px solid var(--bb-input-border); border-radius: 9px;
+    padding: 0 12px; font-size: 13px; font-family: inherit; color: var(--bb-ink); background: #fff;
+}
+
+/* ---- Live preview rail ---- */
+.bb-preview-label {
+    font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+    color: var(--bb-faint-2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+}
+.bb-preview-label .dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--bb-accent); }
+.bb-preview-card {
+    background: #fff; border: 1px solid var(--bb-border); border-radius: 18px; padding: 22px;
+    box-shadow: 0 16px 36px -22px rgba(20, 20, 15, .4);
+}
+.bb-prod { display: flex; gap: 14px; margin-bottom: 20px; align-items: center; }
+.bb-prod-img { width: 64px; height: 64px; border-radius: 13px; flex: none; background: repeating-linear-gradient(45deg, #efeee8, #efeee8 6px, #e6e5dd 6px, #e6e5dd 12px); }
+.bb-prod-name { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+.bb-prod-sub { font-size: 12.5px; color: var(--bb-muted); margin-top: 3px; }
+.bb-offers { display: flex; flex-direction: column; }
+.bb-offer { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 17px; cursor: pointer; transition: all .18s ease; }
+.bb-offer-left { display: flex; align-items: center; gap: 13px; flex: 1; min-width: 0; }
+.bb-radio-outer { width: 20px; height: 20px; flex: none; border: 2px solid #cfd0c8; display: flex; align-items: center; justify-content: center; transition: border-color .15s; }
+.bb-radio-inner { width: 10px; height: 10px; transition: transform .15s ease; }
+.bb-offer-right { text-align: right; flex: none; padding-left: 8px; }
+.bb-add-cart { margin-top: 18px; width: 100%; height: 46px; border: none; border-radius: 12px; background: var(--bb-ink); color: #fff; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; }
+
+/* ---- Re-skinned standard WP form for the simpler pages ---- */
+.bb-admin .form-table { background: transparent; }
+.bb-admin .form-table th { color: var(--bb-ink); font-weight: 600; }
+.bb-admin .form-table td .description { color: var(--bb-muted); }
+.bb-admin hr { border: none; border-top: 1px solid var(--bb-divider); margin: 16px 0; }
+.bb-admin a { color: var(--bb-accent); }
+.bb-prose { font-size: 13.5px; color: var(--bb-ink-2); line-height: 1.6; }
+.bb-prose strong { color: var(--bb-ink); }
+.bb-list-card { background: #fff; border: 1px solid var(--bb-border); border-radius: 16px; padding: 18px 22px; box-shadow: 0 1px 2px rgba(20, 20, 15, .04); margin-bottom: 16px; }
+.bb-cta { display: inline-block; font-weight: 700; color: var(--bb-accent); text-decoration: none; }
+.bb-videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.bb-videos iframe { width: 100%; border-radius: 10px; border: 1px solid var(--bb-border); }

@@ -27,6 +27,62 @@ if (!defined('WPINC')) {
 }
 
 /**
+ * Freemius SDK bootstrap. Must run before the plugin defines its own hooks.
+ * Snippet from the Freemius dashboard; SDK path points at the bundled
+ * /freemius/ folder (instead of the default /vendor/freemius/).
+ */
+if (!function_exists('bul_fs')) {
+    // Create a helper function for easy SDK access.
+    function bul_fs()
+    {
+        global $bul_fs;
+
+        if (!isset($bul_fs)) {
+            // Activate multisite network integration.
+            if (!defined('WP_FS__PRODUCT_32557_MULTISITE')) {
+                define('WP_FS__PRODUCT_32557_MULTISITE', true);
+            }
+
+            // Include Freemius SDK.
+            require_once dirname(__FILE__) . '/freemius/start.php';
+
+            $bul_fs = fs_dynamic_init(array(
+                'id'                  => '32557',
+                'slug'                => 'bulkboost',
+                'type'                => 'plugin',
+                'public_key'          => 'pk_7f07fc07244687e6099cafd301564',
+                'is_premium'          => true,
+                'premium_suffix'      => 'Pro',
+                // If your plugin is a serviceware, set this option to false.
+                'has_premium_version' => true,
+                'has_addons'          => false,
+                'has_paid_plans'      => true,
+                'is_org_compliant'    => true,
+                // Automatically removed in the free version. If you're not using the
+                // auto-generated free version, delete this line before uploading to wp.org.
+                'wp_org_gatekeeper'   => 'OA7#BoRiBNqdf52FvzEf!!074aRLPs8fspif$7K1#4u4Csys1fQlCecVcUTOs2mcpeVHi#C2j9d09fOTvbC0HloPT7fFee5WdS3G',
+                'trial'               => array(
+                    'days'               => 3,
+                    'is_require_payment' => true,
+                ),
+                'menu'                => array(
+                    'slug'    => 'bulkboost-bulkboost',
+                    'contact' => false,
+                    'support' => false,
+                ),
+            ));
+        }
+
+        return $bul_fs;
+    }
+
+    // Init Freemius.
+    bul_fs();
+    // Signal that SDK was initiated.
+    do_action('bul_fs_loaded');
+}
+
+/**
  * Currently plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
@@ -45,14 +101,16 @@ add_action('before_woocommerce_init', function () {
 /**
  * Whether premium (Pro) features are available.
  *
- * Single gate for all Pro-only functionality. Until the Freemius SDK is wired
- * up this returns false (overridable via the `bulkboost_is_premium` filter for
- * local testing). Once Freemius is connected, replace the body with:
- *     return bulkboost_fs()->can_use_premium_code();
+ * Single gate for all Pro-only functionality. Backed by Freemius
+ * (`can_use_premium_code()` is true on the premium build with an active
+ * license or trial). The `bulkboost_is_premium` filter can still force it on
+ * for local testing, e.g. add_filter('bulkboost_is_premium', '__return_true').
  */
 function bulkboost_is_premium()
 {
-    return (bool) apply_filters('bulkboost_is_premium', false);
+    $premium = function_exists('bul_fs') ? bul_fs()->can_use_premium_code() : false;
+
+    return (bool) apply_filters('bulkboost_is_premium', $premium);
 }
 
 /**

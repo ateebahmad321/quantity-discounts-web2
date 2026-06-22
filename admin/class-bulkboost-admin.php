@@ -32,10 +32,18 @@ class BLKBST_BulkBoost_Admin
         );
     }
 
-    public function enqueue_scripts()
+    public function enqueue_scripts($hook = '')
     {
+        // Color picker is used by the Min/Max settings page.
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
+
+        // The product meta-box script + its data are only needed on the
+        // product editor (where bulkboost_data is localized).
+        if ('post.php' !== $hook && 'post-new.php' !== $hook) {
+            return;
+        }
+
         wp_enqueue_script(
             $this->plugin_name,
             plugin_dir_url(__FILE__) . 'js/bulkboost-admin.min.js',
@@ -375,13 +383,7 @@ class BLKBST_BulkBoost_Admin
         <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo bulkboost_is_premium() ? '' : 'bb-free'; ?>">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
-            <div id="bulkboost_notice" class="inline notice woocommerce-message is-dismissible" style="width:90%; margin:10px auto; position:realtive; display: inline-blockl;">
-                <p style="margin:0;">
-                    Want to try Premium? Start <strong>Free Trial</strong>!
-                    <a href="https://bulkboost.com/products/quantity-breaks-and-discounts/" target="_blank">Click here to try it now</a>.
-                </p>
-            </div>
-
+           
             <ul class="tabs" style="margin-bottom:10px;">
                 <li class="quantity_settings_tab active">
                     <a href="#quantity_settings" class="active">Settings</a>
@@ -651,6 +653,26 @@ class BLKBST_BulkBoost_Admin
             'min_max_bulkboost_settings',
             'min_max_bulkboost_settings_validate',
         );
+
+        register_setting(
+            'bulkboost_general_settings',
+            'bulkboost_general_settings',
+            array($this, 'bulkboost_general_settings_validate')
+        );
+    }
+
+    /**
+     * Sanitize the General Settings (Pro). Each control is a strict enabled|disabled
+     * enum; saving is a no-op effect on free sites because the storefront hooks
+     * are premium-gated.
+     */
+    public function bulkboost_general_settings_validate($input)
+    {
+        $out = array();
+        foreach (array('disable_quantity_cart', 'disable_quantity_checkout') as $key) {
+            $out[$key] = (isset($input[$key]) && $input[$key] === 'disabled') ? 'disabled' : 'enabled';
+        }
+        return $out;
     }
 
     function bulkboost_settings_validate($input)

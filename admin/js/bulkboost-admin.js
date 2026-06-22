@@ -392,8 +392,6 @@
                 $('#min_max_preview').hide();
             }
 
-        } else {
-            console.error("bulkboost_data is not defined");
         }
 
 

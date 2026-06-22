@@ -575,4 +575,47 @@ class BLKBST_BulkBoost_Public
         }
     }
 
+    /**
+     * Locks the quantity column in the cart when "Quantity field in Cart" is
+     * disabled in General Settings (Pro). Replaces the editable input with a
+     * read-only number so customers keep the quantity chosen on the product page.
+     *
+     * @param string $product_quantity Existing quantity HTML.
+     * @param string $cart_item_key    Cart item key.
+     * @param array  $cart_item        Cart item data.
+     * @return string
+     */
+    public function BLKBST_lock_cart_quantity($product_quantity, $cart_item_key, $cart_item)
+    {
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            return $product_quantity;
+        }
+        $general = get_option('bulkboost_general_settings', array());
+        if (($general['disable_quantity_cart'] ?? 'enabled') !== 'disabled') {
+            return $product_quantity;
+        }
+        $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 1;
+        return '<span class="bulkboost-locked-qty">' . esc_html($qty) . '</span>';
+    }
+
+    /**
+     * Hides quantity controls on the checkout page when "Quantity field in
+     * Checkout" is disabled in General Settings (Pro). Classic checkout is
+     * already read-only; this also covers block-based checkout steppers.
+     */
+    public function BLKBST_lock_checkout_quantity()
+    {
+        if (!function_exists('is_checkout') || !is_checkout()) {
+            return;
+        }
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            return;
+        }
+        $general = get_option('bulkboost_general_settings', array());
+        if (($general['disable_quantity_checkout'] ?? 'enabled') !== 'disabled') {
+            return;
+        }
+        echo '<style>.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }</style>';
+    }
+
 }

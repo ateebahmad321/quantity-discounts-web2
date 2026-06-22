@@ -32,10 +32,18 @@ class BLKBST_BulkBoost_Admin
         );
     }
 
-    public function enqueue_scripts()
+    public function enqueue_scripts($hook = '')
     {
+        // Color picker is used by the Min/Max settings page.
         wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
+
+        // The product meta-box script + its data are only needed on the
+        // product editor (where bulkboost_data is localized).
+        if ('post.php' !== $hook && 'post-new.php' !== $hook) {
+            return;
+        }
+
         wp_enqueue_script(
             $this->plugin_name,
             plugin_dir_url(__FILE__) . 'js/bulkboost-admin.min.js',

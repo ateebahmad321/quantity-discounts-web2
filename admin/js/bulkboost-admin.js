@@ -335,7 +335,7 @@
             // Function to handle changes in BulkBoost
             function handleQuantityDiscountsChange() {
                 if (quantityDiscountsEnable.checked) {
-                    minMaxOrdersEnable.disabled = true;
+                    minMaxOrdersEnable.disabled = false;
                     minMaxOrdersDisable.checked = true;
                     minMaxValues.style.display = 'none';
                     displayMethodDropdown.parentElement.style.display = 'none';
@@ -360,7 +360,7 @@
             // Function to handle changes in Min-Max Orders
             function handleMinMaxOrdersChange() {
                 if (minMaxOrdersEnable.checked) {
-                    quantityDiscountsEnable.disabled = true;
+                    quantityDiscountsEnable.disabled = false;
                     quantityDiscountsDisable.checked = true;
                     minMaxValues.style.display = 'block';
                     displayMethodDropdown.parentElement.style.display = 'block';
@@ -382,7 +382,7 @@
             handleMinMaxOrdersChange();
 
             if (quantityDiscountsEnable.checked) {
-                minMaxOrdersEnable.disabled = true;
+                minMaxOrdersEnable.disabled = false;
                 minMaxOrdersDisable.checked = true;
                 minMaxValues.style.display = 'none';
                 displayMethodDropdown.parentElement.style.display = 'none';

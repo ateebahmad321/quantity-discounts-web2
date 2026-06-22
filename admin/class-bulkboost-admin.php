@@ -375,13 +375,7 @@ class BLKBST_BulkBoost_Admin
         <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo bulkboost_is_premium() ? '' : 'bb-free'; ?>">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
-            <div id="bulkboost_notice" class="inline notice woocommerce-message is-dismissible" style="width:90%; margin:10px auto; position:realtive; display: inline-blockl;">
-                <p style="margin:0;">
-                    Want to try Premium? Start <strong>Free Trial</strong>!
-                    <a href="https://bulkboost.com/products/quantity-breaks-and-discounts/" target="_blank">Click here to try it now</a>.
-                </p>
-            </div>
-
+           
             <ul class="tabs" style="margin-bottom:10px;">
                 <li class="quantity_settings_tab active">
                     <a href="#quantity_settings" class="active">Settings</a>

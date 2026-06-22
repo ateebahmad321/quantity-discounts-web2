@@ -118,7 +118,8 @@ function bulkboost_is_premium()
  */
 function bulkboost_upgrade_url()
 {
-    return apply_filters('bulkboost_upgrade_url', 'https://bulkboost.com/products/quantity-breaks-and-discounts/');
+    // The Freemius-generated pricing page lives under the plugin's admin menu.
+    return apply_filters('bulkboost_upgrade_url', admin_url('admin.php?page=bulkboost-bulkboost-pricing'));
 }
 
 /**

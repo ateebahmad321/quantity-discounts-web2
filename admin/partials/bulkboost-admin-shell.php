@@ -30,8 +30,8 @@ if (!function_exists('bb_admin_nav_items')) {
             'bulkboost-bulkboost'       => array('label' => 'Dashboard',       'icon' => $home),
             'bulkboost-quantity-design' => array('label' => 'Design Settings', 'icon' => $sliders),
             'bulkboost-quantity-min-max'=> array('label' => 'Min / Max',       'icon' => $minmax),
-            'bulkboost-earnings'        => array('label' => 'Earnings',         'icon' => $earn),
-            'bulkboost-settings'        => array('label' => 'General Settings', 'icon' => $cog),
+            'bulkboost-earnings'        => array('label' => 'Analytics',       'icon' => $earn),
+            'bulkboost-settings'        => array('label' => 'Cart & Checkout', 'icon' => $cog),
         );
     }
 }
@@ -95,6 +95,27 @@ if (!function_exists('bb_admin_shell_open')) {
 
                 <div class="bb-body">
                     <section class="bb-content<?php echo $args['wide'] ? ' is-wide' : ''; ?>">
+        <?php
+    }
+}
+
+if (!function_exists('bb_admin_upsell')) {
+    /**
+     * Renders a prominent "Pro feature" upsell card for non-premium users.
+     *
+     * @param string $title Feature name.
+     * @param string $desc  One-line description.
+     */
+    function bb_admin_upsell($title, $desc)
+    {
+        $url = function_exists('bulkboost_upgrade_url') ? bulkboost_upgrade_url() : admin_url('admin.php?page=bulkboost-bulkboost-pricing');
+        ?>
+        <div class="bb-upsell">
+            <div class="bb-upsell-badge">PRO</div>
+            <h2><?php echo esc_html($title); ?></h2>
+            <p><?php echo esc_html($desc); ?></p>
+            <a class="bb-btn bb-btn-primary" href="<?php echo esc_url($url); ?>">Upgrade to Pro — 14 days free</a>
+        </div>
         <?php
     }
 }

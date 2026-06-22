@@ -302,8 +302,8 @@ class BLKBST_BulkBoost_Admin
 
         add_submenu_page(
             'bulkboost-' . $this->plugin_name,
-            'Earnings',
-            'Earnings',
+            'Analytics',
+            'Analytics',
             'administrator',
             'bulkboost-earnings',
             array($this, 'displayPluginAdminEarnings')
@@ -311,8 +311,8 @@ class BLKBST_BulkBoost_Admin
 
         add_submenu_page(
             'bulkboost-' . $this->plugin_name,
-            'General Settings',
-            'General Settings',
+            'Cart & Checkout',
+            'Cart & Checkout',
             'administrator',
             'bulkboost-settings',
             array($this, 'displayPluginAdminSettings')
@@ -347,6 +347,93 @@ class BLKBST_BulkBoost_Admin
     public function displayPluginAdminEarnings()
     {
         require_once 'partials/' . $this->plugin_name . '-admin-display-earnings.php';
+    }
+
+    /**
+     * Returns the BulkBoost "Solution" type a product uses, or null if it isn't
+     * a BulkBoost product. Used by the Earnings report.
+     */
+    public function bulkboost_product_type($product_id)
+    {
+        if (get_post_meta($product_id, '_bulkboost_qd_min_max_enabled', true) === 'enable') {
+            return __('Min Max Quantity', 'bulkboost');
+        }
+        if (get_post_meta($product_id, '_bulkboost_qd_quantity_enabled', true) === 'enable') {
+            return __('Quantity Bundle Blocks', 'bulkboost');
+        }
+        return null;
+    }
+
+    /**
+     * Builds the Earnings report (Pro): completed orders that contain BulkBoost
+     * products, aggregated per product, within an optional date range.
+     *
+     * @param string $start Y-m-d or empty.
+     * @param string $end   Y-m-d or empty.
+     * @return array{rows: array, total: float}
+     */
+    public function BLKBST_get_earnings_data($start = '', $end = '')
+    {
+        $result = array('rows' => array(), 'total' => 0.0);
+
+        if (!function_exists('wc_get_orders')) {
+            return $result;
+        }
+
+        $args = array(
+            'status'  => array('completed'),
+            'type'    => 'shop_order',
+            'limit'   => -1,
+            'return'  => 'objects',
+            'orderby' => 'date',
+            'order'   => 'DESC',
+        );
+
+        $start_ts = $start ? strtotime($start . ' 00:00:00') : 0;
+        $end_ts   = $end ? strtotime($end . ' 23:59:59') : 0;
+        if ($start_ts && $end_ts) {
+            $args['date_created'] = $start_ts . '...' . $end_ts;
+        } elseif ($start_ts) {
+            $args['date_created'] = '>=' . $start_ts;
+        } elseif ($end_ts) {
+            $args['date_created'] = '<=' . $end_ts;
+        }
+
+        $orders = wc_get_orders($args);
+        $rows = array();
+        $total = 0.0;
+
+        foreach ($orders as $order) {
+            $date = $order->get_date_created();
+            foreach ($order->get_items() as $item) {
+                $product_id = $item->get_product_id();
+                $type = $this->bulkboost_product_type($product_id);
+                if (null === $type) {
+                    continue;
+                }
+                $line_total = (float) $item->get_total();
+                if (!isset($rows[$product_id])) {
+                    $rows[$product_id] = array(
+                        'product_id' => $product_id,
+                        'name'       => $item->get_name(),
+                        'sales'      => 0.0,
+                        'quantity'   => 0,
+                        'last_order' => null,
+                        'type'       => $type,
+                    );
+                }
+                $rows[$product_id]['sales']    += $line_total;
+                $rows[$product_id]['quantity'] += (int) $item->get_quantity();
+                if ($date && (null === $rows[$product_id]['last_order'] || $date->getTimestamp() > $rows[$product_id]['last_order'])) {
+                    $rows[$product_id]['last_order'] = $date->getTimestamp();
+                }
+                $total += $line_total;
+            }
+        }
+
+        $result['rows']  = array_values($rows);
+        $result['total'] = $total;
+        return $result;
     }
 
     public function BLKBST_bulkboost_product_data_panels()
@@ -443,7 +530,7 @@ class BLKBST_BulkBoost_Admin
                 <div class="bb-pd-pro-note">
                     <strong>★ Badges are a Pro feature.</strong>
                     Label, savings &amp; free-shipping badges are available in BulkBoost Pro.
-                    <a href="<?php echo esc_url(bulkboost_upgrade_url()); ?>" target="_blank" rel="noopener">Upgrade</a>
+                    <a href="<?php echo esc_url(bulkboost_upgrade_url()); ?>">Upgrade</a>
                 </div>
                 <?php endif; ?>
                 <div id="bulkboost_container"></div>
@@ -581,13 +668,13 @@ class BLKBST_BulkBoost_Admin
 
     public function links_to_menu($links)
     {
-        $url = "https://bulkboost.com/products/quantity-breaks-and-discounts/#pricing";
+        $url = bulkboost_upgrade_url();
         $url2 = "admin.php?page=bulkboost-bulkboost";
         $url3 = "https://wordpress.org/support/plugin/bulkboost/reviews/#new-post";
 
         $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀') . '</b></a>';
         $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us') . '</strong></a>';
-        $settings_link .= " | <a href='$url' style='font-weight: bold; color: green;' target='_blank'>" . __(
+        $settings_link .= " | <a href='" . esc_url($url) . "' style='font-weight: bold; color: green;'>" . __(
                 'Get Premium'
             ) . '</a>';
 

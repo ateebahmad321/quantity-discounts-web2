@@ -597,27 +597,26 @@ class BLKBST_BulkBoost_Admin
             '_bulkboost_qd_badge_save_enabled',    // yes|no
             '_bulkboost_qd_badge_save_override',   // manual % text override, blank = auto-calc
         ];
-        // No tiers submitted — BulkBoost simply isn't configured on this product.
-        if (empty($_POST['_bulkboost_qd_quantity']) || !is_array($_POST['_bulkboost_qd_quantity'])) {
-            return;
-        }
-        $error = false;
+        // Tier fields are only required when the quantity-breaks feature is
+        // actually enabled on this product. Otherwise an empty/leftover block
+        // must not trigger a validation error.
+        $qd_enabled = (isset($_POST['_bulkboost_qd_quantity_enabled'])
+            && $_POST['_bulkboost_qd_quantity_enabled'] === 'enable');
 
-        $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
-        foreach ($posted_quantities as $index => $quantity) {
-            $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
-            if (empty($quantity) || empty($price)) {
-                $error = true;
-                break;
+        if ($qd_enabled && !empty($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity'])) {
+            $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
+            foreach ($posted_quantities as $index => $quantity) {
+                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
+                if (empty($quantity) || empty($price)) {
+                    set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
+                    return;
+                }
             }
         }
 
-        if ($error) {
-            set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
-            return;
-        }
-
-        $block_count = count($posted_quantities);
+        $block_count = (isset($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity']))
+            ? count($_POST['_bulkboost_qd_quantity'])
+            : 0;
 
         // If no error, save the fields
         foreach ($fields as $field) {

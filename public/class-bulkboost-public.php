@@ -585,6 +585,19 @@ class BLKBST_BulkBoost_Public
      * @param array  $cart_item        Cart item data.
      * @return string
      */
+    /**
+     * Whether a product uses a BulkBoost solution (quantity breaks or min/max).
+     * Only these products' quantities are locked in the cart.
+     */
+    private function is_bulkboost_product($product_id)
+    {
+        if (!$product_id) {
+            return false;
+        }
+        return get_post_meta($product_id, '_bulkboost_qd_quantity_enabled', true) === 'enable'
+            || get_post_meta($product_id, '_bulkboost_qd_min_max_enabled', true) === 'enable';
+    }
+
     public function BLKBST_lock_cart_quantity($product_quantity, $cart_item_key, $cart_item)
     {
         if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
@@ -592,6 +605,10 @@ class BLKBST_BulkBoost_Public
         }
         $general = get_option('bulkboost_general_settings', array());
         if (($general['disable_quantity_cart'] ?? 'enabled') !== 'disabled') {
+            return $product_quantity;
+        }
+        $product_id = isset($cart_item['product_id']) ? $cart_item['product_id'] : 0;
+        if (!$this->is_bulkboost_product($product_id)) {
             return $product_quantity;
         }
         $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 1;
@@ -637,8 +654,16 @@ class BLKBST_BulkBoost_Public
         $general = get_option('bulkboost_general_settings', array());
         $cart_locked     = (($general['disable_quantity_cart'] ?? 'enabled') === 'disabled');
         $checkout_locked = (($general['disable_quantity_checkout'] ?? 'enabled') === 'disabled');
+        if (!$cart_locked && !$checkout_locked) {
+            return $editable;
+        }
 
-        return ($cart_locked || $checkout_locked) ? false : $editable;
+        $product_id = $product ? $product->get_id() : (isset($cart_item['product_id']) ? $cart_item['product_id'] : 0);
+        if (!$this->is_bulkboost_product($product_id)) {
+            return $editable;
+        }
+
+        return false;
     }
 
 }

@@ -220,18 +220,50 @@ bb_admin_shell_open(array(
         <?php endif; ?>
 
         <div class="bb-card">
-            <div class="bb-card-label">Label badge</div>
+            <div class="bb-card-label">Label badge — HOT</div>
             <div class="bb-rowx">
-                <div><div class="name">Preview</div><div class="help">HOT · MOST POPULAR · BEST DEAL</div></div>
-                <span class="bb-badge-chip" data-badge-chip="label">HOT</span>
+                <div><div class="name">Preview</div></div>
+                <span class="bb-badge-chip" data-badge-chip="hot">HOT</span>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('labelBadgeBg', array('#e8643c', '#d4537e', '#4f5bd5', '#1b1c18')); ?>
+                <?php bb_color_row('labelHotBg', array('#e53935', '#e8643c', '#d4537e', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('labelBadgeText', array('#ffffff', '#1b1c18')); ?>
+                <?php bb_color_row('labelHotText', array('#ffffff', '#1b1c18')); ?>
+            </div>
+        </div>
+
+        <div class="bb-card">
+            <div class="bb-card-label">Label badge — Most popular</div>
+            <div class="bb-rowx">
+                <div><div class="name">Preview</div></div>
+                <span class="bb-badge-chip" data-badge-chip="popular">MOST POPULAR</span>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Background</div></div>
+                <?php bb_color_row('labelPopularBg', array('#7b3fd1', '#4f5bd5', '#10976a', '#1b1c18')); ?>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Text color</div></div>
+                <?php bb_color_row('labelPopularText', array('#ffffff', '#1b1c18')); ?>
+            </div>
+        </div>
+
+        <div class="bb-card">
+            <div class="bb-card-label">Label badge — Best deal</div>
+            <div class="bb-rowx">
+                <div><div class="name">Preview</div></div>
+                <span class="bb-badge-chip" data-badge-chip="bestdeal">BEST DEAL 🔥</span>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Background</div></div>
+                <?php bb_color_row('labelBestdealBg', array('#16a34a', '#10976a', '#c2870e', '#1b1c18')); ?>
+            </div>
+            <div class="bb-rowx">
+                <div><div class="name">Text color</div></div>
+                <?php bb_color_row('labelBestdealText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
 

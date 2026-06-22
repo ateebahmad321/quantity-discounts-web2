@@ -31,7 +31,9 @@
         priceWeight: 'price_font_weight', priceSize: 'price_font_size',
         showOld: 'show_old_price',
         oldWeight: 'old_price_font_weight', oldSize: 'old_price_font_size',
-        labelBadgeBg: 'label_badge_bg', labelBadgeText: 'label_badge_text',
+        labelHotBg: 'label_hot_bg', labelHotText: 'label_hot_text',
+        labelPopularBg: 'label_popular_bg', labelPopularText: 'label_popular_text',
+        labelBestdealBg: 'label_bestdeal_bg', labelBestdealText: 'label_bestdeal_text',
         saveBadgeBg: 'save_badge_bg', saveBadgeText: 'save_badge_text',
         shippingBadgeBg: 'shipping_badge_bg', shippingBadgeText: 'shipping_badge_text'
     };
@@ -251,7 +253,9 @@
     // Live sample chips in the Badge tab, one per badge type.
     function renderBadgeChips() {
         var map = {
-            label: ['labelBadgeBg', 'labelBadgeText'],
+            hot: ['labelHotBg', 'labelHotText'],
+            popular: ['labelPopularBg', 'labelPopularText'],
+            bestdeal: ['labelBestdealBg', 'labelBestdealText'],
             save: ['saveBadgeBg', 'saveBadgeText'],
             shipping: ['shippingBadgeBg', 'shippingBadgeText']
         };
@@ -289,16 +293,22 @@
                 s.selected = i; renderPreview();
             });
 
-            // Label-tab badge on the best-value offer (styling preview).
-            if (i === BASE.length - 1) {
+            // A different label badge per tier so all three styles preview live.
+            var labelText = ['HOT', 'MOST POPULAR', 'BEST DEAL'][i];
+            var labelKeys = [
+                ['labelHotBg', 'labelHotText'],
+                ['labelPopularBg', 'labelPopularText'],
+                ['labelBestdealBg', 'labelBestdealText']
+            ][i];
+            if (labelText) {
                 var badge = document.createElement('div');
-                badge.textContent = 'BEST DEAL';
+                badge.textContent = labelText;
                 var bs = badge.style;
                 bs.position = 'absolute'; bs.top = '-9px'; bs.left = '16px';
                 bs.padding = '4px 9px'; bs.borderRadius = '999px';
                 bs.fontSize = '10px'; bs.fontWeight = '700'; bs.letterSpacing = '.06em';
                 bs.textTransform = 'uppercase'; bs.whiteSpace = 'nowrap';
-                bs.background = s.labelBadgeBg; bs.color = s.labelBadgeText;
+                bs.background = s[labelKeys[0]]; bs.color = s[labelKeys[1]];
                 bs.boxShadow = '0 3px 8px -2px rgba(0,0,0,.3)';
                 card.appendChild(badge);
             }
@@ -345,9 +355,33 @@
             price.style.lineHeight = '1.1';
             price.style.fontWeight = s.priceWeight; price.style.fontSize = s.priceSize + 'px'; price.style.color = tCol;
             right.appendChild(price);
-            card.appendChild(right);
 
+            // Save % badge (pill under the price).
+            if (o.old && o.old > o.price) {
+                var pct = Math.round(((o.old - o.price) / o.old) * 100);
+                var sb = document.createElement('span');
+                sb.textContent = 'Save ' + pct + '%';
+                var sbs = sb.style;
+                sbs.display = 'inline-block'; sbs.marginTop = '5px';
+                sbs.padding = '2px 8px'; sbs.borderRadius = '999px';
+                sbs.fontSize = '10px'; sbs.fontWeight = '700'; sbs.letterSpacing = '.03em';
+                sbs.background = s.saveBadgeBg; sbs.color = s.saveBadgeText;
+                right.appendChild(sb);
+            }
+
+            card.appendChild(right);
             wrap.appendChild(card);
+
+            // Free shipping banner under the best-value tier.
+            if (i === BASE.length - 1) {
+                var ship = document.createElement('div');
+                ship.textContent = '🚚 FREE Shipping';
+                var shs = ship.style;
+                shs.padding = '8px 14px'; shs.borderRadius = '8px'; shs.textAlign = 'center';
+                shs.fontSize = '12px'; shs.fontWeight = '600';
+                shs.background = s.shippingBadgeBg; shs.color = s.shippingBadgeText;
+                wrap.appendChild(ship);
+            }
         });
     }
 

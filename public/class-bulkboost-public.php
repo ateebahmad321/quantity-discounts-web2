@@ -74,19 +74,21 @@ class BLKBST_BulkBoost_Public
         // Badge styling is a Pro feature: only apply the saved colors when premium.
         $badge_css = '';
         if (function_exists('bulkboost_is_premium') && bulkboost_is_premium()) {
-            $label_badge_bg      = sanitize_hex_color($bulkboost_settings['label_badge_bg'] ?? '') ?: '#e8643c';
-            $label_badge_text    = sanitize_hex_color($bulkboost_settings['label_badge_text'] ?? '') ?: '#ffffff';
+            $label_hot_bg        = sanitize_hex_color($bulkboost_settings['label_hot_bg'] ?? '') ?: '#e53935';
+            $label_hot_text      = sanitize_hex_color($bulkboost_settings['label_hot_text'] ?? '') ?: '#ffffff';
+            $label_popular_bg    = sanitize_hex_color($bulkboost_settings['label_popular_bg'] ?? '') ?: '#7b3fd1';
+            $label_popular_text  = sanitize_hex_color($bulkboost_settings['label_popular_text'] ?? '') ?: '#ffffff';
+            $label_bestdeal_bg   = sanitize_hex_color($bulkboost_settings['label_bestdeal_bg'] ?? '') ?: '#16a34a';
+            $label_bestdeal_text = sanitize_hex_color($bulkboost_settings['label_bestdeal_text'] ?? '') ?: '#ffffff';
             $save_badge_bg       = sanitize_hex_color($bulkboost_settings['save_badge_bg'] ?? '') ?: '#10976a';
             $save_badge_text     = sanitize_hex_color($bulkboost_settings['save_badge_text'] ?? '') ?: '#ffffff';
             $shipping_badge_bg   = sanitize_hex_color($bulkboost_settings['shipping_badge_bg'] ?? '') ?: '#1b1c18';
             $shipping_badge_text = sanitize_hex_color($bulkboost_settings['shipping_badge_text'] ?? '') ?: '#ffffff';
 
             $badge_css =
-                '.bulkboost-label-tab,'
-                . '.bulkboost-label-tab.bulkboost-tab-hot,'
-                . '.bulkboost-label-tab.bulkboost-tab-popular,'
-                . '.bulkboost-label-tab.bulkboost-tab-bestdeal{'
-                . 'background:' . $label_badge_bg . ';color:' . $label_badge_text . ';}'
+                '.bulkboost-label-tab.bulkboost-tab-hot{background:' . $label_hot_bg . ';color:' . $label_hot_text . ';}'
+                . '.bulkboost-label-tab.bulkboost-tab-popular{background:' . $label_popular_bg . ';color:' . $label_popular_text . ';}'
+                . '.bulkboost-label-tab.bulkboost-tab-bestdeal{background:' . $label_bestdeal_bg . ';color:' . $label_bestdeal_text . ';}'
                 . '.bulkboost-badge-save{background-color:' . $save_badge_bg . ';color:' . $save_badge_text . ';}'
                 . '.bulkboost-shipping-banner{background-color:' . $shipping_badge_bg . ';color:' . $shipping_badge_text . ';}'
                 . '.bulkboost-shipping-banner .bulkboost-shipping-icon{color:inherit;}';

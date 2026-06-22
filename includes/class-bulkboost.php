@@ -233,6 +233,8 @@ class BLKBST_BulkBoost
         // General Settings (Pro): lock the quantity field in cart / checkout.
         $this->loader->add_filter('woocommerce_cart_item_quantity', $plugin_public, 'BLKBST_lock_cart_quantity', 10, 3);
         $this->loader->add_action('wp_head', $plugin_public, 'BLKBST_lock_checkout_quantity');
+        // Block-based Cart & Checkout (Store API).
+        $this->loader->add_filter('woocommerce_store_api_product_quantity_editable', $plugin_public, 'BLKBST_lock_block_quantity', 10, 3);
     }
 
     /**

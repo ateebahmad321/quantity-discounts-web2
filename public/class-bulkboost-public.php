@@ -618,4 +618,27 @@ class BLKBST_BulkBoost_Public
         echo '<style>.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }</style>';
     }
 
+    /**
+     * Locks the quantity in the block-based Cart & Checkout (Store API).
+     * The classic `woocommerce_cart_item_quantity` filter doesn't apply to the
+     * React Cart/Checkout blocks; returning false here renders the quantity as
+     * read-only text instead of an editable stepper.
+     *
+     * @param bool       $editable   Whether the quantity is editable.
+     * @param WC_Product $product    The product (unused).
+     * @param array      $cart_item  Cart item (unused).
+     * @return bool
+     */
+    public function BLKBST_lock_block_quantity($editable, $product = null, $cart_item = null)
+    {
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            return $editable;
+        }
+        $general = get_option('bulkboost_general_settings', array());
+        $cart_locked     = (($general['disable_quantity_cart'] ?? 'enabled') === 'disabled');
+        $checkout_locked = (($general['disable_quantity_checkout'] ?? 'enabled') === 'disabled');
+
+        return ($cart_locked || $checkout_locked) ? false : $editable;
+    }
+
 }

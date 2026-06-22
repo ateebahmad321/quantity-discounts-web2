@@ -214,7 +214,7 @@ bb_admin_shell_open(array(
                     <div class="bb-lock-icon">★</div>
                     <strong>Badges are a Pro feature</strong>
                     <p>Unlock label, savings and free-shipping badge styling with BulkBoost Pro.</p>
-                    <a class="bb-btn bb-btn-primary" href="<?php echo esc_url(bulkboost_upgrade_url()); ?>" target="_blank" rel="noopener">Upgrade to Pro</a>
+                    <a class="bb-btn bb-btn-primary" href="<?php echo esc_url(bulkboost_upgrade_url()); ?>">Upgrade to Pro</a>
                 </div>
             </div>
         <?php endif; ?>

@@ -278,6 +278,9 @@
 .bb-admin .form-table td .description { color: var(--bb-muted); }
 .bb-admin hr { border: none; border-top: 1px solid var(--bb-divider); margin: 16px 0; }
 .bb-admin a { color: var(--bb-accent); }
+/* Anchor buttons must keep their button text color, not the generic link color. */
+.bb-admin a.bb-btn-primary { color: #fff; }
+.bb-admin a.bb-btn-secondary { color: var(--bb-ink-2); }
 .bb-prose { font-size: 13.5px; color: var(--bb-ink-2); line-height: 1.6; }
 .bb-prose strong { color: var(--bb-ink); }
 .bb-list-card { background: #fff; border: 1px solid var(--bb-border); border-radius: 16px; padding: 18px 22px; box-shadow: 0 1px 2px rgba(20, 20, 15, .04); margin-bottom: 16px; }
@@ -322,3 +325,35 @@
 .bb-lock-card strong { display: block; font-size: 15px; color: var(--bb-ink); }
 .bb-lock-card p { margin: 8px 0 16px; font-size: 13px; color: var(--bb-muted); line-height: 1.5; }
 .bb-lock-card .bb-btn { width: 100%; }
+
+/* ---- Earnings report ---- */
+.bb-earnings-filter { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.bb-earnings-filter label { display: flex; flex-direction: column; gap: 5px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--bb-faint); }
+.bb-admin .bb-earnings-filter input[type=date] {
+    height: 38px; border: 1px solid var(--bb-input-border); border-radius: 9px;
+    padding: 0 10px; font-size: 13px; background: #fff; font-family: inherit; color: var(--bb-ink);
+}
+.bb-earnings-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.bb-earnings-table th {
+    text-align: left; font-weight: 700; color: var(--bb-faint-2); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .05em; padding: 14px 18px; border-bottom: 1px solid var(--bb-border);
+}
+.bb-earnings-table td { padding: 15px 18px; border-bottom: 1px solid var(--bb-divider); color: var(--bb-ink); vertical-align: top; }
+.bb-earnings-table tbody tr:last-child td { border-bottom: none; }
+.bb-earnings-table a { color: var(--bb-accent); font-weight: 600; text-decoration: none; }
+.bb-earnings-table a:hover { text-decoration: underline; }
+.bb-earnings-empty { color: var(--bb-muted); text-align: center; padding: 28px 18px; }
+.bb-earnings-total { font-size: 18px; font-weight: 700; color: var(--bb-accent); margin: 18px 0 24px; }
+
+/* ---- Full-page Pro upsell card ---- */
+.bb-upsell {
+    background: #fff; border: 1px solid var(--bb-border); border-radius: 16px;
+    padding: 40px 32px; text-align: center; box-shadow: 0 1px 2px rgba(20, 20, 15, .04); max-width: 560px;
+}
+.bb-upsell-badge {
+    display: inline-block; background: #f5c518; color: #4a3b00; font-size: 11px; font-weight: 700;
+    letter-spacing: .06em; padding: 3px 10px; border-radius: 6px; margin-bottom: 14px;
+}
+.bb-upsell h2 { margin: 0 0 8px; font-size: 22px; font-weight: 700; letter-spacing: -.01em; color: var(--bb-ink); }
+.bb-upsell p { margin: 0 auto 20px; font-size: 14px; color: var(--bb-muted); line-height: 1.6; max-width: 430px; }
+.bb-upsell .bb-btn { padding: 0 24px; height: 42px; }

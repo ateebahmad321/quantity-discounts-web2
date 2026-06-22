@@ -113,9 +113,13 @@ class BLKBST_BulkBoost_Admin
             'show_old_price'          => 'yes',
             'old_price_font_weight'   => 400,
             'old_price_font_size'     => 13,
-            // Badge styling (Pro). One background + text color per badge type.
-            'label_badge_bg'          => '#e8643c',
-            'label_badge_text'        => '#ffffff',
+            // Badge styling (Pro). The three label types each get their own colors.
+            'label_hot_bg'            => '#e53935',
+            'label_hot_text'          => '#ffffff',
+            'label_popular_bg'        => '#7b3fd1',
+            'label_popular_text'      => '#ffffff',
+            'label_bestdeal_bg'       => '#16a34a',
+            'label_bestdeal_text'     => '#ffffff',
             'save_badge_bg'           => '#10976a',
             'save_badge_text'         => '#ffffff',
             'shipping_badge_bg'       => '#1b1c18',
@@ -130,7 +134,9 @@ class BLKBST_BulkBoost_Admin
     public static function premium_design_keys()
     {
         return array(
-            'label_badge_bg', 'label_badge_text',
+            'label_hot_bg', 'label_hot_text',
+            'label_popular_bg', 'label_popular_text',
+            'label_bestdeal_bg', 'label_bestdeal_text',
             'save_badge_bg', 'save_badge_text',
             'shipping_badge_bg', 'shipping_badge_text',
         );
@@ -179,7 +185,9 @@ class BLKBST_BulkBoost_Admin
         $colors = array(
             'background_color_active', 'text_color_active', 'accent_color',
             'border_color_inactive',
-            'label_badge_bg', 'label_badge_text',
+            'label_hot_bg', 'label_hot_text',
+            'label_popular_bg', 'label_popular_text',
+            'label_bestdeal_bg', 'label_bestdeal_text',
             'save_badge_bg', 'save_badge_text',
             'shipping_badge_bg', 'shipping_badge_text',
         );

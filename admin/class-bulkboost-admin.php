@@ -372,7 +372,7 @@ class BLKBST_BulkBoost_Admin
     {
         $this->output_custom_styles();
         ?>
-        <div id="bulkboost" class="panel woocommerce_options_panel hidden">
+        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo bulkboost_is_premium() ? '' : 'bb-free'; ?>">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
             <div id="bulkboost_notice" class="inline notice woocommerce-message is-dismissible" style="width:90%; margin:10px auto; position:realtive; display: inline-blockl;">
@@ -437,6 +437,13 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
+                <?php if (!bulkboost_is_premium()) : ?>
+                <div class="bb-pd-pro-note">
+                    <strong>★ Badges are a Pro feature.</strong>
+                    Label, savings &amp; free-shipping badges are available in BulkBoost Pro.
+                    <a href="<?php echo esc_url(bulkboost_upgrade_url()); ?>" target="_blank" rel="noopener">Upgrade</a>
+                </div>
+                <?php endif; ?>
                 <div id="bulkboost_container"></div>
                 <div style="padding:20px">
                     <button type="button" id="add_quantity_discount" class="button">Add Quantity Discount</button>

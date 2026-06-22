@@ -294,6 +294,9 @@ class BLKBST_BulkBoost_Public
      */
     private function render_label_tab($badge_label)
     {
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            return '';
+        }
         $label_map = [
             'hot' => ['text' => 'HOT', 'class' => 'bulkboost-tab-hot'],
             'popular' => ['text' => 'MOST POPULAR', 'class' => 'bulkboost-tab-popular'],
@@ -319,6 +322,9 @@ class BLKBST_BulkBoost_Public
      */
     private function render_save_badge($save_enabled, $save_override, $auto_percent)
     {
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            return '';
+        }
         if ($save_enabled !== 'yes') {
             return '';
         }
@@ -349,6 +355,9 @@ class BLKBST_BulkBoost_Public
      */
     private function render_free_shipping_banner($free_shipping)
     {
+        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+            return '';
+        }
         if ($free_shipping !== 'yes') {
             return '';
         }

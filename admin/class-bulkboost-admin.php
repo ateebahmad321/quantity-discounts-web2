@@ -653,6 +653,26 @@ class BLKBST_BulkBoost_Admin
             'min_max_bulkboost_settings',
             'min_max_bulkboost_settings_validate',
         );
+
+        register_setting(
+            'bulkboost_general_settings',
+            'bulkboost_general_settings',
+            array($this, 'bulkboost_general_settings_validate')
+        );
+    }
+
+    /**
+     * Sanitize the General Settings (Pro). Each control is a strict enabled|disabled
+     * enum; saving is a no-op effect on free sites because the storefront hooks
+     * are premium-gated.
+     */
+    public function bulkboost_general_settings_validate($input)
+    {
+        $out = array();
+        foreach (array('disable_quantity_cart', 'disable_quantity_checkout') as $key) {
+            $out[$key] = (isset($input[$key]) && $input[$key] === 'disabled') ? 'disabled' : 'enabled';
+        }
+        return $out;
     }
 
     function bulkboost_settings_validate($input)

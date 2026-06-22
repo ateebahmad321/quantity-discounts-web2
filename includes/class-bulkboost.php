@@ -229,6 +229,10 @@ class BLKBST_BulkBoost
         );
 
         $this->loader->add_action('wp_head', $plugin_public, 'BLKBST_remove_quantity_field_on_product_pages');
+
+        // General Settings (Pro): lock the quantity field in cart / checkout.
+        $this->loader->add_filter('woocommerce_cart_item_quantity', $plugin_public, 'BLKBST_lock_cart_quantity', 10, 3);
+        $this->loader->add_action('wp_head', $plugin_public, 'BLKBST_lock_checkout_quantity');
     }
 
     /**

@@ -671,8 +671,8 @@ class BLKBST_BulkBoost_Admin
         $url2 = "admin.php?page=bulkboost-bulkboost";
         $url3 = "https://wordpress.org/support/plugin/bulkboost/reviews/#new-post";
 
-        $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀') . '</b></a>';
-        $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us') . '</strong></a>';
+        $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀', 'bulkboost') . '</b></a>';
+        $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us', 'bulkboost') . '</strong></a>';
         $settings_link .= " | <a href='" . esc_url($url) . "' style='font-weight: bold; color: green;'>" . __(
                 'Get Premium'
             ) . '</a>';

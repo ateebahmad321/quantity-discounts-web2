@@ -603,6 +603,21 @@
     #bulkboost .badge-fields-row { grid-template-columns: 1fr; }
 }
 
+/* Badges are a Pro feature: hide the per-tier badge controls on the free
+   version and show an upgrade note instead. */
+#bulkboost.bb-free .badge-fields-row { display: none; }
+#bulkboost .bb-pd-pro-note {
+    margin: 0 4px 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #fff7df;
+    border: 1px solid #f0d98a;
+    color: #6b5410;
+    font-size: 13px;
+    line-height: 1.5;
+}
+#bulkboost .bb-pd-pro-note a { color: #b8860b; font-weight: 600; }
+
 /* =========================================================
    NEW: Badge preview layout (matches public-facing styles
    so what admins see matches the live product page)

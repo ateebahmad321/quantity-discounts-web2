@@ -597,27 +597,26 @@ class BLKBST_BulkBoost_Admin
             '_bulkboost_qd_badge_save_enabled',    // yes|no
             '_bulkboost_qd_badge_save_override',   // manual % text override, blank = auto-calc
         ];
-        // No tiers submitted — BulkBoost simply isn't configured on this product.
-        if (empty($_POST['_bulkboost_qd_quantity']) || !is_array($_POST['_bulkboost_qd_quantity'])) {
-            return;
-        }
-        $error = false;
+        // Tier fields are only required when the quantity-breaks feature is
+        // actually enabled on this product. Otherwise an empty/leftover block
+        // must not trigger a validation error.
+        $qd_enabled = (isset($_POST['_bulkboost_qd_quantity_enabled'])
+            && $_POST['_bulkboost_qd_quantity_enabled'] === 'enable');
 
-        $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
-        foreach ($posted_quantities as $index => $quantity) {
-            $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
-            if (empty($quantity) || empty($price)) {
-                $error = true;
-                break;
+        if ($qd_enabled && !empty($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity'])) {
+            $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
+            foreach ($posted_quantities as $index => $quantity) {
+                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
+                if (empty($quantity) || empty($price)) {
+                    set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
+                    return;
+                }
             }
         }
 
-        if ($error) {
-            set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
-            return;
-        }
-
-        $block_count = count($posted_quantities);
+        $block_count = (isset($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity']))
+            ? count($_POST['_bulkboost_qd_quantity'])
+            : 0;
 
         // If no error, save the fields
         foreach ($fields as $field) {
@@ -672,8 +671,8 @@ class BLKBST_BulkBoost_Admin
         $url2 = "admin.php?page=bulkboost-bulkboost";
         $url3 = "https://wordpress.org/support/plugin/bulkboost/reviews/#new-post";
 
-        $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀') . '</b></a>';
-        $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us') . '</strong></a>';
+        $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀', 'bulkboost') . '</b></a>';
+        $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us', 'bulkboost') . '</strong></a>';
         $settings_link .= " | <a href='" . esc_url($url) . "' style='font-weight: bold; color: green;'>" . __(
                 'Get Premium'
             ) . '</a>';

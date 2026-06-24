@@ -124,6 +124,7 @@ class BLKBST_BulkBoost_Public
         $halfPadding = $min_max_size / 2;
         $button_size = $radio_button_size - 5;
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inline CSS; every dynamic value is sanitized with esc_attr()/sanitize_hex_color() above.
         echo "
     <style>
     #quantity-buttons{
@@ -336,6 +337,7 @@ class BLKBST_BulkBoost_Public
                 $save_text = 'Save ' . trim($save_text) . '%';
             }
         } elseif ($auto_percent !== null && $auto_percent > 0) {
+            /* translators: %d: discount percentage saved on this tier. */
             $save_text = sprintf(__('Save %d%%', 'bulkboost'), $auto_percent);
         }
 
@@ -433,9 +435,9 @@ class BLKBST_BulkBoost_Public
                 // Wrapper holds the label tab (overlapping top-left), the card itself,
                 // and the free-shipping banner (full-width strip below the card).
                 echo '<div class="bulkboost-tier-wrap' . ($has_label_tab ? ' has-label-tab' : '') . '">';
-                echo $label_tab_html;
+                echo wp_kses_post($label_tab_html);
 
-                echo '<span class="bulkboost-swatch ' . $active_class . '" data-value="' . esc_attr(
+                echo '<span class="bulkboost-swatch ' . esc_attr($active_class) . '" data-value="' . esc_attr(
                         $data['_bulkboost_qd_quantity'][$i]
                     ) . '" data-price="' . esc_attr($data['_bulkboost_qd_price'][$i]) . '">';
                 echo '<div class="bulkboost-inner">';
@@ -458,16 +460,16 @@ class BLKBST_BulkBoost_Public
                 echo '<div class="third-block">';
                 echo '<div class="bulkboost-right">';
                 echo '<div class="bulkboost-price-row">';
-                echo '<div class="old-price"><s>' . $old_price . '</s></div>';
-                echo '<span class="bulkboost-price">' . wc_price(esc_html($data['_bulkboost_qd_price'][$i])) . '</span>';
+                echo '<div class="old-price"><s>' . wp_kses_post($old_price) . '</s></div>';
+                echo '<span class="bulkboost-price">' . wp_kses_post(wc_price($data['_bulkboost_qd_price'][$i])) . '</span>';
                 echo '</div>';
-                echo $save_badge_html;
+                echo wp_kses_post($save_badge_html);
                 echo '</div>';
                 echo '</div>';
                 echo '</div>';
                 echo '</span>';
 
-                echo $shipping_banner_html;
+                echo wp_kses_post($shipping_banner_html);
                 echo '</div>'; // .bulkboost-tier-wrap
             }
             echo '</div>';
@@ -478,7 +480,7 @@ class BLKBST_BulkBoost_Public
             echo '<div id="quantity-buttons">';
             for ($i = $minValue; $i <= $maxValue; $i++) {
                 $activeClass = ($i == $minValue) ? 'active' : ''; // Add 'active' class to the first button
-                echo '<div class="quantity-button ' . $activeClass . '" data-quantity="' . $i . '">' . $i . '</div>';
+                echo '<div class="quantity-button ' . esc_attr($activeClass) . '" data-quantity="' . esc_attr($i) . '">' . esc_html($i) . '</div>';
             }
             echo '</div>';
         }
@@ -487,8 +489,8 @@ class BLKBST_BulkBoost_Public
     function BLKBST_add_custom_product_data_to_cart($cart_item_data, $product_id, $variation_id)
     {
         if (isset($_POST['wpi_custom_quantity']) && isset($_POST['wpi_custom_price'])) {
-            $cart_item_data['wpi_custom_quantity'] = sanitize_text_field($_POST['wpi_custom_quantity']);
-            $cart_item_data['wpi_custom_price'] = sanitize_text_field($_POST['wpi_custom_price']);
+            $cart_item_data['wpi_custom_quantity'] = sanitize_text_field(wp_unslash($_POST['wpi_custom_quantity']));
+            $cart_item_data['wpi_custom_price'] = sanitize_text_field(wp_unslash($_POST['wpi_custom_price']));
         }
         return $cart_item_data;
     }

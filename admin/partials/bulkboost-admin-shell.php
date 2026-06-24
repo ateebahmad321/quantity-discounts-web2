@@ -51,9 +51,8 @@ if (!function_exists('bb_admin_shell_open')) {
             'dashboard' => false,
         ));
         $items = bb_admin_nav_items();
-        $dash_attr = $args['dashboard'] ? ' data-bb-dashboard' : '';
         ?>
-        <div class="bb-admin"<?php echo $dash_attr; ?>>
+        <div class="bb-admin"<?php if ($args['dashboard']) { echo ' data-bb-dashboard'; } ?>>
             <aside class="bb-sidebar">
                 <div class="bb-brand">
                     <div class="bb-logo"><i></i><i></i><i></i></div>

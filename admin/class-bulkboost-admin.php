@@ -606,7 +606,7 @@ class BLKBST_BulkBoost_Admin
         if ($qd_enabled && !empty($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity'])) {
             $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
             foreach ($posted_quantities as $index => $quantity) {
-                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
+                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? sanitize_text_field(wp_unslash($_POST['_bulkboost_qd_price'][$index])) : '';
                 if (empty($quantity) || empty($price)) {
                     set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
                     return;
@@ -674,7 +674,8 @@ class BLKBST_BulkBoost_Admin
         $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀', 'bulkboost') . '</b></a>';
         $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us', 'bulkboost') . '</strong></a>';
         $settings_link .= " | <a href='" . esc_url($url) . "' style='font-weight: bold; color: green;'>" . __(
-                'Get Premium'
+                'Get Premium',
+                'bulkboost'
             ) . '</a>';
 
         $links[] = $settings_link;
@@ -938,7 +939,7 @@ class BLKBST_BulkBoost_Admin
         }
         .bulkboost-right .old-price{
             font-size: " . esc_attr($oldPriceFontSize) . "px;
-            font-weight: $oldPriceFontWeight;
+            font-weight: " . esc_attr($oldPriceFontWeight) . ";
             " . ($showOldPrice === 'no' ? 'display: none;' : '') . "
         }
         .bulkboost-swatch.active {
@@ -1021,9 +1022,9 @@ class BLKBST_BulkBoost_Admin
                 ?>
                 <div class="notice notice-success is-dismissible">
                     <?php
-                    echo $content; ?>
+                    echo wp_kses_post($content); ?>
                     <hr>
-                    <a style="margin-bottom: 10px; position: relative; display: block;" href="?bulkboost-quantity-breaks_-notice&message_id=<?php echo urlencode($message_id); ?>"><b>Dismiss this notice</b></a>
+                    <a style="margin-bottom: 10px; position: relative; display: block;" href="?bulkboost-quantity-breaks_-notice&message_id=<?php echo esc_attr(rawurlencode($message_id)); ?>"><b>Dismiss this notice</b></a>
                 </div>
                 <?php
             }
@@ -1038,7 +1039,7 @@ class BLKBST_BulkBoost_Admin
         $uniqueUserId = md5($siteUrl);
 
         if (isset($_GET['bulkboost-quantity-breaks_-notice'])) {
-            $message_id = $_GET['message_id'];
+            $message_id = isset($_GET['message_id']) ? sanitize_text_field(wp_unslash($_GET['message_id'])) : '';
             $apiRequestBody = wp_json_encode(array(
                 'user_id' => $uniqueUserId,
                 'plugin_name' => 'bulkboost-quantity-breaks-free',

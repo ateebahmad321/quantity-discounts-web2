@@ -192,7 +192,12 @@ function BLKBST_activate_bulkboost()
         }
     } else {
         deactivate_plugins(plugin_basename(__FILE__));
-        wp_die('BulkBoost for WooCommerce requires WooCommerce to be installed and active. <br><a href="' . admin_url('plugins.php') . '">&laquo; Return to Plugins</a>');
+        wp_die(
+            wp_kses_post(
+                'BulkBoost for WooCommerce requires WooCommerce to be installed and active. <br><a href="'
+                . esc_url(admin_url('plugins.php')) . '">&laquo; Return to Plugins</a>'
+            )
+        );
     }
 
 }

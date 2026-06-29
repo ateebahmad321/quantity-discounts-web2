@@ -3,7 +3,7 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -73,7 +73,8 @@ class BLKBST_BulkBoost_Public
 
         // Badge styling is a Pro feature: only apply the saved colors when premium.
         $badge_css = '';
-        if (function_exists('bulkboost_is_premium') && bulkboost_is_premium()) {
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
             $label_hot_bg        = sanitize_hex_color($bulkboost_settings['label_hot_bg'] ?? '') ?: '#e53935';
             $label_hot_text      = sanitize_hex_color($bulkboost_settings['label_hot_text'] ?? '') ?: '#ffffff';
             $label_popular_bg    = sanitize_hex_color($bulkboost_settings['label_popular_bg'] ?? '') ?: '#7b3fd1';
@@ -124,141 +125,32 @@ class BLKBST_BulkBoost_Public
         $halfPadding = $min_max_size / 2;
         $button_size = $radio_button_size - 5;
 
-        echo "
-    <style>
-    #quantity-buttons{
-        margin-bottom: 20px;
-    }
-    #quantity-buttons .quantity-button{
-        padding: " . esc_attr($halfPadding) . "px " . esc_attr($min_max_size) . "px;
-        margin: 2px;
-        line-height:1.3em;
-        display: inline-block;
-        background-color: " . esc_attr($min_max_background_color_inactive) . ";
-        color: " . esc_attr($min_max_text_color_inactive) . ";
-        border: 1px solid " . esc_attr($min_max_border_color_inactive) . ";
-        cursor: pointer;
-    }
-    #quantity-buttons .quantity-button.active{
-        padding: " . esc_attr($halfPadding) . "px " . esc_attr($min_max_size) . "px;
-        margin: 2px;
-        display: inline-block;
-        background-color: " . esc_attr($min_max_background_color_active) . ";
-        color: " . esc_attr($min_max_text_color_active) . ";
-        border: 1px solid " . esc_attr($min_max_border_color_active) . ";
-        cursor: pointer;
-    }
-    
-    #quantity-buttons .quantity-button:hover{
-        padding: " . esc_attr($halfPadding) . "px " . esc_attr($min_max_size) . "px;
-        margin: 2px;
-        display: inline-block;
-        background-color: " . esc_attr($min_max_background_color_hover) . ";
-        color: " . esc_attr($min_max_text_color_hover) . ";
-        border: 1px solid " . esc_attr($min_max_border_color_hover) . ";
-        cursor: pointer;
-    }
-    
-    #quantity-buttons{
-    margin-bottom: 20px;
-    }
-    
-    .bulkboost-swatch.active {
-        border-color: " . esc_attr($border_color_active) . ";
-        background-color: " . esc_attr($background_color_active) . ";
-        color: " . esc_attr($text_color_active) . ";
-        border-style: " . esc_attr($border_style) . ";
-        border-width: " . esc_attr($border_width) . "px;
-        border-radius: " . esc_attr($box_corner_radius) . "px;
-    }
-
-    .bulkboost-radio span {
-        border-color: " . esc_attr($radio_border_color_inactive) . ";
-    }
-    .bulkboost-radio input[type='radio']:checked + span {
-        border-color: " . esc_attr($radio_border_color_active) . ";
-    }
-    .bulkboost-swatch.active .bulkboost-radio span {
-        border-color: " . esc_attr($radio_border_color_active) . ";
-    }
-    .bulkboost-swatch:not(.active) {
-        border-color: " . esc_attr($border_color_inactive) . ";
-        background-color: " . esc_attr($background_color_inactive) . " !important;
-        color: " . esc_attr($text_color_inactive) . ";
-        border-style: " . esc_attr($border_style) . ";
-        border-width: " . esc_attr($border_width) . "px;
-        border-radius: " . esc_attr($box_corner_radius) . "px;
-    }
-    .bulkboost-swatch:not(.active):hover {
-        border-color: " . esc_attr($border_color_hover) . ";
-        background-color: " . esc_attr($background_color_hover) . " !important;
-        color: " . esc_attr($text_color_hover) . ";
-        border-style: " . esc_attr($border_style) . ";
-        border-radius: " . esc_attr($box_corner_radius) . "px;
-    }
-    .bulkboost-heading {
-        font-size: " . esc_attr($labelFontSize) . "px;
-        font-weight: " . esc_attr($labelFontWeight) . ";
-    }
-    .bulkboost-subheading {
-        font-size: " . esc_attr($descriptionFontSize) . "px;
-        font-weight: " . esc_attr($descriptionFontWeight) . ";
-    }
-    .bulkboost-right span {
-        font-size: " . esc_attr($priceFontSize) . "px;
-        font-weight: " . esc_attr($priceFontWeight) . ";
-    }
-    .bulkboost-right .old-price span {
-        font-size: " . esc_attr($oldPriceFontSize) . "px;
-        font-weight: " . esc_attr($oldPriceFontWeight) . ";
-    }
-    .bulkboost-radio input[type='radio']:checked + span::before{
-        background-color: " . esc_attr($radio_bg_color_active) . "
-    }
-    .bulkboost-radio input[type='radio'] + span::before{
-        background-color: " . esc_attr($radio_bg_color_inactive) . "
-    }
-    .bulkboost-radio span {
-        display: inline-block;
-        height: " . esc_attr($radio_button_size) . "px;
-        width: " . esc_attr($radio_button_size) . "px;
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 50%;
-        position: relative;
-        cursor: pointer;
-        vertical-align: middle;
-    }
-
-    .bulkboost-radio input[type='radio']:checked + span::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        height: " . esc_attr($button_size) . "px;
-        width: " . esc_attr($button_size) . "px;
-        border-radius: 50%;
-    }
-
-    /* Card spacing (gap between offer cards) */
-    .custom-quantity-block .bulkboost-tier-wrap {
-        margin-bottom: " . esc_attr($card_gap) . "px;
-    }
-
-    /* Selector style (radio | checkbox | none) — driven by the wrapper class */
-    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span {
-        border-radius: 4px;
-    }
-    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before {
-        border-radius: 2px;
-    }
-    .custom-quantity-block.bb-selector-none .bulkboost-radio {
-        display: none;
-    }
-    " . $badge_css . "
-    </style>
+        $css = "
+    #quantity-buttons{margin-bottom:20px;}
+    #quantity-buttons .quantity-button{padding:{$halfPadding}px {$min_max_size}px;margin:2px;line-height:1.3em;display:inline-block;background-color:{$min_max_background_color_inactive};color:{$min_max_text_color_inactive};border:1px solid {$min_max_border_color_inactive};cursor:pointer;}
+    #quantity-buttons .quantity-button.active{background-color:{$min_max_background_color_active};color:{$min_max_text_color_active};border:1px solid {$min_max_border_color_active};}
+    #quantity-buttons .quantity-button:hover{background-color:{$min_max_background_color_hover};color:{$min_max_text_color_hover};border:1px solid {$min_max_border_color_hover};}
+    .bulkboost-swatch.active{border-color:{$border_color_active};background-color:{$background_color_active};color:{$text_color_active};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
+    .bulkboost-radio span{border-color:{$radio_border_color_inactive};}
+    .bulkboost-radio input[type='radio']:checked + span{border-color:{$radio_border_color_active};}
+    .bulkboost-swatch.active .bulkboost-radio span{border-color:{$radio_border_color_active};}
+    .bulkboost-swatch:not(.active){border-color:{$border_color_inactive};background-color:{$background_color_inactive} !important;color:{$text_color_inactive};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
+    .bulkboost-swatch:not(.active):hover{border-color:{$border_color_hover};background-color:{$background_color_hover} !important;color:{$text_color_hover};border-style:{$border_style};border-radius:{$box_corner_radius}px;}
+    .bulkboost-heading{font-size:{$labelFontSize}px;font-weight:{$labelFontWeight};}
+    .bulkboost-subheading{font-size:{$descriptionFontSize}px;font-weight:{$descriptionFontWeight};}
+    .bulkboost-right span{font-size:{$priceFontSize}px;font-weight:{$priceFontWeight};}
+    .bulkboost-right .old-price span{font-size:{$oldPriceFontSize}px;font-weight:{$oldPriceFontWeight};}
+    .bulkboost-radio input[type='radio']:checked + span::before{background-color:{$radio_bg_color_active};}
+    .bulkboost-radio input[type='radio'] + span::before{background-color:{$radio_bg_color_inactive};}
+    .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border-width:1px;border-style:solid;border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
+    .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;}
+    .custom-quantity-block .bulkboost-tier-wrap{margin-bottom:{$card_gap}px;}
+    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span{border-radius:4px;}
+    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before{border-radius:2px;}
+    .custom-quantity-block.bb-selector-none .bulkboost-radio{display:none;}
+    {$badge_css}
     ";
+        wp_add_inline_style($this->plugin_name, $css);
     }
 
     /**
@@ -294,22 +186,23 @@ class BLKBST_BulkBoost_Public
      */
     private function render_label_tab($badge_label)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return '';
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $label_map = [
+                'hot' => ['text' => 'HOT', 'class' => 'bulkboost-tab-hot'],
+                'popular' => ['text' => 'MOST POPULAR', 'class' => 'bulkboost-tab-popular'],
+                'bestdeal' => ['text' => 'BEST DEAL 🔥', 'class' => 'bulkboost-tab-bestdeal'],
+            ];
+
+            if (empty($badge_label) || $badge_label === 'none' || !isset($label_map[$badge_label])) {
+                return '';
+            }
+
+            $info = $label_map[$badge_label];
+
+            return '<div class="bulkboost-label-tab ' . esc_attr($info['class']) . '">' . esc_html($info['text']) . '</div>';
         }
-        $label_map = [
-            'hot' => ['text' => 'HOT', 'class' => 'bulkboost-tab-hot'],
-            'popular' => ['text' => 'MOST POPULAR', 'class' => 'bulkboost-tab-popular'],
-            'bestdeal' => ['text' => 'BEST DEAL 🔥', 'class' => 'bulkboost-tab-bestdeal'],
-        ];
-
-        if (empty($badge_label) || $badge_label === 'none' || !isset($label_map[$badge_label])) {
-            return '';
-        }
-
-        $info = $label_map[$badge_label];
-
-        return '<div class="bulkboost-label-tab ' . esc_attr($info['class']) . '">' . esc_html($info['text']) . '</div>';
+        return '';
     }
 
     /**
@@ -322,28 +215,30 @@ class BLKBST_BulkBoost_Public
      */
     private function render_save_badge($save_enabled, $save_override, $auto_percent)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return '';
-        }
-        if ($save_enabled !== 'yes') {
-            return '';
-        }
-
-        $save_text = '';
-        if (!empty($save_override)) {
-            $save_text = $save_override;
-            if (strpos($save_text, '%') === false && is_numeric(trim($save_text))) {
-                $save_text = 'Save ' . trim($save_text) . '%';
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            if ($save_enabled !== 'yes') {
+                return '';
             }
-        } elseif ($auto_percent !== null && $auto_percent > 0) {
-            $save_text = sprintf(__('Save %d%%', 'bulkboost'), $auto_percent);
-        }
 
-        if (empty($save_text)) {
-            return '';
-        }
+            $save_text = '';
+            if (!empty($save_override)) {
+                $save_text = $save_override;
+                if (strpos($save_text, '%') === false && is_numeric(trim($save_text))) {
+                    $save_text = 'Save ' . trim($save_text) . '%';
+                }
+            } elseif ($auto_percent !== null && $auto_percent > 0) {
+                /* translators: %d: discount percentage saved on this tier. */
+                $save_text = sprintf(__('Save %d%%', 'bulkboost'), $auto_percent);
+            }
 
-        return '<span class="bulkboost-badge bulkboost-badge-save">' . esc_html($save_text) . '</span>';
+            if (empty($save_text)) {
+                return '';
+            }
+
+            return '<span class="bulkboost-badge bulkboost-badge-save">' . esc_html($save_text) . '</span>';
+        }
+        return '';
     }
 
     /**
@@ -355,14 +250,15 @@ class BLKBST_BulkBoost_Public
      */
     private function render_free_shipping_banner($free_shipping)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return '';
-        }
-        if ($free_shipping !== 'yes') {
-            return '';
-        }
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            if ($free_shipping !== 'yes') {
+                return '';
+            }
 
-        return '<div class="bulkboost-shipping-banner"><span class="bulkboost-shipping-icon" aria-hidden="true">🚚</span> + ' . esc_html__('FREE Shipping', 'bulkboost') . '</div>';
+            return '<div class="bulkboost-shipping-banner"><span class="bulkboost-shipping-icon" aria-hidden="true">🚚</span> + ' . esc_html__('FREE Shipping', 'bulkboost') . '</div>';
+        }
+        return '';
     }
 
     function display_bulkboost($post_id = null)
@@ -433,9 +329,9 @@ class BLKBST_BulkBoost_Public
                 // Wrapper holds the label tab (overlapping top-left), the card itself,
                 // and the free-shipping banner (full-width strip below the card).
                 echo '<div class="bulkboost-tier-wrap' . ($has_label_tab ? ' has-label-tab' : '') . '">';
-                echo $label_tab_html;
+                echo wp_kses_post($label_tab_html);
 
-                echo '<span class="bulkboost-swatch ' . $active_class . '" data-value="' . esc_attr(
+                echo '<span class="bulkboost-swatch ' . esc_attr($active_class) . '" data-value="' . esc_attr(
                         $data['_bulkboost_qd_quantity'][$i]
                     ) . '" data-price="' . esc_attr($data['_bulkboost_qd_price'][$i]) . '">';
                 echo '<div class="bulkboost-inner">';
@@ -458,16 +354,16 @@ class BLKBST_BulkBoost_Public
                 echo '<div class="third-block">';
                 echo '<div class="bulkboost-right">';
                 echo '<div class="bulkboost-price-row">';
-                echo '<div class="old-price"><s>' . $old_price . '</s></div>';
-                echo '<span class="bulkboost-price">' . wc_price(esc_html($data['_bulkboost_qd_price'][$i])) . '</span>';
+                echo '<div class="old-price"><s>' . wp_kses_post($old_price) . '</s></div>';
+                echo '<span class="bulkboost-price">' . wp_kses_post(wc_price($data['_bulkboost_qd_price'][$i])) . '</span>';
                 echo '</div>';
-                echo $save_badge_html;
+                echo wp_kses_post($save_badge_html);
                 echo '</div>';
                 echo '</div>';
                 echo '</div>';
                 echo '</span>';
 
-                echo $shipping_banner_html;
+                echo wp_kses_post($shipping_banner_html);
                 echo '</div>'; // .bulkboost-tier-wrap
             }
             echo '</div>';
@@ -478,7 +374,7 @@ class BLKBST_BulkBoost_Public
             echo '<div id="quantity-buttons">';
             for ($i = $minValue; $i <= $maxValue; $i++) {
                 $activeClass = ($i == $minValue) ? 'active' : ''; // Add 'active' class to the first button
-                echo '<div class="quantity-button ' . $activeClass . '" data-quantity="' . $i . '">' . $i . '</div>';
+                echo '<div class="quantity-button ' . esc_attr($activeClass) . '" data-quantity="' . esc_attr($i) . '">' . esc_html($i) . '</div>';
             }
             echo '</div>';
         }
@@ -487,8 +383,8 @@ class BLKBST_BulkBoost_Public
     function BLKBST_add_custom_product_data_to_cart($cart_item_data, $product_id, $variation_id)
     {
         if (isset($_POST['wpi_custom_quantity']) && isset($_POST['wpi_custom_price'])) {
-            $cart_item_data['wpi_custom_quantity'] = sanitize_text_field($_POST['wpi_custom_quantity']);
-            $cart_item_data['wpi_custom_price'] = sanitize_text_field($_POST['wpi_custom_price']);
+            $cart_item_data['wpi_custom_quantity'] = sanitize_text_field(wp_unslash($_POST['wpi_custom_quantity']));
+            $cart_item_data['wpi_custom_price'] = sanitize_text_field(wp_unslash($_POST['wpi_custom_price']));
         }
         return $cart_item_data;
     }
@@ -570,7 +466,7 @@ class BLKBST_BulkBoost_Public
             }
 
             if ($quantityDicsountsEnabled === 'enable' || $minMaxEnabled === 'enable') {
-                echo '<style>.single-product .quantity { display: none !important; }</style>';
+                wp_add_inline_style($this->plugin_name, '.single-product .quantity { display: none !important; }');
             }
         }
     }
@@ -600,19 +496,20 @@ class BLKBST_BulkBoost_Public
 
     public function BLKBST_lock_cart_quantity($product_quantity, $cart_item_key, $cart_item)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return $product_quantity;
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $general = get_option('bulkboost_general_settings', array());
+            if (($general['disable_quantity_cart'] ?? 'enabled') !== 'disabled') {
+                return $product_quantity;
+            }
+            $product_id = isset($cart_item['product_id']) ? $cart_item['product_id'] : 0;
+            if (!$this->is_bulkboost_product($product_id)) {
+                return $product_quantity;
+            }
+            $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 1;
+            return '<span class="bulkboost-locked-qty">' . esc_html($qty) . '</span>';
         }
-        $general = get_option('bulkboost_general_settings', array());
-        if (($general['disable_quantity_cart'] ?? 'enabled') !== 'disabled') {
-            return $product_quantity;
-        }
-        $product_id = isset($cart_item['product_id']) ? $cart_item['product_id'] : 0;
-        if (!$this->is_bulkboost_product($product_id)) {
-            return $product_quantity;
-        }
-        $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 1;
-        return '<span class="bulkboost-locked-qty">' . esc_html($qty) . '</span>';
+        return $product_quantity;
     }
 
     /**
@@ -625,14 +522,14 @@ class BLKBST_BulkBoost_Public
         if (!function_exists('is_checkout') || !is_checkout()) {
             return;
         }
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return;
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $general = get_option('bulkboost_general_settings', array());
+            if (($general['disable_quantity_checkout'] ?? 'enabled') !== 'disabled') {
+                return;
+            }
+            wp_add_inline_style($this->plugin_name, '.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }');
         }
-        $general = get_option('bulkboost_general_settings', array());
-        if (($general['disable_quantity_checkout'] ?? 'enabled') !== 'disabled') {
-            return;
-        }
-        echo '<style>.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }</style>';
     }
 
     /**
@@ -648,22 +545,23 @@ class BLKBST_BulkBoost_Public
      */
     public function BLKBST_lock_block_quantity($editable, $product = null, $cart_item = null)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return $editable;
-        }
-        $general = get_option('bulkboost_general_settings', array());
-        $cart_locked     = (($general['disable_quantity_cart'] ?? 'enabled') === 'disabled');
-        $checkout_locked = (($general['disable_quantity_checkout'] ?? 'enabled') === 'disabled');
-        if (!$cart_locked && !$checkout_locked) {
-            return $editable;
-        }
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $general = get_option('bulkboost_general_settings', array());
+            $cart_locked     = (($general['disable_quantity_cart'] ?? 'enabled') === 'disabled');
+            $checkout_locked = (($general['disable_quantity_checkout'] ?? 'enabled') === 'disabled');
+            if (!$cart_locked && !$checkout_locked) {
+                return $editable;
+            }
 
-        $product_id = $product ? $product->get_id() : (isset($cart_item['product_id']) ? $cart_item['product_id'] : 0);
-        if (!$this->is_bulkboost_product($product_id)) {
-            return $editable;
-        }
+            $product_id = $product ? $product->get_id() : (isset($cart_item['product_id']) ? $cart_item['product_id'] : 0);
+            if (!$this->is_bulkboost_product($product_id)) {
+                return $editable;
+            }
 
-        return false;
+            return false;
+        }
+        return $editable;
     }
 
 }

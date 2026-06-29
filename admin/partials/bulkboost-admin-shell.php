@@ -4,8 +4,8 @@
  *
  * Renders the cream/emerald sidebar + sticky header described in the
  * BulkBoost design handoff, then opens the content column. Each page
- * calls bb_admin_shell_open([...]), echoes its cards, then
- * bb_admin_shell_close() (optionally passing a live-preview aside).
+ * calls blkbst_admin_shell_open([...]), echoes its cards, then
+ * blkbst_admin_shell_close() (optionally passing a live-preview aside).
  *
  * @package BulkBoost/admin
  */
@@ -14,11 +14,11 @@ if (!defined('WPINC')) {
     die;
 }
 
-if (!function_exists('bb_admin_nav_items')) {
+if (!function_exists('blkbst_admin_nav_items')) {
     /**
      * Top-level plugin pages shown in the sidebar nav.
      */
-    function bb_admin_nav_items()
+    function blkbst_admin_nav_items()
     {
         $sliders = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"></line><circle cx="15" cy="7" r="2.3" fill="#fbfbf9"></circle><line x1="4" y1="13" x2="20" y2="13"></line><circle cx="9" cy="13" r="2.3" fill="#fbfbf9"></circle><line x1="4" y1="19" x2="20" y2="19"></line><circle cx="16" cy="19" r="2.3" fill="#fbfbf9"></circle></svg>';
         $home = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11 L12 4 L20 11"></path><path d="M6 10 V20 H18 V10"></path></svg>';
@@ -36,11 +36,11 @@ if (!function_exists('bb_admin_nav_items')) {
     }
 }
 
-if (!function_exists('bb_admin_shell_open')) {
+if (!function_exists('blkbst_admin_shell_open')) {
     /**
      * @param array $args active, crumb, title, actions (bool), wide (bool)
      */
-    function bb_admin_shell_open($args = array())
+    function blkbst_admin_shell_open($args = array())
     {
         $args = wp_parse_args($args, array(
             'active'  => 'bulkboost-bulkboost',
@@ -50,10 +50,9 @@ if (!function_exists('bb_admin_shell_open')) {
             'wide'    => false,
             'dashboard' => false,
         ));
-        $items = bb_admin_nav_items();
-        $dash_attr = $args['dashboard'] ? ' data-bb-dashboard' : '';
+        $items = blkbst_admin_nav_items();
         ?>
-        <div class="bb-admin"<?php echo $dash_attr; ?>>
+        <div class="bb-admin"<?php if ($args['dashboard']) { echo ' data-bb-dashboard'; } ?>>
             <aside class="bb-sidebar">
                 <div class="bb-brand">
                     <div class="bb-logo"><i></i><i></i><i></i></div>
@@ -99,14 +98,14 @@ if (!function_exists('bb_admin_shell_open')) {
     }
 }
 
-if (!function_exists('bb_admin_upsell')) {
+if (!function_exists('blkbst_admin_upsell')) {
     /**
      * Renders a prominent "Pro feature" upsell card for non-premium users.
      *
      * @param string $title Feature name.
      * @param string $desc  One-line description.
      */
-    function bb_admin_upsell($title, $desc)
+    function blkbst_admin_upsell($title, $desc)
     {
         $url = function_exists('bulkboost_upgrade_url') ? bulkboost_upgrade_url() : admin_url('admin.php?page=bulkboost-bulkboost-pricing');
         ?>
@@ -120,11 +119,11 @@ if (!function_exists('bb_admin_upsell')) {
     }
 }
 
-if (!function_exists('bb_admin_shell_close')) {
+if (!function_exists('blkbst_admin_shell_close')) {
     /**
      * @param string|null $aside_html Optional live-preview rail markup.
      */
-    function bb_admin_shell_close($aside_html = null)
+    function blkbst_admin_shell_close($aside_html = null)
     {
         echo '</section>';
         if ($aside_html !== null) {

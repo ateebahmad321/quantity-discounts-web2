@@ -1,19 +1,19 @@
 <?php
 
 /**
- * @link              https://bulkboost.com
+ * @link              https://profiles.wordpress.org/ateebahamd
  * @since             1.0.0
  * @package           BulkBoost
  *
  * @wordpress-plugin
  * Plugin Name:       BulkBoost – Quantity Discounts & Bundles
- * Plugin URI:        https://bulkboost.com
+ * Plugin URI:        https://profiles.wordpress.org/ateebahamd
  * Description:       Boost average order value with tiered quantity discounts, breaks and bundle offers for WooCommerce products.
  * Version:           1.0.0
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            BulkBoost
- * Author URI:        https://bulkboost.com/
+ * Author URI:        https://profiles.wordpress.org/ateebahamd
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Text Domain:       bulkboost
@@ -99,21 +99,6 @@ add_action('before_woocommerce_init', function () {
 });
 
 /**
- * Whether premium (Pro) features are available.
- *
- * Single gate for all Pro-only functionality. Backed by Freemius
- * (`can_use_premium_code()` is true on the premium build with an active
- * license or trial). The `bulkboost_is_premium` filter can still force it on
- * for local testing, e.g. add_filter('bulkboost_is_premium', '__return_true').
- */
-function bulkboost_is_premium()
-{
-    $premium = function_exists('bul_fs') ? bul_fs()->can_use_premium_code() : false;
-
-    return (bool) apply_filters('bulkboost_is_premium', $premium);
-}
-
-/**
  * URL shown on Pro upsell prompts.
  */
 function bulkboost_upgrade_url()
@@ -192,7 +177,12 @@ function BLKBST_activate_bulkboost()
         }
     } else {
         deactivate_plugins(plugin_basename(__FILE__));
-        wp_die('BulkBoost for WooCommerce requires WooCommerce to be installed and active. <br><a href="' . admin_url('plugins.php') . '">&laquo; Return to Plugins</a>');
+        wp_die(
+            wp_kses_post(
+                'BulkBoost for WooCommerce requires WooCommerce to be installed and active. <br><a href="'
+                . esc_url(admin_url('plugins.php')) . '">&laquo; Return to Plugins</a>'
+            )
+        );
     }
 
 }

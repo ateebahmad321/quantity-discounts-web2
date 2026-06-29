@@ -5,12 +5,16 @@
  *
  * This file is used to markup the public-facing aspects of the plugin.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
  * @subpackage BulkBoost/public/partials
  */
+
+if (!defined('WPINC')) {
+    die;
+}
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->

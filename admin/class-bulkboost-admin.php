@@ -3,7 +3,7 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -181,7 +181,7 @@ class BLKBST_BulkBoost_Admin
             'currency'   => html_entity_decode($currency),
             'defaults'   => self::design_defaults(),
             'settings'   => is_array($saved) ? $saved : array(),
-            'isPremium'  => function_exists('bulkboost_is_premium') ? bulkboost_is_premium() : false,
+            'isPremium'  => function_exists('bul_fs') ? bul_fs()->is_premium() : false,
         ));
     }
 
@@ -257,7 +257,7 @@ class BLKBST_BulkBoost_Admin
         $clean = $this->sanitize_design_settings($input);
 
         // Pro-only keys (badge styling) are dropped for non-premium sites.
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+        if (!function_exists('bul_fs') || !bul_fs()->can_use_premium_code__premium_only()) {
             foreach (self::premium_design_keys() as $pro_key) {
                 unset($clean[$pro_key]);
             }
@@ -456,18 +456,16 @@ class BLKBST_BulkBoost_Admin
 
     public function quantity_breaks_icon_change()
     {
-        echo '<style>
-                    #woocommerce-product-data ul.wc-tabs li.bulkboost_options a::before {
-                        content: "\f18e";
-                    } 
-                </style>';
+        wp_add_inline_style(
+            $this->plugin_name,
+            '#woocommerce-product-data ul.wc-tabs li.bulkboost_options a::before { content: "\f18e"; }'
+        );
     }
 
     public function BLKBST_quantity_breaks_product_data_panels($post_id)
     {
-        $this->output_custom_styles();
         ?>
-        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo bulkboost_is_premium() ? '' : 'bb-free'; ?>">
+        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo (function_exists('bul_fs') && bul_fs()->is_premium()) ? '' : 'bb-free'; ?>">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
            
@@ -526,7 +524,7 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
-                <?php if (!bulkboost_is_premium()) : ?>
+                <?php if (!function_exists('bul_fs') || !bul_fs()->is_premium()) : ?>
                 <div class="bb-pd-pro-note">
                     <strong>★ Badges are a Pro feature.</strong>
                     Label, savings &amp; free-shipping badges are available in BulkBoost Pro.
@@ -606,7 +604,7 @@ class BLKBST_BulkBoost_Admin
         if ($qd_enabled && !empty($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity'])) {
             $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
             foreach ($posted_quantities as $index => $quantity) {
-                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? $_POST['_bulkboost_qd_price'][$index] : '';
+                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? sanitize_text_field(wp_unslash($_POST['_bulkboost_qd_price'][$index])) : '';
                 if (empty($quantity) || empty($price)) {
                     set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
                     return;
@@ -674,7 +672,8 @@ class BLKBST_BulkBoost_Admin
         $settings_link = "<a href='$url2' ><b>" . __('Settings 🚀', 'bulkboost') . '</b></a>';
         $settings_link .= "| <a href='$url3' target='_blank'><strong style='display:inline;'>" . __('Review us', 'bulkboost') . '</strong></a>';
         $settings_link .= " | <a href='" . esc_url($url) . "' style='font-weight: bold; color: green;'>" . __(
-                'Get Premium'
+                'Get Premium',
+                'bulkboost'
             ) . '</a>';
 
         $links[] = $settings_link;
@@ -726,18 +725,74 @@ class BLKBST_BulkBoost_Admin
         wp_localize_script($this->plugin_name, 'bulkboost_data_extra', $bulkboost_extra);
     }
 
+    public function BLKBST_enqueue_min_max_scripts($hook)
+    {
+        if ('woocommerce_page_bulkboost-quantity-min-max' !== $hook) {
+            return;
+        }
+        wp_enqueue_script('wp-color-picker');
+        $js = <<<'JS'
+jQuery(document).ready(function ($) {
+    $('.color-field').wpColorPicker({
+        change: function (event, ui) {
+            $(event.target).val(ui.color.toString());
+            createButtons();
+        },
+        clear: function () { createButtons(); }
+    });
+
+    var bgA = $('#min_max_background_color_active'), bgI = $('#min_max_background_color_inactive'), bgH = $('#min_max_background_color_hover');
+    var tA = $('#min_max_text_color_active'), tI = $('#min_max_text_color_inactive'), tH = $('#min_max_text_color_hover');
+    var brA = $('#min_max_border_color_active'), brI = $('#min_max_border_color_inactive'), brH = $('#min_max_border_color_hover');
+    var size = $('#min_max_size');
+    var area = $('#bulkboost_preview_preview');
+
+    function createButtons() {
+        area.empty();
+        for (var i = 1; i <= 10; i++) {
+            var b = $('<span></span>').text(i).css({
+                padding: (size.val() / 2) + 'px ' + size.val() + 'px',
+                display: 'inline-block', cursor: 'pointer', borderRadius: '6px',
+                backgroundColor: bgI.val(), color: tI.val(),
+                border: '1px solid ' + brI.val(), fontSize: size.val() + 'px'
+            });
+            if (i === 3) {
+                b.addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
+            }
+            b.hover(function () {
+                $(this).css({ backgroundColor: bgH.val(), color: tH.val(), borderColor: brH.val() });
+            }, function () {
+                if (!$(this).hasClass('is-active')) {
+                    $(this).css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
+                }
+            });
+            b.on('click', function () {
+                $('.is-active', area).removeClass('is-active').css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
+                $(this).addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
+            });
+            area.append(b);
+        }
+    }
+
+    createButtons();
+    $('#min_max_size').on('change input', createButtons);
+});
+JS;
+        wp_add_inline_script('wp-color-picker', $js);
+    }
+
     function BLKBST_bulkboost_register_settings()
     {
         register_setting(
             'bulkboost_settings',
             'bulkboost_settings',
-            'bulkboost_settings_validate',
+            array($this, 'bulkboost_settings_validate'),
         );
 
         register_setting(
             'min_max_bulkboost_settings',
             'min_max_bulkboost_settings',
-            'min_max_bulkboost_settings_validate',
+            array($this, 'min_max_bulkboost_settings_validate'),
         );
 
         register_setting(
@@ -811,255 +866,72 @@ class BLKBST_BulkBoost_Admin
         return $input;
     }
 
-    function output_custom_styles()
+    public function enqueue_product_panel_styles($hook)
     {
-        $bulkboost_settings = get_option('bulkboost_settings');
-        $minMaxQuantitySettings = get_option('min_max_bulkboost_settings');
-
-        $border_style = esc_html($bulkboost_settings['border_style']);
-        $box_corner_radius = esc_html($bulkboost_settings['box_corner_radius']);
-        $border_color_inactive = esc_html($bulkboost_settings['border_color_inactive']);
-        $background_color_inactive = esc_html($bulkboost_settings['background_color_inactive']);
-        $text_color_inactive = esc_html($bulkboost_settings['text_color_inactive']);
-        $border_color_active = esc_html($bulkboost_settings['border_color_active']);
-        $background_color_active = esc_html($bulkboost_settings['background_color_active']);
-        $text_color_active = esc_html($bulkboost_settings['text_color_active']);
-        $border_color_hover = esc_html($bulkboost_settings['border_color_hover']);
-        $background_color_hover = esc_html($bulkboost_settings['background_color_hover']);
-        $text_color_hover = esc_html($bulkboost_settings['text_color_hover']);
-
-        $radio_bg_color_active = esc_html($bulkboost_settings['radio_bg_color_active']);
-        $radio_bg_color_inactive = esc_html($bulkboost_settings['radio_bg_color_inactive'] ?? '');
-        $radio_bg_color_hover = esc_html($bulkboost_settings['radio_bg_color_hover'] ?? '');
-        $radio_border_color_active = esc_html($bulkboost_settings['radio_border_color_active'] ?? '');
-        $radio_border_color_inactive = esc_html($bulkboost_settings['radio_border_color_inactive']);
-        $radio_border_color_hover = esc_html($bulkboost_settings['radio_border_color_hover'] ?? '');
-        $radio_button_size = esc_html($bulkboost_settings['radio_button_size']);
-
-        $labelFontWeight = esc_html($bulkboost_settings['label_font_weight']);
-        $labelFontSize = esc_html($bulkboost_settings['label_font_size']);
-        $descriptionFontWeight = esc_html($bulkboost_settings['description_font_weight']);
-        $descriptionFontSize = esc_html($bulkboost_settings['description_font_size']);
-        $priceFontWeight = esc_html($bulkboost_settings['price_font_weight']);
-        $priceFontSize = esc_html($bulkboost_settings['price_font_size']);
-        $oldPriceFontWeight = esc_html($bulkboost_settings['old_price_font_weight']);
-        $oldPriceFontSize = esc_html($bulkboost_settings['old_price_font_size']);
-        $showOldPrice = esc_html($bulkboost_settings['show_old_price']);
-
-        $minMaxBgColorActive = esc_html($minMaxQuantitySettings['min_max_background_color_active']);
-        $minMaxBgColorInactive = esc_html($minMaxQuantitySettings['min_max_background_color_inactive']);
-        $minMaxBgColorHover = esc_html($minMaxQuantitySettings['min_max_background_color_hover']);
-        $minMaxTextColorActive = esc_html($minMaxQuantitySettings['min_max_text_color_active']);
-        $minMaxTextColorInactive = esc_html($minMaxQuantitySettings['min_max_text_color_inactive']);
-        $minMaxTextColorHover = esc_html($minMaxQuantitySettings['min_max_text_color_hover']);
-        $minMaxBorderColorActive = esc_html($minMaxQuantitySettings['min_max_border_color_active']);
-        $minMaxBorderColorInactive = esc_html($minMaxQuantitySettings['min_max_border_color_inactive']);
-        $minMaxBorderColorHover = esc_html($minMaxQuantitySettings['min_max_border_color_hover']);
-        $minMaxSize = esc_html($minMaxQuantitySettings['min_max_size']);
-        $minMaxSizeHalf = esc_html($minMaxQuantitySettings['min_max_size']) / 2;
-
-        $button_size = $radio_button_size - 5;
-
-        echo "
-    <style>
-        .minmax-buttons{
-            padding: " . esc_attr($minMaxSizeHalf) . "px " . esc_attr($minMaxSize) . "px;
-            margin: 2px;
-            display: inline-block;
-            background-color: " . esc_attr($minMaxBgColorInactive) . ";
-            color: " . esc_attr($minMaxTextColorInactive) . ";
-            border: 1px solid " . esc_attr($minMaxBorderColorInactive) . ";
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .minmax-buttons.active{
-            background-color: " . esc_attr($minMaxBgColorActive) . ";
-            color: " . esc_attr($minMaxTextColorActive) . ";
-            borderColor: " . esc_attr($minMaxBorderColorActive) . ";
-        }
-        .minmax-buttons:hover{
-            background-color: " . esc_attr($minMaxBgColorHover) . ";
-            color: " . esc_attr($minMaxTextColorHover) . ";
-            borderColor: " . esc_attr($minMaxBorderColorHover) . ";
-        }
-        .bulkboost-swatch {
-            border-style: " . esc_attr($border_style) . ";
-            border-radius: " . esc_attr($box_corner_radius) . "px;
-            border-color: " . esc_attr($border_color_inactive) . ";
-            background-color: " . esc_attr($background_color_inactive) . ";
-            color: " . esc_attr($text_color_inactive) . ";
-            transition: all 0.3s ease;
-        }
-        .bulkboost-radio span {
-            display: inline-block;
-            height: 20px;
-            width: 20px;
-            border: 2px solid " . esc_attr($radio_border_color_inactive) . ";
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-            vertical-align: middle;
-        }
-        
-        .bulkboost-radio input[type='radio']:checked + span::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background: " . esc_attr($radio_bg_color_active) . ";
-        }
-        
-        .bulkboost-radio input[type='radio']:checked + span {
-            border-color: " . esc_attr($radio_bg_color_active) . ";
-        }
-        
-        .bulkboost-radio span:hover {
-            border-color: " . esc_attr($radio_border_color_hover) . ";
-        }
-        
-        .bulkboost-swatch.active .bulkboost-radio span {
-            border-color: green;
-        }
-        .bulkboost-heading{
-            font-size: " . esc_attr($labelFontSize) . "px;
-            font-weight: " . esc_attr($labelFontWeight) . ";
-        }
-        .bulkboost-subheading{
-            font-size: " . esc_attr($descriptionFontSize) . "px;
-            font-weight: " . esc_attr($descriptionFontWeight) . ";
-        }
-        .bulkboost-price{
-            font-size: " . esc_attr($priceFontSize) . "px;
-            font-weight: " . esc_attr($priceFontWeight) . ";
-        }
-        .bulkboost-right .old-price{
-            font-size: " . esc_attr($oldPriceFontSize) . "px;
-            font-weight: $oldPriceFontWeight;
-            " . ($showOldPrice === 'no' ? 'display: none;' : '') . "
-        }
-        .bulkboost-swatch.active {
-            border-color: " . esc_attr($border_color_active) . ";
-            background-color: " . esc_attr($background_color_active) . ";
-            color: " . esc_attr($text_color_active) . ";
-        }
-        .bulkboost-swatch:hover {
-            border-color: " . esc_attr($border_color_hover) . ";
-            background-color: " . esc_attr($background_color_hover) . ";
-            color: " . esc_attr($text_color_hover) . ";
-        }
-        .bulkboost-radio span {
-            display: inline-block;
-            height: " . esc_attr($radio_button_size) . "px;
-            width: " . esc_attr($radio_button_size) . "px;
-            border-width: 1px;
-            border-style: solid;
-            border-radius: 50%;
-            position: relative;
-            cursor: pointer;
-            vertical-align: middle;
-        }
-
-        .bulkboost-radio input[type='radio']:checked + span::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            height: " . esc_attr($button_size) . "px;
-            width: " . esc_attr($button_size) . "px;
-            border-radius: 50%;
-        }
-        /* Add other styles as needed */
-    </style>
-    ";
-    }
-
-    function BLKBST_update_notice()
-    {
-        global $current_user;
-
-        $siteUrl = site_url();
-        $uniqueUserId = md5($siteUrl);
-
-        $api_url = 'https://uwozfs6rgi.execute-api.us-east-1.amazonaws.com/prod/notifications';
-        $body = wp_json_encode([
-            'pluginName' => 'bulkboost-quantity-breaks-free',
-            'status' => true,
-            'user_id' => $uniqueUserId
-        ], JSON_THROW_ON_ERROR);
-
-        $args = [
-            'body' => $body,
-            'headers' => [
-                'Content-Type' => 'application/json',
-            ],
-            'method' => 'POST',
-            'data_format' => 'body',
-        ];
-
-        $response = wp_remote_post($api_url, $args);
-
-        if (is_wp_error($response)) {
-            $error_message = $response->get_error_message();
+        if ('post.php' !== $hook && 'post-new.php' !== $hook) {
             return;
         }
 
-        $body = wp_remote_retrieve_body($response);
-        $data = json_decode($body, true, 512);
-        $status_code = $data['statusCode'];
+        $bulkboost_settings    = get_option('bulkboost_settings', array());
+        $minMaxQuantitySettings = get_option('min_max_bulkboost_settings', array());
 
-        if (!empty($data) && $status_code === 200 && $data['body'] !== '[]') {
-            $dataEncoded = json_decode($data['body'], true)[0];
-            if ($dataEncoded['content'] && $dataEncoded['dismissed'] === false) {
-                $content = $dataEncoded['content'];
-                $message_id = $dataEncoded['message_id'];
+        $border_style             = esc_attr($bulkboost_settings['border_style'] ?? '');
+        $box_corner_radius        = esc_attr($bulkboost_settings['box_corner_radius'] ?? '0');
+        $border_color_inactive    = esc_attr($bulkboost_settings['border_color_inactive'] ?? '');
+        $background_color_inactive = esc_attr($bulkboost_settings['background_color_inactive'] ?? '');
+        $text_color_inactive      = esc_attr($bulkboost_settings['text_color_inactive'] ?? '');
+        $border_color_active      = esc_attr($bulkboost_settings['border_color_active'] ?? '');
+        $background_color_active  = esc_attr($bulkboost_settings['background_color_active'] ?? '');
+        $text_color_active        = esc_attr($bulkboost_settings['text_color_active'] ?? '');
+        $border_color_hover       = esc_attr($bulkboost_settings['border_color_hover'] ?? '');
+        $background_color_hover   = esc_attr($bulkboost_settings['background_color_hover'] ?? '');
+        $text_color_hover         = esc_attr($bulkboost_settings['text_color_hover'] ?? '');
+        $radio_bg_color_active    = esc_attr($bulkboost_settings['radio_bg_color_active'] ?? '');
+        $radio_border_color_inactive = esc_attr($bulkboost_settings['radio_border_color_inactive'] ?? '');
+        $radio_border_color_hover = esc_attr($bulkboost_settings['radio_border_color_hover'] ?? '');
+        $radio_button_size        = esc_attr($bulkboost_settings['radio_button_size'] ?? '20');
+        $labelFontWeight          = esc_attr($bulkboost_settings['label_font_weight'] ?? '');
+        $labelFontSize            = esc_attr($bulkboost_settings['label_font_size'] ?? '');
+        $descriptionFontWeight    = esc_attr($bulkboost_settings['description_font_weight'] ?? '');
+        $descriptionFontSize      = esc_attr($bulkboost_settings['description_font_size'] ?? '');
+        $priceFontWeight          = esc_attr($bulkboost_settings['price_font_weight'] ?? '');
+        $priceFontSize            = esc_attr($bulkboost_settings['price_font_size'] ?? '');
+        $oldPriceFontWeight       = esc_attr($bulkboost_settings['old_price_font_weight'] ?? '');
+        $oldPriceFontSize         = esc_attr($bulkboost_settings['old_price_font_size'] ?? '');
+        $showOldPrice             = esc_attr($bulkboost_settings['show_old_price'] ?? 'yes');
 
-                ?>
-                <div class="notice notice-success is-dismissible">
-                    <?php
-                    echo $content; ?>
-                    <hr>
-                    <a style="margin-bottom: 10px; position: relative; display: block;" href="?bulkboost-quantity-breaks_-notice&message_id=<?php echo urlencode($message_id); ?>"><b>Dismiss this notice</b></a>
-                </div>
-                <?php
-            }
-        }
-    }
+        $minMaxBgColorActive      = esc_attr($minMaxQuantitySettings['min_max_background_color_active'] ?? '');
+        $minMaxBgColorInactive    = esc_attr($minMaxQuantitySettings['min_max_background_color_inactive'] ?? '');
+        $minMaxBgColorHover       = esc_attr($minMaxQuantitySettings['min_max_background_color_hover'] ?? '');
+        $minMaxTextColorActive    = esc_attr($minMaxQuantitySettings['min_max_text_color_active'] ?? '');
+        $minMaxTextColorInactive  = esc_attr($minMaxQuantitySettings['min_max_text_color_inactive'] ?? '');
+        $minMaxTextColorHover     = esc_attr($minMaxQuantitySettings['min_max_text_color_hover'] ?? '');
+        $minMaxBorderColorActive  = esc_attr($minMaxQuantitySettings['min_max_border_color_active'] ?? '');
+        $minMaxBorderColorInactive = esc_attr($minMaxQuantitySettings['min_max_border_color_inactive'] ?? '');
+        $minMaxBorderColorHover   = esc_attr($minMaxQuantitySettings['min_max_border_color_hover'] ?? '');
+        $minMaxSize               = esc_attr($minMaxQuantitySettings['min_max_size'] ?? '14');
+        $minMaxSizeHalf           = (float) ($minMaxQuantitySettings['min_max_size'] ?? 14) / 2;
+        $button_size              = (int) ($bulkboost_settings['radio_button_size'] ?? 20) - 5;
 
-    public function BLKBST_ignore_notice_bulkboost()
-    {
-        global $current_user;
+        $css = "
+        .minmax-buttons{padding:{$minMaxSizeHalf}px {$minMaxSize}px;margin:2px;display:inline-block;background-color:{$minMaxBgColorInactive};color:{$minMaxTextColorInactive};border:1px solid {$minMaxBorderColorInactive};font-size:16px;cursor:pointer;}
+        .minmax-buttons.active{background-color:{$minMaxBgColorActive};color:{$minMaxTextColorActive};border-color:{$minMaxBorderColorActive};}
+        .minmax-buttons:hover{background-color:{$minMaxBgColorHover};color:{$minMaxTextColorHover};border-color:{$minMaxBorderColorHover};}
+        .bulkboost-swatch{border-style:{$border_style};border-radius:{$box_corner_radius}px;border-color:{$border_color_inactive};background-color:{$background_color_inactive};color:{$text_color_inactive};transition:all 0.3s ease;}
+        .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border:1px solid {$radio_border_color_inactive};border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
+        .bulkboost-radio input[type='radio']:checked + span{border-color:{$radio_bg_color_active};}
+        .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;background:{$radio_bg_color_active};}
+        .bulkboost-radio span:hover{border-color:{$radio_border_color_hover};}
+        .bulkboost-swatch.active .bulkboost-radio span{border-color:green;}
+        .bulkboost-heading{font-size:{$labelFontSize}px;font-weight:{$labelFontWeight};}
+        .bulkboost-subheading{font-size:{$descriptionFontSize}px;font-weight:{$descriptionFontWeight};}
+        .bulkboost-price{font-size:{$priceFontSize}px;font-weight:{$priceFontWeight};}
+        .bulkboost-right .old-price{font-size:{$oldPriceFontSize}px;font-weight:{$oldPriceFontWeight};" . ($showOldPrice === 'no' ? 'display:none;' : '') . "}
+        .bulkboost-swatch.active{border-color:{$border_color_active};background-color:{$background_color_active};color:{$text_color_active};}
+        .bulkboost-swatch:hover{border-color:{$border_color_hover};background-color:{$background_color_hover};color:{$text_color_hover};}
+        ";
 
-        $siteUrl = site_url();
-        $uniqueUserId = md5($siteUrl);
-
-        if (isset($_GET['bulkboost-quantity-breaks_-notice'])) {
-            $message_id = $_GET['message_id'];
-            $apiRequestBody = wp_json_encode(array(
-                'user_id' => $uniqueUserId,
-                'plugin_name' => 'bulkboost-quantity-breaks-free',
-                'message_id' => $message_id,
-            ), JSON_THROW_ON_ERROR);
-
-            $apiResponse = wp_remote_post(
-                'https://uwozfs6rgi.execute-api.us-east-1.amazonaws.com/prod/notifications',
-                array(
-                    'body' => $apiRequestBody,
-                    'headers' => array(
-                        'Content-Type' => 'application/json',
-                    ),
-                )
-            );
-
-            if (is_wp_error($apiResponse)) {
-                $error_message = $apiResponse->get_error_message();
-                return;
-            }
-        }
+        wp_add_inline_style($this->plugin_name, $css);
     }
 
 }

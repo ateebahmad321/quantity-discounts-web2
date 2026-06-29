@@ -1,9 +1,9 @@
 === BulkBoost – Quantity Discounts & Bundles ===
-Contributors: bulkboost
-Donate link: https://bulkboost.com
+Contributors: ateebahamd
+Donate link: https://profiles.wordpress.org/ateebahamd
 Tags: woocommerce, quantity discount, bulk pricing, tiered pricing, discount
 Requires at least: 6.7
-Tested up to: 6.8
+Tested up to: 7.0
 Stable tag: 1.0.0
 Requires PHP: 7.4
 License: GPLv2 or later
@@ -35,7 +35,7 @@ Upgrade to unlock:
 * **Sales analytics** — a report of completed orders that used BulkBoost, grouped by product (sales, quantity, date of last order, and which solution was used), with a date filter and a total-earned figure.
 * **Cart & Checkout quantity lock** — keep the quantity a customer chose on the product page; stop it from being changed in the cart or at checkout. Works on both the classic and block-based Cart & Checkout.
 
-Learn more about [BulkBoost Pro](https://bulkboost.com/products/quantity-breaks-and-discounts/).
+Learn more about [BulkBoost Pro](https://profiles.wordpress.org/ateebahamd).
 
 == Installation ==
 

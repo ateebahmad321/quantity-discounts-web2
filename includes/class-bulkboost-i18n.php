@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -22,7 +22,7 @@
  * @since      1.0.0
  * @package    BulkBoost
  * @subpackage BulkBoost/includes
- * @author     BulkBoost <info@bulkboost.com>
+ * @author     BulkBoost <ateebahmad76@gmail.com>
  */
 class BulkBoost_i18n {
 

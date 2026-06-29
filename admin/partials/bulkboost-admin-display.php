@@ -11,7 +11,7 @@ if (!defined('WPINC')) {
 
 require_once __DIR__ . '/bulkboost-admin-shell.php';
 
-bb_admin_shell_open(array(
+blkbst_admin_shell_open(array(
     'active' => 'bulkboost-bulkboost',
     'crumb'  => 'Dashboard',
     'title'  => 'Welcome to BulkBoost',
@@ -54,4 +54,4 @@ bb_admin_shell_open(array(
 
 
 <?php
-bb_admin_shell_close();
+blkbst_admin_shell_close();

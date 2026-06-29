@@ -17,8 +17,8 @@ if (!defined('WPINC')) {
 require_once __DIR__ . '/bulkboost-admin-shell.php';
 
 /* ---- tiny render helpers (guarded so the partial can include safely) ---- */
-if (!function_exists('bb_swatches')) {
-    function bb_swatches($key, $colors)
+if (!function_exists('blkbst_swatches')) {
+    function blkbst_swatches($key, $colors)
     {
         echo '<div class="bb-swatches">';
         foreach ($colors as $c) {
@@ -33,8 +33,8 @@ if (!function_exists('bb_swatches')) {
         echo '</div>';
     }
 }
-if (!function_exists('bb_color_picker')) {
-    function bb_color_picker($key)
+if (!function_exists('blkbst_color_picker')) {
+    function blkbst_color_picker($key)
     {
         printf(
             '<span class="bb-color-pick">'
@@ -45,17 +45,17 @@ if (!function_exists('bb_color_picker')) {
         );
     }
 }
-if (!function_exists('bb_color_row')) {
-    function bb_color_row($key, $colors)
+if (!function_exists('blkbst_color_row')) {
+    function blkbst_color_row($key, $colors)
     {
         echo '<div class="bb-color-control">';
-        bb_swatches($key, $colors);
-        bb_color_picker($key);
+        blkbst_swatches($key, $colors);
+        blkbst_color_picker($key);
         echo '</div>';
     }
 }
-if (!function_exists('bb_segmented')) {
-    function bb_segmented($key, $opts)
+if (!function_exists('blkbst_segmented')) {
+    function blkbst_segmented($key, $opts)
     {
         echo '<div class="bb-seg">';
         foreach ($opts as $val => $label) {
@@ -69,8 +69,8 @@ if (!function_exists('bb_segmented')) {
         echo '</div>';
     }
 }
-if (!function_exists('bb_slider')) {
-    function bb_slider($key, $min, $max, $step)
+if (!function_exists('blkbst_slider')) {
+    function blkbst_slider($key, $min, $max, $step)
     {
         printf(
             '<div class="bb-slider"><input type="range" min="%s" max="%s" step="%s" data-key="%s"><span class="val"></span></div>',
@@ -81,8 +81,8 @@ if (!function_exists('bb_slider')) {
         );
     }
 }
-if (!function_exists('bb_weight_size')) {
-    function bb_weight_size($weight_key, $size_key)
+if (!function_exists('blkbst_weight_size')) {
+    function blkbst_weight_size($weight_key, $size_key)
     {
         $weights = array('300' => 'Light', '400' => 'Normal', '500' => 'Medium', '600' => 'Semibold', '700' => 'Bold');
         echo '<div class="bb-fields">';
@@ -96,7 +96,7 @@ if (!function_exists('bb_weight_size')) {
     }
 }
 
-bb_admin_shell_open(array(
+blkbst_admin_shell_open(array(
     'active'    => 'bulkboost-quantity-design',
     'crumb'     => 'Settings',
     'title'     => 'Design Settings',
@@ -108,7 +108,7 @@ bb_admin_shell_open(array(
 <div class="bb-tabs" role="tablist">
     <button type="button" class="bb-tab is-active" data-tab="design">Design</button>
     <button type="button" class="bb-tab" data-tab="typography">Typography</button>
-    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!bulkboost_is_premium()) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
+    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!function_exists('bul_fs') || !bul_fs()->is_premium()) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
 </div>
 
 <!-- ============ DESIGN ============ -->
@@ -122,19 +122,19 @@ bb_admin_shell_open(array(
         <div class="bb-card-label">Colors</div>
         <div class="bb-rowx">
             <div><div class="name">Active background</div><div class="help">Fill of the selected offer</div></div>
-            <?php bb_color_row('activeBg', array('#16231d', '#1c1c22', '#21303a', '#2a1f2e')); ?>
+            <?php blkbst_color_row('activeBg', array('#16231d', '#1c1c22', '#21303a', '#2a1f2e')); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Active text</div><div class="help">Text color inside the selected offer</div></div>
-            <?php bb_color_row('activeText', array('#ffffff', '#1b1c18')); ?>
+            <?php blkbst_color_row('activeText', array('#ffffff', '#1b1c18')); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Accent</div><div class="help">Selected ring &amp; radio fill</div></div>
-            <?php bb_color_row('accent', array('#10976a', '#4f5bd5', '#e8643c', '#c2870e')); ?>
+            <?php blkbst_color_row('accent', array('#10976a', '#4f5bd5', '#e8643c', '#c2870e')); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Inactive border</div><div class="help">Outline of unselected offers</div></div>
-            <?php bb_color_row('inactiveBorder', array('#e6e5df', '#cfd0c8', '#10976a')); ?>
+            <?php blkbst_color_row('inactiveBorder', array('#e6e5df', '#cfd0c8', '#10976a')); ?>
         </div>
     </div>
 
@@ -142,19 +142,19 @@ bb_admin_shell_open(array(
         <div class="bb-card-label">Shape &amp; spacing</div>
         <div class="bb-rowx">
             <div><div class="name">Corner radius</div></div>
-            <?php bb_slider('radius', 0, 24, 1); ?>
+            <?php blkbst_slider('radius', 0, 24, 1); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Border width</div></div>
-            <?php bb_slider('borderW', 0, 4, 0.5); ?>
+            <?php blkbst_slider('borderW', 0, 4, 0.5); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Card spacing</div></div>
-            <?php bb_slider('gap', 4, 24, 1); ?>
+            <?php blkbst_slider('gap', 4, 24, 1); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Selector style</div><div class="help">Control shown on each offer</div></div>
-            <?php bb_segmented('selector', array('radio' => 'Radio', 'checkbox' => 'Checkbox', 'none' => 'None')); ?>
+            <?php blkbst_segmented('selector', array('radio' => 'Radio', 'checkbox' => 'Checkbox', 'none' => 'None')); ?>
         </div>
     </div>
 </div>
@@ -170,15 +170,15 @@ bb_admin_shell_open(array(
         <div class="bb-card-label">Text styles</div>
         <div class="bb-rowx">
             <div><div class="name">Label</div><div class="help">The offer title</div></div>
-            <?php bb_weight_size('labelWeight', 'labelSize'); ?>
+            <?php blkbst_weight_size('labelWeight', 'labelSize'); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Description</div><div class="help">Supporting line under the label</div></div>
-            <?php bb_weight_size('descWeight', 'descSize'); ?>
+            <?php blkbst_weight_size('descWeight', 'descSize'); ?>
         </div>
         <div class="bb-rowx">
             <div><div class="name">Price</div><div class="help">The current price</div></div>
-            <?php bb_weight_size('priceWeight', 'priceSize'); ?>
+            <?php blkbst_weight_size('priceWeight', 'priceSize'); ?>
         </div>
     </div>
 
@@ -193,7 +193,7 @@ bb_admin_shell_open(array(
         <div data-dim-key="showOld">
             <div class="bb-rowx">
                 <div class="name" style="color:#5a5c52;">Old price style</div>
-                <?php bb_weight_size('oldWeight', 'oldSize'); ?>
+                <?php blkbst_weight_size('oldWeight', 'oldSize'); ?>
             </div>
         </div>
     </div>
@@ -206,7 +206,7 @@ bb_admin_shell_open(array(
         <p>Style the three promotional badges. Turn each one on per offer inside a product's BulkBoost panel.</p>
     </div>
 
-    <?php $bb_premium = bulkboost_is_premium(); ?>
+    <?php $bb_premium = function_exists('bul_fs') && bul_fs()->is_premium(); ?>
     <div class="bb-premium-gate<?php echo $bb_premium ? '' : ' is-locked'; ?>">
         <?php if (!$bb_premium) : ?>
             <div class="bb-lock">
@@ -227,11 +227,11 @@ bb_admin_shell_open(array(
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('labelHotBg', array('#e53935', '#e8643c', '#d4537e', '#1b1c18')); ?>
+                <?php blkbst_color_row('labelHotBg', array('#e53935', '#e8643c', '#d4537e', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('labelHotText', array('#ffffff', '#1b1c18')); ?>
+                <?php blkbst_color_row('labelHotText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
 
@@ -243,11 +243,11 @@ bb_admin_shell_open(array(
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('labelPopularBg', array('#7b3fd1', '#4f5bd5', '#10976a', '#1b1c18')); ?>
+                <?php blkbst_color_row('labelPopularBg', array('#7b3fd1', '#4f5bd5', '#10976a', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('labelPopularText', array('#ffffff', '#1b1c18')); ?>
+                <?php blkbst_color_row('labelPopularText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
 
@@ -259,11 +259,11 @@ bb_admin_shell_open(array(
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('labelBestdealBg', array('#16a34a', '#10976a', '#c2870e', '#1b1c18')); ?>
+                <?php blkbst_color_row('labelBestdealBg', array('#16a34a', '#10976a', '#c2870e', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('labelBestdealText', array('#ffffff', '#1b1c18')); ?>
+                <?php blkbst_color_row('labelBestdealText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
 
@@ -275,11 +275,11 @@ bb_admin_shell_open(array(
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('saveBadgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
+                <?php blkbst_color_row('saveBadgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('saveBadgeText', array('#ffffff', '#1b1c18')); ?>
+                <?php blkbst_color_row('saveBadgeText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
 
@@ -291,11 +291,11 @@ bb_admin_shell_open(array(
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Background</div></div>
-                <?php bb_color_row('shippingBadgeBg', array('#1b1c18', '#10976a', '#4f5bd5', '#e8643c')); ?>
+                <?php blkbst_color_row('shippingBadgeBg', array('#1b1c18', '#10976a', '#4f5bd5', '#e8643c')); ?>
             </div>
             <div class="bb-rowx">
                 <div><div class="name">Text color</div></div>
-                <?php bb_color_row('shippingBadgeText', array('#ffffff', '#1b1c18')); ?>
+                <?php blkbst_color_row('shippingBadgeText', array('#ffffff', '#1b1c18')); ?>
             </div>
         </div>
     </div>
@@ -318,4 +318,4 @@ ob_start();
 </div>
 <?php
 $aside = ob_get_clean();
-bb_admin_shell_close($aside);
+blkbst_admin_shell_close($aside);

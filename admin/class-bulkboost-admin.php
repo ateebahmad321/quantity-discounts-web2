@@ -725,6 +725,62 @@ class BLKBST_BulkBoost_Admin
         wp_localize_script($this->plugin_name, 'bulkboost_data_extra', $bulkboost_extra);
     }
 
+    public function BLKBST_enqueue_min_max_scripts($hook)
+    {
+        if ('woocommerce_page_bulkboost-quantity-min-max' !== $hook) {
+            return;
+        }
+        wp_enqueue_script('wp-color-picker');
+        $js = <<<'JS'
+jQuery(document).ready(function ($) {
+    $('.color-field').wpColorPicker({
+        change: function (event, ui) {
+            $(event.target).val(ui.color.toString());
+            createButtons();
+        },
+        clear: function () { createButtons(); }
+    });
+
+    var bgA = $('#min_max_background_color_active'), bgI = $('#min_max_background_color_inactive'), bgH = $('#min_max_background_color_hover');
+    var tA = $('#min_max_text_color_active'), tI = $('#min_max_text_color_inactive'), tH = $('#min_max_text_color_hover');
+    var brA = $('#min_max_border_color_active'), brI = $('#min_max_border_color_inactive'), brH = $('#min_max_border_color_hover');
+    var size = $('#min_max_size');
+    var area = $('#bulkboost_preview_preview');
+
+    function createButtons() {
+        area.empty();
+        for (var i = 1; i <= 10; i++) {
+            var b = $('<span></span>').text(i).css({
+                padding: (size.val() / 2) + 'px ' + size.val() + 'px',
+                display: 'inline-block', cursor: 'pointer', borderRadius: '6px',
+                backgroundColor: bgI.val(), color: tI.val(),
+                border: '1px solid ' + brI.val(), fontSize: size.val() + 'px'
+            });
+            if (i === 3) {
+                b.addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
+            }
+            b.hover(function () {
+                $(this).css({ backgroundColor: bgH.val(), color: tH.val(), borderColor: brH.val() });
+            }, function () {
+                if (!$(this).hasClass('is-active')) {
+                    $(this).css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
+                }
+            });
+            b.on('click', function () {
+                $('.is-active', area).removeClass('is-active').css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
+                $(this).addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
+            });
+            area.append(b);
+        }
+    }
+
+    createButtons();
+    $('#min_max_size').on('change input', createButtons);
+});
+JS;
+        wp_add_inline_script('wp-color-picker', $js);
+    }
+
     function BLKBST_bulkboost_register_settings()
     {
         register_setting(

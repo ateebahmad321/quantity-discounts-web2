@@ -162,6 +162,7 @@ class BLKBST_BulkBoost
         $this->loader->add_action('admin_menu', $plugin_admin, 'BLKBST_bulkboost_admin_menu_page');
 
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'BLKBST_enqueue_quantity_breaks_scripts');
+        $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'BLKBST_enqueue_min_max_scripts');
 
         // product panel
         $this->loader->add_filter(

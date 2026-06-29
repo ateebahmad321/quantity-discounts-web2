@@ -25,7 +25,7 @@ $defaults = array(
 );
 $options = wp_parse_args(get_option('min_max_bulkboost_settings', array()), $defaults);
 
-bb_admin_shell_open(array(
+blkbst_admin_shell_open(array(
     'active' => 'bulkboost-quantity-min-max',
     'crumb'  => 'Settings',
     'title'  => 'Min / Max Quantity',
@@ -86,53 +86,5 @@ $row = function ($name, $prefix) use ($options) {
     <?php submit_button('Save Changes', 'primary', 'submit', true, array('class' => 'bb-btn bb-btn-primary')); ?>
 </form>
 
-<script type="text/javascript">
-    jQuery(document).ready(function ($) {
-        $('.color-field').wpColorPicker({
-            change: function (event, ui) {
-                $(event.target).val(ui.color.toString());
-                createButtons();
-            },
-            clear: function () { createButtons(); }
-        });
-
-        var bgA = $('#min_max_background_color_active'), bgI = $('#min_max_background_color_inactive'), bgH = $('#min_max_background_color_hover');
-        var tA = $('#min_max_text_color_active'), tI = $('#min_max_text_color_inactive'), tH = $('#min_max_text_color_hover');
-        var brA = $('#min_max_border_color_active'), brI = $('#min_max_border_color_inactive'), brH = $('#min_max_border_color_hover');
-        var size = $('#min_max_size');
-        var area = $('#bulkboost_preview_preview');
-
-        function createButtons() {
-            area.empty();
-            for (var i = 1; i <= 10; i++) {
-                var b = $('<span></span>').text(i).css({
-                    padding: (size.val() / 2) + 'px ' + size.val() + 'px',
-                    display: 'inline-block', cursor: 'pointer', borderRadius: '6px',
-                    backgroundColor: bgI.val(), color: tI.val(),
-                    border: '1px solid ' + brI.val(), fontSize: size.val() + 'px'
-                });
-                if (i === 3) {
-                    b.addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
-                }
-                b.hover(function () {
-                    $(this).css({ backgroundColor: bgH.val(), color: tH.val(), borderColor: brH.val() });
-                }, function () {
-                    if (!$(this).hasClass('is-active')) {
-                        $(this).css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
-                    }
-                });
-                b.on('click', function () {
-                    $('.is-active', area).removeClass('is-active').css({ backgroundColor: bgI.val(), color: tI.val(), borderColor: brI.val() });
-                    $(this).addClass('is-active').css({ backgroundColor: bgA.val(), color: tA.val(), borderColor: brA.val() });
-                });
-                area.append(b);
-            }
-        }
-
-        createButtons();
-        $('#min_max_size').on('change input', createButtons);
-    });
-</script>
-
 <?php
-bb_admin_shell_close();
+blkbst_admin_shell_close();

@@ -18,7 +18,7 @@ $general = get_option('bulkboost_general_settings', array(
 
 $bb_premium = function_exists('bul_fs') && bul_fs()->is_premium();
 
-bb_admin_shell_open(array(
+blkbst_admin_shell_open(array(
     'active' => 'bulkboost-settings',
     'crumb'  => 'Cart & Checkout',
     'title'  => 'Cart & Checkout',
@@ -26,11 +26,11 @@ bb_admin_shell_open(array(
 
 if (!$bb_premium) {
     // ---- Free: upsell ----
-    bb_admin_upsell(
+    blkbst_admin_upsell(
         'Cart & Checkout is a Pro feature',
         'Lock the quantity a customer chose on the product page so it can\'t be changed in the cart or at checkout.'
     );
-    bb_admin_shell_close();
+    blkbst_admin_shell_close();
     return;
 }
 ?>
@@ -69,4 +69,4 @@ if (!$bb_premium) {
 </form>
 
 <?php
-bb_admin_shell_close();
+blkbst_admin_shell_close();

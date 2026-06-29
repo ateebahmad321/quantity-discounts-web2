@@ -17,7 +17,7 @@ require_once __DIR__ . '/bulkboost-admin-shell.php';
 
 $bb_premium = function_exists('bul_fs') && bul_fs()->is_premium();
 
-bb_admin_shell_open(array(
+blkbst_admin_shell_open(array(
     'active' => 'bulkboost-earnings',
     'crumb'  => 'Analytics',
     'title'  => 'Analytics',
@@ -26,11 +26,11 @@ bb_admin_shell_open(array(
 
 if (!$bb_premium) {
     // ---- Free: upsell ----
-    bb_admin_upsell(
+    blkbst_admin_upsell(
         'Analytics is a Pro feature',
         'See exactly how much revenue BulkBoost generates — completed orders grouped by product, with date filtering and totals.'
     );
-    bb_admin_shell_close();
+    blkbst_admin_shell_close();
     return;
 }
 
@@ -105,4 +105,4 @@ $date_format = get_option('date_format') . ', ' . get_option('time_format');
 </div>
 
 <?php
-bb_admin_shell_close();
+blkbst_admin_shell_close();

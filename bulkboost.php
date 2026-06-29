@@ -7,7 +7,6 @@
  *
  * @wordpress-plugin
  * Plugin Name:       BulkBoost – Quantity Discounts & Bundles
- * Plugin URI:        https://profiles.wordpress.org/ateebahamd
  * Description:       Boost average order value with tiered quantity discounts, breaks and bundle offers for WooCommerce products.
  * Version:           1.0.0
  * Requires at least: 6.7

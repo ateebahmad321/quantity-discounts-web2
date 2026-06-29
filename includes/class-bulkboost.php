@@ -139,7 +139,7 @@ class BLKBST_BulkBoost
     {
         $plugin_i18n = new BulkBoost_i18n();
 
-        $this->loader->add_action('plugins_loaded', $plugin_i18n, 'load_plugin_textdomain');
+        // load_plugin_textdomain() is not needed on WordPress.org since WP 4.6.
     }
 
     /**
@@ -158,7 +158,6 @@ class BLKBST_BulkBoost
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_dashboard_assets');
         $this->loader->add_filter('admin_body_class', $plugin_admin, 'bb_admin_body_class');
         $this->loader->add_action('wp_ajax_bulkboost_save_design', $plugin_admin, 'BLKBST_save_design_settings');
-        $this->loader->add_action('admin_notices', $plugin_admin, 'BLKBST_update_notice');
         // Settings menu
         $this->loader->add_action('admin_menu', $plugin_admin, 'BLKBST_bulkboost_admin_menu_page');
 
@@ -170,14 +169,14 @@ class BLKBST_BulkBoost
             $plugin_admin,
             'BLKBST_bulkboost_product_data_tabs'
         );
-        $this->loader->add_action('admin_head', $plugin_admin, 'quantity_breaks_icon_change');
+        $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'quantity_breaks_icon_change', 20);
+        $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_product_panel_styles', 20);
         $this->loader->add_action(
             'woocommerce_product_data_panels',
             $plugin_admin,
             'BLKBST_quantity_breaks_product_data_panels'
         );
         $this->loader->add_action('save_post', $plugin_admin, 'BLKBST_save_bulkboost');
-        $this->loader->add_action('admin_init', $plugin_admin, 'BLKBST_ignore_notice_bulkboost');
         $this->loader->add_action('admin_notices', $plugin_admin, 'BLKBST_bulkboost_admin_notices');
         // settings page
         $this->loader->add_action(
@@ -207,7 +206,7 @@ class BLKBST_BulkBoost
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
         $this->loader->add_action('woocommerce_before_add_to_cart_button', $plugin_public, 'BLKBST_add_custom_quantity_block');
-        $this->loader->add_action('wp_head', $plugin_public, 'output_custom_styles');
+        $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'output_custom_styles', 20);
         $this->loader->add_filter(
             'woocommerce_add_cart_item_data',
             $plugin_public,
@@ -228,11 +227,11 @@ class BLKBST_BulkBoost
             'BLKBST_add_custom_price_field_to_product_form'
         );
 
-        $this->loader->add_action('wp_head', $plugin_public, 'BLKBST_remove_quantity_field_on_product_pages');
+        $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'BLKBST_remove_quantity_field_on_product_pages', 20);
 
         // General Settings (Pro): lock the quantity field in cart / checkout.
         $this->loader->add_filter('woocommerce_cart_item_quantity', $plugin_public, 'BLKBST_lock_cart_quantity', 10, 3);
-        $this->loader->add_action('wp_head', $plugin_public, 'BLKBST_lock_checkout_quantity');
+        $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'BLKBST_lock_checkout_quantity', 20);
         // Block-based Cart & Checkout (Store API).
         $this->loader->add_filter('woocommerce_store_api_product_quantity_editable', $plugin_public, 'BLKBST_lock_block_quantity', 10, 3);
     }

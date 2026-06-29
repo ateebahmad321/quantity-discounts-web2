@@ -125,142 +125,32 @@ class BLKBST_BulkBoost_Public
         $halfPadding = $min_max_size / 2;
         $button_size = $radio_button_size - 5;
 
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Inline CSS; every dynamic value is sanitized with esc_attr()/sanitize_hex_color() above.
-        echo "
-    <style>
-    #quantity-buttons{
-        margin-bottom: 20px;
-    }
-    #quantity-buttons .quantity-button{
-        padding: " . esc_attr($halfPadding) . "px " . esc_attr($min_max_size) . "px;
-        margin: 2px;
-        line-height:1.3em;
-        display: inline-block;
-        background-color: " . esc_attr($min_max_background_color_inactive) . ";
-        color: " . esc_attr($min_max_text_color_inactive) . ";
-        border: 1px solid " . esc_attr($min_max_border_color_inactive) . ";
-        cursor: pointer;
-    }
-    #quantity-buttons .quantity-button.active{
-        padding: " . esc_attr($halfPadding) . "px " . esc_attr($min_max_size) . "px;
-        margin: 2px;
-        display: inline-block;
-        background-color: " . esc_attr($min_max_background_color_active) . ";
-        color: " . esc_attr($min_max_text_color_active) . ";
-        border: 1px solid " . esc_attr($min_max_border_color_active) . ";
-        cursor: pointer;
-    }
-    
-    #quantity-buttons .quantity-button:hover{
-        padding: " . esc_attr($halfPadding) . "px " . esc_attr($min_max_size) . "px;
-        margin: 2px;
-        display: inline-block;
-        background-color: " . esc_attr($min_max_background_color_hover) . ";
-        color: " . esc_attr($min_max_text_color_hover) . ";
-        border: 1px solid " . esc_attr($min_max_border_color_hover) . ";
-        cursor: pointer;
-    }
-    
-    #quantity-buttons{
-    margin-bottom: 20px;
-    }
-    
-    .bulkboost-swatch.active {
-        border-color: " . esc_attr($border_color_active) . ";
-        background-color: " . esc_attr($background_color_active) . ";
-        color: " . esc_attr($text_color_active) . ";
-        border-style: " . esc_attr($border_style) . ";
-        border-width: " . esc_attr($border_width) . "px;
-        border-radius: " . esc_attr($box_corner_radius) . "px;
-    }
-
-    .bulkboost-radio span {
-        border-color: " . esc_attr($radio_border_color_inactive) . ";
-    }
-    .bulkboost-radio input[type='radio']:checked + span {
-        border-color: " . esc_attr($radio_border_color_active) . ";
-    }
-    .bulkboost-swatch.active .bulkboost-radio span {
-        border-color: " . esc_attr($radio_border_color_active) . ";
-    }
-    .bulkboost-swatch:not(.active) {
-        border-color: " . esc_attr($border_color_inactive) . ";
-        background-color: " . esc_attr($background_color_inactive) . " !important;
-        color: " . esc_attr($text_color_inactive) . ";
-        border-style: " . esc_attr($border_style) . ";
-        border-width: " . esc_attr($border_width) . "px;
-        border-radius: " . esc_attr($box_corner_radius) . "px;
-    }
-    .bulkboost-swatch:not(.active):hover {
-        border-color: " . esc_attr($border_color_hover) . ";
-        background-color: " . esc_attr($background_color_hover) . " !important;
-        color: " . esc_attr($text_color_hover) . ";
-        border-style: " . esc_attr($border_style) . ";
-        border-radius: " . esc_attr($box_corner_radius) . "px;
-    }
-    .bulkboost-heading {
-        font-size: " . esc_attr($labelFontSize) . "px;
-        font-weight: " . esc_attr($labelFontWeight) . ";
-    }
-    .bulkboost-subheading {
-        font-size: " . esc_attr($descriptionFontSize) . "px;
-        font-weight: " . esc_attr($descriptionFontWeight) . ";
-    }
-    .bulkboost-right span {
-        font-size: " . esc_attr($priceFontSize) . "px;
-        font-weight: " . esc_attr($priceFontWeight) . ";
-    }
-    .bulkboost-right .old-price span {
-        font-size: " . esc_attr($oldPriceFontSize) . "px;
-        font-weight: " . esc_attr($oldPriceFontWeight) . ";
-    }
-    .bulkboost-radio input[type='radio']:checked + span::before{
-        background-color: " . esc_attr($radio_bg_color_active) . "
-    }
-    .bulkboost-radio input[type='radio'] + span::before{
-        background-color: " . esc_attr($radio_bg_color_inactive) . "
-    }
-    .bulkboost-radio span {
-        display: inline-block;
-        height: " . esc_attr($radio_button_size) . "px;
-        width: " . esc_attr($radio_button_size) . "px;
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 50%;
-        position: relative;
-        cursor: pointer;
-        vertical-align: middle;
-    }
-
-    .bulkboost-radio input[type='radio']:checked + span::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        height: " . esc_attr($button_size) . "px;
-        width: " . esc_attr($button_size) . "px;
-        border-radius: 50%;
-    }
-
-    /* Card spacing (gap between offer cards) */
-    .custom-quantity-block .bulkboost-tier-wrap {
-        margin-bottom: " . esc_attr($card_gap) . "px;
-    }
-
-    /* Selector style (radio | checkbox | none) — driven by the wrapper class */
-    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span {
-        border-radius: 4px;
-    }
-    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before {
-        border-radius: 2px;
-    }
-    .custom-quantity-block.bb-selector-none .bulkboost-radio {
-        display: none;
-    }
-    " . $badge_css . "
-    </style>
+        $css = "
+    #quantity-buttons{margin-bottom:20px;}
+    #quantity-buttons .quantity-button{padding:{$halfPadding}px {$min_max_size}px;margin:2px;line-height:1.3em;display:inline-block;background-color:{$min_max_background_color_inactive};color:{$min_max_text_color_inactive};border:1px solid {$min_max_border_color_inactive};cursor:pointer;}
+    #quantity-buttons .quantity-button.active{background-color:{$min_max_background_color_active};color:{$min_max_text_color_active};border:1px solid {$min_max_border_color_active};}
+    #quantity-buttons .quantity-button:hover{background-color:{$min_max_background_color_hover};color:{$min_max_text_color_hover};border:1px solid {$min_max_border_color_hover};}
+    .bulkboost-swatch.active{border-color:{$border_color_active};background-color:{$background_color_active};color:{$text_color_active};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
+    .bulkboost-radio span{border-color:{$radio_border_color_inactive};}
+    .bulkboost-radio input[type='radio']:checked + span{border-color:{$radio_border_color_active};}
+    .bulkboost-swatch.active .bulkboost-radio span{border-color:{$radio_border_color_active};}
+    .bulkboost-swatch:not(.active){border-color:{$border_color_inactive};background-color:{$background_color_inactive} !important;color:{$text_color_inactive};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
+    .bulkboost-swatch:not(.active):hover{border-color:{$border_color_hover};background-color:{$background_color_hover} !important;color:{$text_color_hover};border-style:{$border_style};border-radius:{$box_corner_radius}px;}
+    .bulkboost-heading{font-size:{$labelFontSize}px;font-weight:{$labelFontWeight};}
+    .bulkboost-subheading{font-size:{$descriptionFontSize}px;font-weight:{$descriptionFontWeight};}
+    .bulkboost-right span{font-size:{$priceFontSize}px;font-weight:{$priceFontWeight};}
+    .bulkboost-right .old-price span{font-size:{$oldPriceFontSize}px;font-weight:{$oldPriceFontWeight};}
+    .bulkboost-radio input[type='radio']:checked + span::before{background-color:{$radio_bg_color_active};}
+    .bulkboost-radio input[type='radio'] + span::before{background-color:{$radio_bg_color_inactive};}
+    .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border-width:1px;border-style:solid;border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
+    .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;}
+    .custom-quantity-block .bulkboost-tier-wrap{margin-bottom:{$card_gap}px;}
+    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span{border-radius:4px;}
+    .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before{border-radius:2px;}
+    .custom-quantity-block.bb-selector-none .bulkboost-radio{display:none;}
+    {$badge_css}
     ";
+        wp_add_inline_style($this->plugin_name, $css);
     }
 
     /**
@@ -576,7 +466,7 @@ class BLKBST_BulkBoost_Public
             }
 
             if ($quantityDicsountsEnabled === 'enable' || $minMaxEnabled === 'enable') {
-                echo '<style>.single-product .quantity { display: none !important; }</style>';
+                wp_add_inline_style($this->plugin_name, '.single-product .quantity { display: none !important; }');
             }
         }
     }
@@ -638,7 +528,7 @@ class BLKBST_BulkBoost_Public
             if (($general['disable_quantity_checkout'] ?? 'enabled') !== 'disabled') {
                 return;
             }
-            echo '<style>.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }</style>';
+            wp_add_inline_style($this->plugin_name, '.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }');
         }
     }
 

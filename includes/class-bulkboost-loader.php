@@ -3,7 +3,7 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -19,7 +19,7 @@
  *
  * @package    BulkBoost
  * @subpackage BulkBoost/includes
- * @author     BulkBoost <info@bulkboost.com>
+ * @author     BulkBoost <ateebahmad76@gmail.com>
  */
 class BulkBoost_Loader {
 

@@ -6,7 +6,7 @@
  * A class definition that includes attributes and functions used across both the
  * public-facing side of the site and the admin area.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -25,7 +25,7 @@
  * @since      1.0.0
  * @package    BulkBoost
  * @subpackage BulkBoost/includes
- * @author     BulkBoost <info@bulkboost.com>
+ * @author     BulkBoost <ateebahmad76@gmail.com>
  */
 class BLKBST_BulkBoost
 {

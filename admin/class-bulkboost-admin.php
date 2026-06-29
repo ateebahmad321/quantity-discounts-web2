@@ -3,7 +3,7 @@
 /**
  * The admin-specific functionality of the plugin.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -181,7 +181,7 @@ class BLKBST_BulkBoost_Admin
             'currency'   => html_entity_decode($currency),
             'defaults'   => self::design_defaults(),
             'settings'   => is_array($saved) ? $saved : array(),
-            'isPremium'  => function_exists('bulkboost_is_premium') ? bulkboost_is_premium() : false,
+            'isPremium'  => function_exists('bul_fs') ? bul_fs()->is_premium() : false,
         ));
     }
 
@@ -257,7 +257,7 @@ class BLKBST_BulkBoost_Admin
         $clean = $this->sanitize_design_settings($input);
 
         // Pro-only keys (badge styling) are dropped for non-premium sites.
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
+        if (!function_exists('bul_fs') || !bul_fs()->can_use_premium_code__premium_only()) {
             foreach (self::premium_design_keys() as $pro_key) {
                 unset($clean[$pro_key]);
             }
@@ -467,7 +467,7 @@ class BLKBST_BulkBoost_Admin
     {
         $this->output_custom_styles();
         ?>
-        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo bulkboost_is_premium() ? '' : 'bb-free'; ?>">
+        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo (function_exists('bul_fs') && bul_fs()->is_premium()) ? '' : 'bb-free'; ?>">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
            
@@ -526,7 +526,7 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
-                <?php if (!bulkboost_is_premium()) : ?>
+                <?php if (!function_exists('bul_fs') || !bul_fs()->is_premium()) : ?>
                 <div class="bb-pd-pro-note">
                     <strong>★ Badges are a Pro feature.</strong>
                     Label, savings &amp; free-shipping badges are available in BulkBoost Pro.

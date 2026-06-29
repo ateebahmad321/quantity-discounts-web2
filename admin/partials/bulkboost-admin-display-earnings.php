@@ -15,7 +15,7 @@ if (!defined('WPINC')) {
 
 require_once __DIR__ . '/bulkboost-admin-shell.php';
 
-$bb_premium = function_exists('bulkboost_is_premium') && bulkboost_is_premium();
+$bb_premium = function_exists('bul_fs') && bul_fs()->is_premium();
 
 bb_admin_shell_open(array(
     'active' => 'bulkboost-earnings',

@@ -3,7 +3,7 @@
 /**
  * The public-facing functionality of the plugin.
  *
- * @link       https://bulkboost.com
+ * @link       https://profiles.wordpress.org/ateebahamd
  * @since      1.0.0
  *
  * @package    BulkBoost
@@ -73,7 +73,8 @@ class BLKBST_BulkBoost_Public
 
         // Badge styling is a Pro feature: only apply the saved colors when premium.
         $badge_css = '';
-        if (function_exists('bulkboost_is_premium') && bulkboost_is_premium()) {
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
             $label_hot_bg        = sanitize_hex_color($bulkboost_settings['label_hot_bg'] ?? '') ?: '#e53935';
             $label_hot_text      = sanitize_hex_color($bulkboost_settings['label_hot_text'] ?? '') ?: '#ffffff';
             $label_popular_bg    = sanitize_hex_color($bulkboost_settings['label_popular_bg'] ?? '') ?: '#7b3fd1';
@@ -295,22 +296,23 @@ class BLKBST_BulkBoost_Public
      */
     private function render_label_tab($badge_label)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return '';
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $label_map = [
+                'hot' => ['text' => 'HOT', 'class' => 'bulkboost-tab-hot'],
+                'popular' => ['text' => 'MOST POPULAR', 'class' => 'bulkboost-tab-popular'],
+                'bestdeal' => ['text' => 'BEST DEAL 🔥', 'class' => 'bulkboost-tab-bestdeal'],
+            ];
+
+            if (empty($badge_label) || $badge_label === 'none' || !isset($label_map[$badge_label])) {
+                return '';
+            }
+
+            $info = $label_map[$badge_label];
+
+            return '<div class="bulkboost-label-tab ' . esc_attr($info['class']) . '">' . esc_html($info['text']) . '</div>';
         }
-        $label_map = [
-            'hot' => ['text' => 'HOT', 'class' => 'bulkboost-tab-hot'],
-            'popular' => ['text' => 'MOST POPULAR', 'class' => 'bulkboost-tab-popular'],
-            'bestdeal' => ['text' => 'BEST DEAL 🔥', 'class' => 'bulkboost-tab-bestdeal'],
-        ];
-
-        if (empty($badge_label) || $badge_label === 'none' || !isset($label_map[$badge_label])) {
-            return '';
-        }
-
-        $info = $label_map[$badge_label];
-
-        return '<div class="bulkboost-label-tab ' . esc_attr($info['class']) . '">' . esc_html($info['text']) . '</div>';
+        return '';
     }
 
     /**
@@ -323,29 +325,30 @@ class BLKBST_BulkBoost_Public
      */
     private function render_save_badge($save_enabled, $save_override, $auto_percent)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return '';
-        }
-        if ($save_enabled !== 'yes') {
-            return '';
-        }
-
-        $save_text = '';
-        if (!empty($save_override)) {
-            $save_text = $save_override;
-            if (strpos($save_text, '%') === false && is_numeric(trim($save_text))) {
-                $save_text = 'Save ' . trim($save_text) . '%';
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            if ($save_enabled !== 'yes') {
+                return '';
             }
-        } elseif ($auto_percent !== null && $auto_percent > 0) {
-            /* translators: %d: discount percentage saved on this tier. */
-            $save_text = sprintf(__('Save %d%%', 'bulkboost'), $auto_percent);
-        }
 
-        if (empty($save_text)) {
-            return '';
-        }
+            $save_text = '';
+            if (!empty($save_override)) {
+                $save_text = $save_override;
+                if (strpos($save_text, '%') === false && is_numeric(trim($save_text))) {
+                    $save_text = 'Save ' . trim($save_text) . '%';
+                }
+            } elseif ($auto_percent !== null && $auto_percent > 0) {
+                /* translators: %d: discount percentage saved on this tier. */
+                $save_text = sprintf(__('Save %d%%', 'bulkboost'), $auto_percent);
+            }
 
-        return '<span class="bulkboost-badge bulkboost-badge-save">' . esc_html($save_text) . '</span>';
+            if (empty($save_text)) {
+                return '';
+            }
+
+            return '<span class="bulkboost-badge bulkboost-badge-save">' . esc_html($save_text) . '</span>';
+        }
+        return '';
     }
 
     /**
@@ -357,14 +360,15 @@ class BLKBST_BulkBoost_Public
      */
     private function render_free_shipping_banner($free_shipping)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return '';
-        }
-        if ($free_shipping !== 'yes') {
-            return '';
-        }
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            if ($free_shipping !== 'yes') {
+                return '';
+            }
 
-        return '<div class="bulkboost-shipping-banner"><span class="bulkboost-shipping-icon" aria-hidden="true">🚚</span> + ' . esc_html__('FREE Shipping', 'bulkboost') . '</div>';
+            return '<div class="bulkboost-shipping-banner"><span class="bulkboost-shipping-icon" aria-hidden="true">🚚</span> + ' . esc_html__('FREE Shipping', 'bulkboost') . '</div>';
+        }
+        return '';
     }
 
     function display_bulkboost($post_id = null)
@@ -602,19 +606,20 @@ class BLKBST_BulkBoost_Public
 
     public function BLKBST_lock_cart_quantity($product_quantity, $cart_item_key, $cart_item)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return $product_quantity;
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $general = get_option('bulkboost_general_settings', array());
+            if (($general['disable_quantity_cart'] ?? 'enabled') !== 'disabled') {
+                return $product_quantity;
+            }
+            $product_id = isset($cart_item['product_id']) ? $cart_item['product_id'] : 0;
+            if (!$this->is_bulkboost_product($product_id)) {
+                return $product_quantity;
+            }
+            $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 1;
+            return '<span class="bulkboost-locked-qty">' . esc_html($qty) . '</span>';
         }
-        $general = get_option('bulkboost_general_settings', array());
-        if (($general['disable_quantity_cart'] ?? 'enabled') !== 'disabled') {
-            return $product_quantity;
-        }
-        $product_id = isset($cart_item['product_id']) ? $cart_item['product_id'] : 0;
-        if (!$this->is_bulkboost_product($product_id)) {
-            return $product_quantity;
-        }
-        $qty = isset($cart_item['quantity']) ? (int) $cart_item['quantity'] : 1;
-        return '<span class="bulkboost-locked-qty">' . esc_html($qty) . '</span>';
+        return $product_quantity;
     }
 
     /**
@@ -627,14 +632,14 @@ class BLKBST_BulkBoost_Public
         if (!function_exists('is_checkout') || !is_checkout()) {
             return;
         }
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return;
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $general = get_option('bulkboost_general_settings', array());
+            if (($general['disable_quantity_checkout'] ?? 'enabled') !== 'disabled') {
+                return;
+            }
+            echo '<style>.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }</style>';
         }
-        $general = get_option('bulkboost_general_settings', array());
-        if (($general['disable_quantity_checkout'] ?? 'enabled') !== 'disabled') {
-            return;
-        }
-        echo '<style>.woocommerce-checkout .quantity, .wc-block-components-quantity-selector { pointer-events: none; }</style>';
     }
 
     /**
@@ -650,22 +655,23 @@ class BLKBST_BulkBoost_Public
      */
     public function BLKBST_lock_block_quantity($editable, $product = null, $cart_item = null)
     {
-        if (!function_exists('bulkboost_is_premium') || !bulkboost_is_premium()) {
-            return $editable;
-        }
-        $general = get_option('bulkboost_general_settings', array());
-        $cart_locked     = (($general['disable_quantity_cart'] ?? 'enabled') === 'disabled');
-        $checkout_locked = (($general['disable_quantity_checkout'] ?? 'enabled') === 'disabled');
-        if (!$cart_locked && !$checkout_locked) {
-            return $editable;
-        }
+        // This "if" block will be auto removed from the Free version.
+        if (function_exists('bul_fs') && bul_fs()->can_use_premium_code__premium_only()) {
+            $general = get_option('bulkboost_general_settings', array());
+            $cart_locked     = (($general['disable_quantity_cart'] ?? 'enabled') === 'disabled');
+            $checkout_locked = (($general['disable_quantity_checkout'] ?? 'enabled') === 'disabled');
+            if (!$cart_locked && !$checkout_locked) {
+                return $editable;
+            }
 
-        $product_id = $product ? $product->get_id() : (isset($cart_item['product_id']) ? $cart_item['product_id'] : 0);
-        if (!$this->is_bulkboost_product($product_id)) {
-            return $editable;
-        }
+            $product_id = $product ? $product->get_id() : (isset($cart_item['product_id']) ? $cart_item['product_id'] : 0);
+            if (!$this->is_bulkboost_product($product_id)) {
+                return $editable;
+            }
 
-        return false;
+            return false;
+        }
+        return $editable;
     }
 
 }

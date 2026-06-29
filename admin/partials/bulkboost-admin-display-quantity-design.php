@@ -108,7 +108,7 @@ bb_admin_shell_open(array(
 <div class="bb-tabs" role="tablist">
     <button type="button" class="bb-tab is-active" data-tab="design">Design</button>
     <button type="button" class="bb-tab" data-tab="typography">Typography</button>
-    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!bulkboost_is_premium()) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
+    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!function_exists('bul_fs') || !bul_fs()->is_premium()) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
 </div>
 
 <!-- ============ DESIGN ============ -->
@@ -206,7 +206,7 @@ bb_admin_shell_open(array(
         <p>Style the three promotional badges. Turn each one on per offer inside a product's BulkBoost panel.</p>
     </div>
 
-    <?php $bb_premium = bulkboost_is_premium(); ?>
+    <?php $bb_premium = function_exists('bul_fs') && bul_fs()->is_premium(); ?>
     <div class="bb-premium-gate<?php echo $bb_premium ? '' : ' is-locked'; ?>">
         <?php if (!$bb_premium) : ?>
             <div class="bb-lock">

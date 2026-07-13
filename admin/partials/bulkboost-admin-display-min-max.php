@@ -11,7 +11,7 @@ if (!defined('WPINC')) {
 
 require_once __DIR__ . '/bulkboost-admin-shell.php';
 
-$defaults = array(
+$blkbst_defaults = array(
     'min_max_background_color_active'   => '#000000',
     'min_max_background_color_inactive' => '#FFFFFF',
     'min_max_background_color_hover'    => '#DDDDDD',
@@ -23,7 +23,7 @@ $defaults = array(
     'min_max_border_color_hover'        => '#333333',
     'min_max_size'                      => '16',
 );
-$options = wp_parse_args(get_option('min_max_bulkboost_settings', array()), $defaults);
+$blkbst_options = wp_parse_args(get_option('min_max_bulkboost_settings', array()), $blkbst_defaults);
 
 blkbst_admin_shell_open(array(
     'active' => 'bulkboost-quantity-min-max',
@@ -35,7 +35,7 @@ blkbst_admin_shell_open(array(
 /**
  * Render one color row with active / inactive / hover pickers.
  */
-$row = function ($name, $prefix) use ($options) {
+$blkbst_row = function ($name, $prefix) use ($blkbst_options) {
     echo '<div class="bb-rowx"><div><div class="name">' . esc_html($name) . '</div></div><div class="bb-control">';
     foreach (array('active' => 'Active', 'inactive' => 'Inactive', 'hover' => 'Hover') as $suffix => $label) {
         $key = 'min_max_' . $prefix . '_color_' . $suffix;
@@ -44,7 +44,7 @@ $row = function ($name, $prefix) use ($options) {
             esc_html($label),
             esc_attr($key),
             esc_attr($key),
-            esc_attr($options[$key])
+            esc_attr($blkbst_options[$key])
         );
     }
     echo '</div></div>';
@@ -69,15 +69,15 @@ $row = function ($name, $prefix) use ($options) {
     <div class="bb-card">
         <div class="bb-card-label">Colors</div>
         <?php
-        $row('Background color', 'background');
-        $row('Text color', 'text');
-        $row('Border color', 'border');
+        $blkbst_row('Background color', 'background');
+        $blkbst_row('Text color', 'text');
+        $blkbst_row('Border color', 'border');
         ?>
         <div class="bb-rowx">
             <div><div class="name">Button size</div></div>
             <div class="bb-stepper" style="width:110px;">
                 <input type="number" id="min_max_size" name="min_max_bulkboost_settings[min_max_size]"
-                       value="<?php echo esc_attr($options['min_max_size']); ?>">
+                       value="<?php echo esc_attr($blkbst_options['min_max_size']); ?>">
                 <span class="suffix">px</span>
             </div>
         </div>

@@ -103,12 +103,18 @@ blkbst_admin_shell_open(array(
     'actions'   => true,
     'dashboard' => true,
 ));
+
+$blkbst_is_premium = false;
+// This "if" block will be auto removed from the Free version.
+if (blkbst_fs()->can_use_premium_code__premium_only()) {
+    $blkbst_is_premium = true;
+}
 ?>
 
 <div class="bb-tabs" role="tablist">
     <button type="button" class="bb-tab is-active" data-tab="design">Design</button>
     <button type="button" class="bb-tab" data-tab="typography">Typography</button>
-    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!function_exists('bul_fs') || !bul_fs()->is_premium()) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
+    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!$blkbst_is_premium) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
 </div>
 
 <!-- ============ DESIGN ============ -->
@@ -206,19 +212,12 @@ blkbst_admin_shell_open(array(
         <p>Style the three promotional badges. Turn each one on per offer inside a product's BulkBoost panel.</p>
     </div>
 
-    <?php $bb_premium = function_exists('bul_fs') && bul_fs()->is_premium(); ?>
-    <div class="bb-premium-gate<?php echo $bb_premium ? '' : ' is-locked'; ?>">
-        <?php if (!$bb_premium) : ?>
-            <div class="bb-lock">
-                <div class="bb-lock-card">
-                    <div class="bb-lock-icon">★</div>
-                    <strong>Badges are a Pro feature</strong>
-                    <p>Unlock label, savings and free-shipping badge styling with BulkBoost Pro.</p>
-                    <a class="bb-btn bb-btn-primary" href="<?php echo esc_url(bulkboost_upgrade_url()); ?>">Upgrade to Pro</a>
-                </div>
-            </div>
-        <?php endif; ?>
-
+    <?php
+    // The badge styling controls only exist in the Pro version.
+    // This "if" block will be auto removed from the Free version.
+    if (blkbst_fs()->can_use_premium_code__premium_only()) {
+        ?>
+    <div class="bb-premium-gate">
         <div class="bb-card">
             <div class="bb-card-label">Label badge — HOT</div>
             <div class="bb-rowx">
@@ -299,6 +298,17 @@ blkbst_admin_shell_open(array(
             </div>
         </div>
     </div>
+        <?php
+    }
+
+    // ---- Free (or unlicensed): upsell only, no locked controls ----
+    if (!$blkbst_is_premium) {
+        blkbst_admin_upsell(
+            'Badges are a Pro feature',
+            'Unlock label, savings and free-shipping badge styling with BulkBoost Pro.'
+        );
+    }
+    ?>
 </div>
 
 <?php
@@ -317,5 +327,5 @@ ob_start();
     <button type="button" class="bb-add-cart">Add to cart</button>
 </div>
 <?php
-$aside = ob_get_clean();
-blkbst_admin_shell_close($aside);
+$blkbst_aside = ob_get_clean();
+blkbst_admin_shell_close($blkbst_aside);

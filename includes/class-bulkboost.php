@@ -77,7 +77,6 @@ class BLKBST_BulkBoost
         $this->plugin_name = 'bulkboost';
 
         $this->load_dependencies();
-        $this->set_locale();
         $this->define_admin_hooks();
         $this->define_public_hooks();
     }
@@ -88,7 +87,6 @@ class BLKBST_BulkBoost
      * Include the following files that make up the plugin:
      *
      * - BulkBoost_Loader. Orchestrates the hooks of the plugin.
-     * - BulkBoost_i18n. Defines internationalization functionality.
      * - BulkBoost_Admin. Defines all hooks for the admin area.
      * - BulkBoost_Public. Defines all hooks for the public side of the site.
      *
@@ -107,12 +105,6 @@ class BLKBST_BulkBoost
         require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-bulkboost-loader.php';
 
         /**
-         * The class responsible for defining internationalization functionality
-         * of the plugin.
-         */
-        require_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-bulkboost-i18n.php';
-
-        /**
          * The class responsible for defining all actions that occur in the admin area.
          */
         require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-bulkboost-admin.php';
@@ -124,22 +116,6 @@ class BLKBST_BulkBoost
         require_once plugin_dir_path(dirname(__FILE__)) . 'public/class-bulkboost-public.php';
 
         $this->loader = new BulkBoost_Loader();
-    }
-
-    /**
-     * Define the locale for this plugin for internationalization.
-     *
-     * Uses the BulkBoost_i18n class in order to set the domain and to register the hook
-     * with WordPress.
-     *
-     * @since    1.0.0
-     * @access   private
-     */
-    private function set_locale()
-    {
-        $plugin_i18n = new BulkBoost_i18n();
-
-        // load_plugin_textdomain() is not needed on WordPress.org since WP 4.6.
     }
 
     /**
@@ -231,10 +207,13 @@ class BLKBST_BulkBoost
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'BLKBST_remove_quantity_field_on_product_pages', 20);
 
         // General Settings (Pro): lock the quantity field in cart / checkout.
-        $this->loader->add_filter('woocommerce_cart_item_quantity', $plugin_public, 'BLKBST_lock_cart_quantity', 10, 3);
-        $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'BLKBST_lock_checkout_quantity', 20);
-        // Block-based Cart & Checkout (Store API).
-        $this->loader->add_filter('woocommerce_store_api_product_quantity_editable', $plugin_public, 'BLKBST_lock_block_quantity', 10, 3);
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $this->loader->add_filter('woocommerce_cart_item_quantity', $plugin_public, 'BLKBST_lock_cart_quantity__premium_only', 10, 3);
+            $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'BLKBST_lock_checkout_quantity__premium_only', 20);
+            // Block-based Cart & Checkout (Store API).
+            $this->loader->add_filter('woocommerce_store_api_product_quantity_editable', $plugin_public, 'BLKBST_lock_block_quantity__premium_only', 10, 3);
+        }
     }
 
     /**

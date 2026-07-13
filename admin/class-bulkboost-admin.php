@@ -82,6 +82,7 @@ class BLKBST_BulkBoost_Admin
 
     private function is_plugin_page()
     {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check of the current admin page slug; no form data is processed.
         $page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
         return in_array($page, $this->plugin_pages(), true);
     }
@@ -173,6 +174,12 @@ class BLKBST_BulkBoost_Admin
             true
         );
 
+        $is_premium = false;
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $is_premium = true;
+        }
+
         $currency = class_exists('WooCommerce') ? get_woocommerce_currency_symbol() : '$';
         $saved = get_option('bulkboost_settings', array());
         wp_localize_script('bulkboost-dashboard', 'BulkBoostDash', array(
@@ -181,7 +188,7 @@ class BLKBST_BulkBoost_Admin
             'currency'   => html_entity_decode($currency),
             'defaults'   => self::design_defaults(),
             'settings'   => is_array($saved) ? $saved : array(),
-            'isPremium'  => function_exists('bul_fs') ? bul_fs()->is_premium() : false,
+            'isPremium'  => $is_premium,
         ));
     }
 
@@ -251,13 +258,19 @@ class BLKBST_BulkBoost_Admin
         }
 
         $input = (isset($_POST['settings']) && is_array($_POST['settings']))
-            ? wp_unslash($_POST['settings'])
+            ? map_deep(wp_unslash($_POST['settings']), 'sanitize_text_field')
             : array();
 
         $clean = $this->sanitize_design_settings($input);
 
+        $is_premium = false;
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $is_premium = true;
+        }
+
         // Pro-only keys (badge styling) are dropped for non-premium sites.
-        if (!function_exists('bul_fs') || !bul_fs()->can_use_premium_code__premium_only()) {
+        if (!$is_premium) {
             foreach (self::premium_design_keys() as $pro_key) {
                 unset($clean[$pro_key]);
             }
@@ -351,9 +364,10 @@ class BLKBST_BulkBoost_Admin
 
     /**
      * Returns the BulkBoost "Solution" type a product uses, or null if it isn't
-     * a BulkBoost product. Used by the Earnings report.
+     * a BulkBoost product. Used by the Earnings report (Pro).
+     * This whole function will be auto removed from the Free version.
      */
-    public function bulkboost_product_type($product_id)
+    public function bulkboost_product_type__premium_only($product_id)
     {
         if (get_post_meta($product_id, '_bulkboost_qd_min_max_enabled', true) === 'enable') {
             return __('Min Max Quantity', 'bulkboost');
@@ -368,11 +382,13 @@ class BLKBST_BulkBoost_Admin
      * Builds the Earnings report (Pro): completed orders that contain BulkBoost
      * products, aggregated per product, within an optional date range.
      *
+     * This whole function will be auto removed from the Free version.
+     *
      * @param string $start Y-m-d or empty.
      * @param string $end   Y-m-d or empty.
      * @return array{rows: array, total: float}
      */
-    public function BLKBST_get_earnings_data($start = '', $end = '')
+    public function BLKBST_get_earnings_data__premium_only($start = '', $end = '')
     {
         $result = array('rows' => array(), 'total' => 0.0);
 
@@ -407,7 +423,7 @@ class BLKBST_BulkBoost_Admin
             $date = $order->get_date_created();
             foreach ($order->get_items() as $item) {
                 $product_id = $item->get_product_id();
-                $type = $this->bulkboost_product_type($product_id);
+                $type = $this->bulkboost_product_type__premium_only($product_id);
                 if (null === $type) {
                     continue;
                 }
@@ -434,6 +450,138 @@ class BLKBST_BulkBoost_Admin
         $result['rows']  = array_values($rows);
         $result['total'] = $total;
         return $result;
+    }
+
+    /**
+     * Renders the Analytics (Earnings) report page content (Pro).
+     * This whole function will be auto removed from the Free version.
+     */
+    public function BLKBST_render_earnings_report__premium_only()
+    {
+        $blkbst_start = '';
+        $blkbst_end   = '';
+        $blkbst_nonce = isset($_GET['blkbst_earnings_nonce'])
+            ? sanitize_text_field(wp_unslash($_GET['blkbst_earnings_nonce']))
+            : '';
+        if (wp_verify_nonce($blkbst_nonce, 'blkbst_earnings_filter')) {
+            $blkbst_start = isset($_GET['start_date']) ? sanitize_text_field(wp_unslash($_GET['start_date'])) : '';
+            $blkbst_end   = isset($_GET['end_date']) ? sanitize_text_field(wp_unslash($_GET['end_date'])) : '';
+            // Keep only valid Y-m-d values.
+            $blkbst_start = preg_match('/^\d{4}-\d{2}-\d{2}$/', $blkbst_start) ? $blkbst_start : '';
+            $blkbst_end   = preg_match('/^\d{4}-\d{2}-\d{2}$/', $blkbst_end) ? $blkbst_end : '';
+        }
+
+        $blkbst_data  = $this->BLKBST_get_earnings_data__premium_only($blkbst_start, $blkbst_end);
+        $blkbst_rows  = $blkbst_data['rows'];
+        $blkbst_total = $blkbst_data['total'];
+        $blkbst_date_format = get_option('date_format') . ', ' . get_option('time_format');
+        ?>
+
+        <div class="bb-intro">
+            <h2>Analytics</h2>
+            <p>Completed orders that used BulkBoost, grouped by product.</p>
+        </div>
+
+        <form method="get" class="bb-earnings-filter">
+            <input type="hidden" name="page" value="bulkboost-earnings">
+            <?php wp_nonce_field('blkbst_earnings_filter', 'blkbst_earnings_nonce', false); ?>
+            <label>Start date <input type="date" name="start_date" value="<?php echo esc_attr($blkbst_start); ?>"></label>
+            <label>End date <input type="date" name="end_date" value="<?php echo esc_attr($blkbst_end); ?>"></label>
+            <button type="submit" class="bb-btn bb-btn-primary">Filter</button>
+            <?php if ($blkbst_start || $blkbst_end) : ?>
+                <a class="bb-btn bb-btn-secondary" href="<?php echo esc_url(admin_url('admin.php?page=bulkboost-earnings')); ?>">Reset</a>
+            <?php endif; ?>
+        </form>
+
+        <div class="bb-card" style="padding:6px 0;">
+            <table class="bb-earnings-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Sales</th>
+                        <th>Quantity</th>
+                        <th>Date of last order</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (empty($blkbst_rows)) : ?>
+                        <tr><td colspan="5" class="bb-earnings-empty">No completed BulkBoost orders found for this period.</td></tr>
+                    <?php else : ?>
+                        <?php foreach ($blkbst_rows as $blkbst_row) : ?>
+                            <tr>
+                                <td>
+                                    <a href="<?php echo esc_url(get_edit_post_link($blkbst_row['product_id'])); ?>"><?php echo esc_html($blkbst_row['name']); ?></a>
+                                </td>
+                                <td><?php echo wp_kses_post(wc_price($blkbst_row['sales'])); ?></td>
+                                <td><?php echo esc_html($blkbst_row['quantity']); ?></td>
+                                <td><?php echo $blkbst_row['last_order'] ? esc_html(date_i18n($blkbst_date_format, $blkbst_row['last_order'])) : '—'; ?></td>
+                                <td><?php echo esc_html($blkbst_row['type']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="bb-earnings-total">Total Earned: <?php echo wp_kses_post(wc_price($blkbst_total)); ?></div>
+
+        <div class="bb-card" style="padding:18px 22px;">
+            <div class="bb-card-label" style="padding-top:0;">Important notice</div>
+            <p class="bb-prose" style="margin-top:0;">A few criteria for the orders shown above:</p>
+            <ol class="bb-prose">
+                <li><strong>Completed orders only.</strong> Only orders with the <strong>Completed</strong> status are included, so the figures reflect finalized, fully processed transactions.</li>
+                <li><strong>BulkBoost products only.</strong> A product is counted when it currently uses a BulkBoost solution — Quantity Bundle Blocks or Min/Max Quantity.</li>
+            </ol>
+        </div>
+        <?php
+    }
+
+    /**
+     * Renders the Cart & Checkout settings form (Pro).
+     * This whole function will be auto removed from the Free version.
+     */
+    public function BLKBST_render_cart_checkout_form__premium_only()
+    {
+        $blkbst_general = get_option('bulkboost_general_settings', array(
+            'disable_quantity_cart'     => 'enabled',
+            'disable_quantity_checkout' => 'enabled',
+        ));
+        ?>
+
+        <div class="bb-intro">
+            <h2>Cart &amp; Checkout</h2>
+            <p>Lock the quantity chosen on the product page so it can't be changed later.</p>
+        </div>
+
+        <form method="post" action="options.php">
+            <?php settings_fields('bulkboost_general_settings'); ?>
+            <div class="bb-card">
+                <div class="bb-rowx no-border">
+                    <div>
+                        <div class="name">Quantity field in Cart</div>
+                        <div class="help">Disabling locks the cart quantity to what was chosen on the product page.</div>
+                    </div>
+                    <select class="bb-select" style="width:150px;" name="bulkboost_general_settings[disable_quantity_cart]">
+                        <option value="enabled" <?php selected($blkbst_general['disable_quantity_cart'] ?? '', 'enabled'); ?>>Enabled</option>
+                        <option value="disabled" <?php selected($blkbst_general['disable_quantity_cart'] ?? '', 'disabled'); ?>>Disabled</option>
+                    </select>
+                </div>
+                <div class="bb-rowx">
+                    <div>
+                        <div class="name">Quantity field in Checkout</div>
+                        <div class="help">Disabling removes quantity selection at checkout.</div>
+                    </div>
+                    <select class="bb-select" style="width:150px;" name="bulkboost_general_settings[disable_quantity_checkout]">
+                        <option value="enabled" <?php selected($blkbst_general['disable_quantity_checkout'] ?? '', 'enabled'); ?>>Enabled</option>
+                        <option value="disabled" <?php selected($blkbst_general['disable_quantity_checkout'] ?? '', 'disabled'); ?>>Disabled</option>
+                    </select>
+                </div>
+            </div>
+
+            <?php submit_button('Save Changes', 'primary', 'submit', true, array('class' => 'bb-btn bb-btn-primary')); ?>
+        </form>
+        <?php
     }
 
     public function BLKBST_bulkboost_product_data_panels()
@@ -464,8 +612,13 @@ class BLKBST_BulkBoost_Admin
 
     public function BLKBST_quantity_breaks_product_data_panels($post_id)
     {
+        $is_premium = false;
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $is_premium = true;
+        }
         ?>
-        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo (function_exists('bul_fs') && bul_fs()->is_premium()) ? '' : 'bb-free'; ?>">
+        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo $is_premium ? '' : 'bb-free'; ?>">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
            
@@ -524,7 +677,7 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
-                <?php if (!function_exists('bul_fs') || !bul_fs()->is_premium()) : ?>
+                <?php if (!$is_premium) : ?>
                 <div class="bb-pd-pro-note">
                     <strong>★ Badges are a Pro feature.</strong>
                     Label, savings &amp; free-shipping badges are available in BulkBoost Pro.
@@ -599,12 +752,18 @@ class BLKBST_BulkBoost_Admin
         // actually enabled on this product. Otherwise an empty/leftover block
         // must not trigger a validation error.
         $qd_enabled = (isset($_POST['_bulkboost_qd_quantity_enabled'])
-            && $_POST['_bulkboost_qd_quantity_enabled'] === 'enable');
+            && sanitize_text_field(wp_unslash($_POST['_bulkboost_qd_quantity_enabled'])) === 'enable');
 
-        if ($qd_enabled && !empty($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity'])) {
-            $posted_quantities = array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']));
+        $posted_quantities = (isset($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity']))
+            ? array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_quantity']))
+            : array();
+        $posted_prices = (isset($_POST['_bulkboost_qd_price']) && is_array($_POST['_bulkboost_qd_price']))
+            ? array_map('sanitize_text_field', wp_unslash($_POST['_bulkboost_qd_price']))
+            : array();
+
+        if ($qd_enabled && !empty($posted_quantities)) {
             foreach ($posted_quantities as $index => $quantity) {
-                $price = isset($_POST['_bulkboost_qd_price'][$index]) ? sanitize_text_field(wp_unslash($_POST['_bulkboost_qd_price'][$index])) : '';
+                $price = isset($posted_prices[$index]) ? $posted_prices[$index] : '';
                 if (empty($quantity) || empty($price)) {
                     set_transient('bulkboost_error', 'Quantity and Price fields cannot be empty.', 45);
                     return;
@@ -612,13 +771,12 @@ class BLKBST_BulkBoost_Admin
             }
         }
 
-        $block_count = (isset($_POST['_bulkboost_qd_quantity']) && is_array($_POST['_bulkboost_qd_quantity']))
-            ? count($_POST['_bulkboost_qd_quantity'])
-            : 0;
+        $block_count = count($posted_quantities);
 
         // If no error, save the fields
         foreach ($fields as $field) {
             if (isset($_POST[$field])) {
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized per field type immediately below.
                 $value = wp_unslash($_POST[$field]);
 
                 // Sanitize and validate per field type.
@@ -689,7 +847,7 @@ class BLKBST_BulkBoost_Admin
 
         $bulkboost_extra = array(
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('my-nonce')
+            'nonce' => wp_create_nonce('bulkboost-admin-nonce')
         );
 
 
@@ -786,20 +944,33 @@ JS;
         register_setting(
             'bulkboost_settings',
             'bulkboost_settings',
-            array($this, 'bulkboost_settings_validate'),
+            array(
+                'type'              => 'array',
+                'sanitize_callback' => array($this, 'bulkboost_settings_validate'),
+            )
         );
 
         register_setting(
             'min_max_bulkboost_settings',
             'min_max_bulkboost_settings',
-            array($this, 'min_max_bulkboost_settings_validate'),
+            array(
+                'type'              => 'array',
+                'sanitize_callback' => array($this, 'min_max_bulkboost_settings_validate'),
+            )
         );
 
-        register_setting(
-            'bulkboost_general_settings',
-            'bulkboost_general_settings',
-            array($this, 'bulkboost_general_settings_validate')
-        );
+        // Cart & Checkout settings are a Pro feature.
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            register_setting(
+                'bulkboost_general_settings',
+                'bulkboost_general_settings',
+                array(
+                    'type'              => 'array',
+                    'sanitize_callback' => array($this, 'bulkboost_general_settings_validate'),
+                )
+            );
+        }
     }
 
     /**
@@ -816,54 +987,103 @@ JS;
         return $out;
     }
 
+    /**
+     * Strict, whitelist-based sanitizer for the `bulkboost_settings` option.
+     * Every known key is sanitized by type; unknown keys are dropped.
+     */
     function bulkboost_settings_validate($input)
     {
-        $input['border_color_active'] = sanitize_hex_color($input['border_color_active']);
-        $input['border_color_inactive'] = sanitize_hex_color($input['border_color_inactive']);
-        $input['border_color_hover'] = sanitize_hex_color($input['border_color_hover']);
-        $input['background_color_active'] = sanitize_hex_color($input['background_color_active']);
-        $input['background_color_inactive'] = sanitize_hex_color($input['background_color_inactive']);
-        $input['background_color_hover'] = sanitize_hex_color($input['background_color_hover']);
-        $input['text_color_active'] = sanitize_hex_color($input['text_color_active']);
-        $input['text_color_inactive'] = sanitize_hex_color($input['text_color_inactive']);
-        $input['text_color_hover'] = sanitize_hex_color($input['text_color_hover']);
+        if (!is_array($input)) {
+            return array();
+        }
 
-        $input['radio_bg_color_active'] = sanitize_hex_color($input['radio_bg_color_active']);
-        $input['radio_bg_color_inactive'] = sanitize_hex_color($input['radio_bg_color_inactive']);
-        $input['radio_bg_color_hover'] = sanitize_hex_color($input['radio_bg_color_hover']);
-        $input['radio_border_color_active'] = sanitize_hex_color($input['radio_border_color_active']);
-        $input['radio_border_color_inactive'] = sanitize_hex_color($input['radio_border_color_inactive']);
-        $input['radio_button_size'] = sanitize_hex_color($input['radio_button_size']);
-        $input['radio_border_color_hover'] = sanitize_hex_color($input['radio_border_color_hover']);
+        $color_keys = array(
+            'border_color_active', 'border_color_inactive', 'border_color_hover',
+            'background_color_active', 'background_color_inactive', 'background_color_hover',
+            'text_color_active', 'text_color_inactive', 'text_color_hover',
+            'radio_bg_color_active', 'radio_bg_color_inactive', 'radio_bg_color_hover',
+            'radio_border_color_active', 'radio_border_color_inactive', 'radio_border_color_hover',
+            'accent_color',
+            'label_hot_bg', 'label_hot_text',
+            'label_popular_bg', 'label_popular_text',
+            'label_bestdeal_bg', 'label_bestdeal_text',
+            'save_badge_bg', 'save_badge_text',
+            'shipping_badge_bg', 'shipping_badge_text',
+        );
+        $int_keys = array(
+            'box_corner_radius', 'card_gap', 'radio_button_size',
+            'label_font_weight', 'label_font_size',
+            'description_font_weight', 'description_font_size',
+            'price_font_weight', 'price_font_size',
+            'old_price_font_weight', 'old_price_font_size',
+        );
+        $enum_keys = array(
+            'border_style'   => array('solid', 'dashed', 'dotted', 'double', 'none'),
+            'selector_style' => array('radio', 'checkbox', 'none'),
+        );
+        $yesno_keys = array('show_old_price');
 
+        $clean = array();
+        foreach ($color_keys as $key) {
+            if (isset($input[$key])) {
+                $clean[$key] = (string) sanitize_hex_color($input[$key]);
+            }
+        }
+        foreach ($int_keys as $key) {
+            if (isset($input[$key])) {
+                $clean[$key] = absint($input[$key]);
+            }
+        }
+        foreach ($enum_keys as $key => $allowed) {
+            if (isset($input[$key])) {
+                $clean[$key] = in_array($input[$key], $allowed, true) ? $input[$key] : $allowed[0];
+            }
+        }
+        foreach ($yesno_keys as $key) {
+            if (isset($input[$key])) {
+                $clean[$key] = ($input[$key] === 'yes') ? 'yes' : 'no';
+            }
+        }
+        if (isset($input['border_width'])) {
+            $clean['border_width'] = max(0, min(8, floatval($input['border_width'])));
+        }
 
-        $input['border_style'] = sanitize_text_field($input['border_style']);
-        $input['box_corner_radius'] = absint($input['box_corner_radius']);
-        $input['labelFontWeight'] = absint($input['labelFontWeight']);
-        $input['labelFontSize'] = absint($input['labelFontSize']);
-        $input['descriptionFontWeight'] = absint($input['descriptionFontWeight']);
-        $input['descriptionFontSize'] = absint($input['descriptionFontSize']);
-        $input['priceFontWeight'] = absint($input['priceFontWeight']);
-        $input['priceFontSize'] = absint($input['priceFontSize']);
-        $input['oldPriceFontWeight'] = absint($input['oldPriceFontWeight']);
-
-        return $input;
+        return $clean;
     }
 
+    /**
+     * Strict, whitelist-based sanitizer for the `min_max_bulkboost_settings`
+     * option: hex colors for every color key, integer for the button size.
+     */
     function min_max_bulkboost_settings_validate($input)
     {
-        $input['min_max_background_color_active'] = sanitize_text_field($input['min_max_background_color_active']);
-        $input['min_max_background_color_inactive'] = sanitize_text_field($input['min_max_background_color_inactive']);
-        $input['min_max_background_color_hover'] = sanitize_text_field($input['min_max_background_color_hover']);
-        $input['min_max_text_color_active'] = sanitize_text_field($input['min_max_text_color_active']);
-        $input['min_max_text_color_inactive'] = sanitize_text_field($input['min_max_text_color_inactive']);
-        $input['min_max_text_color_hover'] = sanitize_text_field($input['min_max_text_color_hover']);
-        $input['min_max_border_color_active'] = sanitize_text_field($input['min_max_border_color_active']);
-        $input['min_max_border_color_inactive'] = sanitize_text_field($input['min_max_border_color_inactive']);
-        $input['min_max_border_color_hover'] = sanitize_text_field($input['min_max_border_color_hover']);
-        $input['min_max_size'] = sanitize_text_field($input['min_max_size']);
+        if (!is_array($input)) {
+            return array();
+        }
 
-        return $input;
+        $color_keys = array(
+            'min_max_background_color_active',
+            'min_max_background_color_inactive',
+            'min_max_background_color_hover',
+            'min_max_text_color_active',
+            'min_max_text_color_inactive',
+            'min_max_text_color_hover',
+            'min_max_border_color_active',
+            'min_max_border_color_inactive',
+            'min_max_border_color_hover',
+        );
+
+        $clean = array();
+        foreach ($color_keys as $key) {
+            if (isset($input[$key])) {
+                $clean[$key] = (string) sanitize_hex_color($input[$key]);
+            }
+        }
+        if (isset($input['min_max_size'])) {
+            $clean['min_max_size'] = absint($input['min_max_size']);
+        }
+
+        return $clean;
     }
 
     public function enqueue_product_panel_styles($hook)

@@ -1,6 +1,10 @@
 <?php
 /**
- * BulkBoost — General Settings page.
+ * BulkBoost — Cart & Checkout settings page (Pro).
+ *
+ * Included from BLKBST_BulkBoost_Admin so $this is the admin instance. In the
+ * Free version only the upsell below remains — the settings form is rendered
+ * by a Pro-only method that is stripped from the Free build.
  *
  * @package BulkBoost/admin
  */
@@ -11,62 +15,22 @@ if (!defined('WPINC')) {
 
 require_once __DIR__ . '/bulkboost-admin-shell.php';
 
-$general = get_option('bulkboost_general_settings', array(
-    'disable_quantity_cart'     => 'enabled',
-    'disable_quantity_checkout' => 'enabled',
-));
-
-$bb_premium = function_exists('bul_fs') && bul_fs()->is_premium();
-
 blkbst_admin_shell_open(array(
     'active' => 'bulkboost-settings',
     'crumb'  => 'Cart & Checkout',
     'title'  => 'Cart & Checkout',
 ));
 
-if (!$bb_premium) {
-    // ---- Free: upsell ----
-    blkbst_admin_upsell(
-        'Cart & Checkout is a Pro feature',
-        'Lock the quantity a customer chose on the product page so it can\'t be changed in the cart or at checkout.'
-    );
+// This "if" block will be auto removed from the Free version.
+if (blkbst_fs()->can_use_premium_code__premium_only()) {
+    $this->BLKBST_render_cart_checkout_form__premium_only();
     blkbst_admin_shell_close();
     return;
 }
-?>
 
-<div class="bb-intro">
-    <h2>Cart &amp; Checkout</h2>
-    <p>Lock the quantity chosen on the product page so it can't be changed later.</p>
-</div>
-
-<form method="post" action="options.php">
-    <?php settings_fields('bulkboost_general_settings'); ?>
-    <div class="bb-card">
-        <div class="bb-rowx no-border">
-            <div>
-                <div class="name">Quantity field in Cart</div>
-                <div class="help">Disabling locks the cart quantity to what was chosen on the product page.</div>
-            </div>
-            <select class="bb-select" style="width:150px;" name="bulkboost_general_settings[disable_quantity_cart]">
-                <option value="enabled" <?php selected($general['disable_quantity_cart'] ?? '', 'enabled'); ?>>Enabled</option>
-                <option value="disabled" <?php selected($general['disable_quantity_cart'] ?? '', 'disabled'); ?>>Disabled</option>
-            </select>
-        </div>
-        <div class="bb-rowx">
-            <div>
-                <div class="name">Quantity field in Checkout</div>
-                <div class="help">Disabling removes quantity selection at checkout.</div>
-            </div>
-            <select class="bb-select" style="width:150px;" name="bulkboost_general_settings[disable_quantity_checkout]">
-                <option value="enabled" <?php selected($general['disable_quantity_checkout'] ?? '', 'enabled'); ?>>Enabled</option>
-                <option value="disabled" <?php selected($general['disable_quantity_checkout'] ?? '', 'disabled'); ?>>Disabled</option>
-            </select>
-        </div>
-    </div>
-
-    <?php submit_button('Save Changes', 'primary', 'submit', true, array('class' => 'bb-btn bb-btn-primary')); ?>
-</form>
-
-<?php
+// ---- Free (or unlicensed): upsell ----
+blkbst_admin_upsell(
+    'Cart & Checkout is a Pro feature',
+    'Lock the quantity a customer chose on the product page so it can\'t be changed in the cart or at checkout.'
+);
 blkbst_admin_shell_close();

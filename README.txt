@@ -37,6 +37,17 @@ Upgrade to unlock:
 
 Learn more about [BulkBoost Pro](https://profiles.wordpress.org/ateebahamd).
 
+== Privacy & Third-Party Services ==
+
+BulkBoost itself does not track you, collect analytics, or send any data to external servers.
+
+The plugin includes the [Freemius](https://freemius.com) SDK, which is used solely to handle licensing, payments, and upgrades for the optional Pro version.
+
+* **No data is sent anywhere without your explicit opt-in.** On activation you will see an optional opt-in screen. Nothing is collected or transmitted unless you expressly click to allow it.
+* **Opting in is completely optional.** You can skip the opt-in and every feature of the free plugin keeps working normally.
+* If you do opt in, Freemius collects basic diagnostic data (such as your site URL, WordPress version, and plugin version) to provide license management, updates, and support, as described in the [Freemius privacy policy](https://freemius.com/privacy/).
+* You can opt out at any time from the plugin's Account page.
+
 == Installation ==
 
 1. Upload the plugin files to the `/wp-content/plugins/bulkboost` directory, or install the plugin through the WordPress Plugins screen.
@@ -69,6 +80,10 @@ Instead of fixed tiers, you can let customers pick any quantity within a range u
 = Is there a Pro version? =
 
 Yes. BulkBoost Pro adds promotional badges, sales analytics, and the cart/checkout quantity lock. See the **BulkBoost Pro** section above.
+
+= Does BulkBoost collect any data or phone home? =
+
+No. The plugin makes no remote calls of its own. The bundled Freemius SDK (used for optional Pro licensing) only communicates with Freemius after you explicitly opt in on the activation screen — opting in is optional and the plugin works fully without it. See the **Privacy & Third-Party Services** section for details.
 
 == Screenshots ==
 

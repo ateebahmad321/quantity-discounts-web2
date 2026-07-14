@@ -49,7 +49,7 @@
                             <input type="number" id="_bulkboost_qd_quantity_${index}" placeholder="Quantity" name="_bulkboost_qd_quantity[${index}]" min="0" value="${quantity}" />
                         </div>
                         <div class="block">
-                            <h4 style="margin:0; padding:0;">Price (${quantityDiscountsSettings.currencySymbol}) (total amount)</h4>
+                            <h4 style="margin:0; padding:0;">Price (${bulkboostQuantitySettings.currencySymbol}) (total amount)</h4>
                             <input type="number" id="_bulkboost_qd_price_${index}" placeholder="Price" name="_bulkboost_qd_price[${index}]" min="0" step="any" value="${price}" />
                         </div>
                         <div class="block">

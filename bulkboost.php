@@ -162,7 +162,7 @@ if (function_exists('blkbst_fs')) {
             ];
 
             $options = get_option('bulkboost_settings');
-            $optionsMinMax = get_option('min_max_bulkboost_settings');
+            $optionsMinMax = get_option('bulkboost_min_max_settings');
 
             if (false === $options) {
                 update_option('bulkboost_settings', $defaults);
@@ -172,10 +172,10 @@ if (function_exists('blkbst_fs')) {
             }
 
             if (false === $optionsMinMax) {
-                update_option('min_max_bulkboost_settings', $defaultsMinMax);
+                update_option('bulkboost_min_max_settings', $defaultsMinMax);
             } else {
                 $updated_options = wp_parse_args($options, $defaultsMinMax);
-                update_option('min_max_bulkboost_settings', $updated_options);
+                update_option('bulkboost_min_max_settings', $updated_options);
             }
         } else {
             deactivate_plugins(plugin_basename(__FILE__));
@@ -206,7 +206,7 @@ if (function_exists('blkbst_fs')) {
     {
         // Delete the plugin settings from the database
         delete_option('bulkboost_settings');
-        delete_option('min_max_bulkboost_settings');
+        delete_option('bulkboost_min_max_settings');
         delete_option('bulkboost_general_settings');
     }
 

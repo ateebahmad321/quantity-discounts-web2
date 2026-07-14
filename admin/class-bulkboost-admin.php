@@ -55,14 +55,14 @@ class BLKBST_BulkBoost_Admin
             $currency_symbol = get_woocommerce_currency_symbol();
 
             $bulkboost_settings = get_option('bulkboost_settings', array());
-            $qualityDiscountsMinMaxSettings = get_option('min_max_bulkboost_settings', []);
+            $qualityDiscountsMinMaxSettings = get_option('bulkboost_min_max_settings', []);
 
             $formatted_price_placeholder = str_replace('0', '%s', wc_price(0));
 
             $bulkboost_settings['currencySymbol'] = $currency_symbol;
             $bulkboost_settings['formattedPricePlaceholder'] = $formatted_price_placeholder;
             $bulkboost_settings['min_max'] = $qualityDiscountsMinMaxSettings;
-            wp_localize_script($this->plugin_name, 'quantityDiscountsSettings', $bulkboost_settings);
+            wp_localize_script($this->plugin_name, 'bulkboostQuantitySettings', $bulkboost_settings);
         }
     }
 
@@ -951,11 +951,11 @@ JS;
         );
 
         register_setting(
-            'min_max_bulkboost_settings',
-            'min_max_bulkboost_settings',
+            'bulkboost_min_max_settings',
+            'bulkboost_min_max_settings',
             array(
                 'type'              => 'array',
-                'sanitize_callback' => array($this, 'min_max_bulkboost_settings_validate'),
+                'sanitize_callback' => array($this, 'bulkboost_min_max_settings_validate'),
             )
         );
 
@@ -1052,10 +1052,10 @@ JS;
     }
 
     /**
-     * Strict, whitelist-based sanitizer for the `min_max_bulkboost_settings`
+     * Strict, whitelist-based sanitizer for the `bulkboost_min_max_settings`
      * option: hex colors for every color key, integer for the button size.
      */
-    function min_max_bulkboost_settings_validate($input)
+    function bulkboost_min_max_settings_validate($input)
     {
         if (!is_array($input)) {
             return array();
@@ -1093,7 +1093,7 @@ JS;
         }
 
         $bulkboost_settings    = get_option('bulkboost_settings', array());
-        $minMaxQuantitySettings = get_option('min_max_bulkboost_settings', array());
+        $minMaxQuantitySettings = get_option('bulkboost_min_max_settings', array());
 
         $border_style             = esc_attr($bulkboost_settings['border_style'] ?? '');
         $box_corner_radius        = esc_attr($bulkboost_settings['box_corner_radius'] ?? '0');

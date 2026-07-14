@@ -23,7 +23,7 @@ $blkbst_defaults = array(
     'min_max_border_color_hover'        => '#333333',
     'min_max_size'                      => '16',
 );
-$blkbst_options = wp_parse_args(get_option('min_max_bulkboost_settings', array()), $blkbst_defaults);
+$blkbst_options = wp_parse_args(get_option('bulkboost_min_max_settings', array()), $blkbst_defaults);
 
 blkbst_admin_shell_open(array(
     'active' => 'bulkboost-quantity-min-max',
@@ -40,7 +40,7 @@ $blkbst_row = function ($name, $prefix) use ($blkbst_options) {
     foreach (array('active' => 'Active', 'inactive' => 'Inactive', 'hover' => 'Hover') as $suffix => $label) {
         $key = 'min_max_' . $prefix . '_color_' . $suffix;
         printf(
-            '<span style="display:inline-flex;flex-direction:column;gap:4px;"><span style="font-size:11px;color:#9a9c91;text-transform:uppercase;letter-spacing:.05em;">%s</span><input type="text" id="%s" name="min_max_bulkboost_settings[%s]" value="%s" class="color-field"></span>',
+            '<span style="display:inline-flex;flex-direction:column;gap:4px;"><span style="font-size:11px;color:#9a9c91;text-transform:uppercase;letter-spacing:.05em;">%s</span><input type="text" id="%s" name="bulkboost_min_max_settings[%s]" value="%s" class="color-field"></span>',
             esc_html($label),
             esc_attr($key),
             esc_attr($key),
@@ -57,7 +57,7 @@ $blkbst_row = function ($name, $prefix) use ($blkbst_options) {
 </div>
 
 <form method="post" action="options.php">
-    <?php settings_fields('min_max_bulkboost_settings'); ?>
+    <?php settings_fields('bulkboost_min_max_settings'); ?>
 
     <div class="bb-card">
         <div class="bb-card-label">Preview</div>
@@ -76,7 +76,7 @@ $blkbst_row = function ($name, $prefix) use ($blkbst_options) {
         <div class="bb-rowx">
             <div><div class="name">Button size</div></div>
             <div class="bb-stepper" style="width:110px;">
-                <input type="number" id="min_max_size" name="min_max_bulkboost_settings[min_max_size]"
+                <input type="number" id="min_max_size" name="bulkboost_min_max_settings[min_max_size]"
                        value="<?php echo esc_attr($blkbst_options['min_max_size']); ?>">
                 <span class="suffix">px</span>
             </div>

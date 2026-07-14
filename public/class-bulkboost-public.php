@@ -51,7 +51,29 @@ class BLKBST_BulkBoost_Public
     function output_custom_styles()
     {
         $bulkboost_settings = get_option('bulkboost_settings');
-        $min_max_settings = get_option('min_max_bulkboost_settings');
+        $min_max_settings = get_option('bulkboost_min_max_settings');
+
+        // Guard against a missing or partial option so the storefront never
+        // fatals doing math on empty values (e.g. a fresh site, or before the
+        // Min/Max settings have been saved).
+        if (!is_array($bulkboost_settings)) {
+            $bulkboost_settings = array();
+        }
+        $min_max_settings = wp_parse_args(
+            is_array($min_max_settings) ? $min_max_settings : array(),
+            array(
+                'min_max_background_color_active'   => '#000000',
+                'min_max_background_color_inactive' => '#FFFFFF',
+                'min_max_background_color_hover'    => '#DDDDDD',
+                'min_max_text_color_active'         => '#FFFFFF',
+                'min_max_text_color_inactive'       => '#000000',
+                'min_max_text_color_hover'          => '#333333',
+                'min_max_border_color_active'       => '#000000',
+                'min_max_border_color_inactive'     => '#FFFFFF',
+                'min_max_border_color_hover'        => '#333333',
+                'min_max_size'                      => '16',
+            )
+        );
 
         // min max
         $min_max_background_color_active = esc_html($min_max_settings['min_max_background_color_active']);

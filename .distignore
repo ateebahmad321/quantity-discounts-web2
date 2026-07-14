@@ -1,6 +1,7 @@
 # Files & folders excluded from the distributed plugin build (not shipped to WordPress.org).
 /.git
 /.gitignore
+/.gitattributes
 /.distignore
 /design_handoff_bulkboost_dashboard
 /node_modules

@@ -885,7 +885,10 @@ class BLKBST_BulkBoost_Admin
 
     public function BLKBST_enqueue_min_max_scripts($hook)
     {
-        if ('woocommerce_page_bulkboost-quantity-min-max' !== $hook) {
+        // The page's hook suffix is "{menu-title}_page_{slug}", and the menu
+        // title determines the prefix (here "bulkboost_page_..."). Match on the
+        // page slug so this keeps working regardless of the parent menu.
+        if (false === strpos((string) $hook, 'bulkboost-quantity-min-max')) {
             return;
         }
         wp_enqueue_script('wp-color-picker');

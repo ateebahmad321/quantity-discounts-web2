@@ -93,8 +93,6 @@ class BLKBST_BulkBoost_Public
         $border_width = esc_html($bulkboost_settings['border_width'] ?? '1.5');
         $card_gap = esc_html($bulkboost_settings['card_gap'] ?? '12');
 
-        // Badge styling is a Pro feature: only apply the saved colors when premium.
-        $badge_css = '';
         // This "if" block will be auto removed from the Free version.
         if (blkbst_fs()->can_use_premium_code__premium_only()) {
             $label_hot_bg        = sanitize_hex_color($bulkboost_settings['label_hot_bg'] ?? '') ?: '#e53935';
@@ -108,7 +106,7 @@ class BLKBST_BulkBoost_Public
             $shipping_badge_bg   = sanitize_hex_color($bulkboost_settings['shipping_badge_bg'] ?? '') ?: '#1b1c18';
             $shipping_badge_text = sanitize_hex_color($bulkboost_settings['shipping_badge_text'] ?? '') ?: '#ffffff';
 
-            $badge_css =
+            $blkbst_badge_css =
                 '.bulkboost-label-tab.bulkboost-tab-hot{background:' . $label_hot_bg . ';color:' . $label_hot_text . ';}'
                 . '.bulkboost-label-tab.bulkboost-tab-popular{background:' . $label_popular_bg . ';color:' . $label_popular_text . ';}'
                 . '.bulkboost-label-tab.bulkboost-tab-bestdeal{background:' . $label_bestdeal_bg . ';color:' . $label_bestdeal_text . ';}'
@@ -170,8 +168,13 @@ class BLKBST_BulkBoost_Public
     .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span{border-radius:4px;}
     .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before{border-radius:2px;}
     .custom-quantity-block.bb-selector-none .bulkboost-radio{display:none;}
-    {$badge_css}
     ";
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $css .= $blkbst_badge_css;
+        }
+
         wp_add_inline_style($this->plugin_name, $css);
     }
 
@@ -183,8 +186,10 @@ class BLKBST_BulkBoost_Public
      * @param int   $quantity           Quantity in this block.
      * @param float $price              Total price for this block's quantity.
      * @return int|null Rounded percentage saved, or null if it can't be calculated.
+     *
+     * This whole function will be auto removed from the Free version.
      */
-    private function calculate_save_percent($quantity_one_price, $quantity, $price)
+    private function calculate_save_percent__premium_only($quantity_one_price, $quantity, $price)
     {
         if (!$quantity_one_price || $quantity <= 1) {
             return null;
@@ -289,13 +294,12 @@ class BLKBST_BulkBoost_Public
             '_bulkboost_qd_price',
             '_bulkboost_qd_label',
             '_bulkboost_qd_description',
-            '_bulkboost_qd_badge_text',
-            // --- Badge fields ---
-            '_bulkboost_qd_badge_label',
-            '_bulkboost_qd_badge_free_shipping',
-            '_bulkboost_qd_badge_save_enabled',
-            '_bulkboost_qd_badge_save_override',
         ];
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $fields = array_merge($fields, BLKBST_BulkBoost_Admin::badge_meta_fields__premium_only());
+        }
 
         $data = [];
         foreach ($fields as $field) {
@@ -323,29 +327,26 @@ class BLKBST_BulkBoost_Public
                     $old_price = wc_price($quantity_one_price * $quantity);
                 }
 
-                // --- Build badges for this tier (badges are a Pro feature) ---
-                $label_tab_html = '';
-                $save_badge_html = '';
-                $shipping_banner_html = '';
+                $wrap_class = 'bulkboost-tier-wrap';
+
                 // This "if" block will be auto removed from the Free version.
                 if (blkbst_fs()->can_use_premium_code__premium_only()) {
-                    $badge_label = $data['_bulkboost_qd_badge_label'][$i] ?? 'none';
-                    $free_shipping = $data['_bulkboost_qd_badge_free_shipping'][$i] ?? 'no';
-                    $save_enabled = $data['_bulkboost_qd_badge_save_enabled'][$i] ?? 'no';
-                    $save_override = $data['_bulkboost_qd_badge_save_override'][$i] ?? '';
-                    $auto_percent = $this->calculate_save_percent($quantity_one_price, $quantity, $price);
-
-                    $label_tab_html = $this->render_label_tab__premium_only($badge_label);
-                    $save_badge_html = $this->render_save_badge__premium_only($save_enabled, $save_override, $auto_percent);
-                    $shipping_banner_html = $this->render_free_shipping_banner__premium_only($free_shipping);
+                    $label_tab_html = $this->render_label_tab__premium_only(
+                        $data['_bulkboost_qd_badge_label'][$i] ?? 'none'
+                    );
+                    if (!empty($label_tab_html)) {
+                        $wrap_class .= ' has-label-tab';
+                    }
                 }
 
-                $has_label_tab = !empty($label_tab_html);
+                // Wrapper holds the card itself (plus, in the Pro version, the label
+                // tab overlapping top-left and the free-shipping strip below).
+                echo '<div class="' . esc_attr($wrap_class) . '">';
 
-                // Wrapper holds the label tab (overlapping top-left), the card itself,
-                // and the free-shipping banner (full-width strip below the card).
-                echo '<div class="bulkboost-tier-wrap' . ($has_label_tab ? ' has-label-tab' : '') . '">';
-                echo wp_kses_post($label_tab_html);
+                // This "if" block will be auto removed from the Free version.
+                if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                    echo wp_kses_post($label_tab_html);
+                }
 
                 echo '<span class="bulkboost-swatch ' . esc_attr($active_class) . '" data-value="' . esc_attr(
                         $data['_bulkboost_qd_quantity'][$i]
@@ -373,13 +374,25 @@ class BLKBST_BulkBoost_Public
                 echo '<div class="old-price"><s>' . wp_kses_post($old_price) . '</s></div>';
                 echo '<span class="bulkboost-price">' . wp_kses_post(wc_price($data['_bulkboost_qd_price'][$i])) . '</span>';
                 echo '</div>';
-                echo wp_kses_post($save_badge_html);
+                // This "if" block will be auto removed from the Free version.
+                if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                    echo wp_kses_post($this->render_save_badge__premium_only(
+                        $data['_bulkboost_qd_badge_save_enabled'][$i] ?? 'no',
+                        $data['_bulkboost_qd_badge_save_override'][$i] ?? '',
+                        $this->calculate_save_percent__premium_only($quantity_one_price, $quantity, $price)
+                    ));
+                }
                 echo '</div>';
                 echo '</div>';
                 echo '</div>';
                 echo '</span>';
 
-                echo wp_kses_post($shipping_banner_html);
+                // This "if" block will be auto removed from the Free version.
+                if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                    echo wp_kses_post($this->render_free_shipping_banner__premium_only(
+                        $data['_bulkboost_qd_badge_free_shipping'][$i] ?? 'no'
+                    ));
+                }
                 echo '</div>'; // .bulkboost-tier-wrap
             }
             echo '</div>';
@@ -465,24 +478,8 @@ class BLKBST_BulkBoost_Public
             global $post;
             $post_id = $post->ID;
 
-            $fields = [
-                '_bulkboost_qd_quantity',
-                '_bulkboost_qd_price',
-                '_bulkboost_qd_label',
-                '_bulkboost_qd_description',
-                '_bulkboost_qd_badge_text'
-            ];
-
             $minMaxEnabled = get_post_meta($post_id, '_bulkboost_qd_min_max_enabled', true);
             $quantityDicsountsEnabled = get_post_meta($post_id, '_bulkboost_qd_quantity_enabled', true);
-
-            $data = [];
-            foreach ($fields as $field) {
-                $value = get_post_meta($post_id, $field, true);
-                if (!empty($value) && is_array($value)) {
-                    $data[$field] = $value;
-                }
-            }
 
             if ($quantityDicsountsEnabled === 'enable' || $minMaxEnabled === 'enable') {
                 wp_add_inline_style($this->plugin_name, '.single-product .quantity { display: none !important; }');

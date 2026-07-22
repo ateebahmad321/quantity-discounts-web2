@@ -104,7 +104,7 @@ class BLKBST_BulkBoost_Admin
      */
     public static function design_defaults()
     {
-        return array(
+        $defaults = array(
             'background_color_active' => '#16231d',
             'text_color_active'       => '#ffffff',
             'accent_color'            => '#10976a',
@@ -122,32 +122,33 @@ class BLKBST_BulkBoost_Admin
             'show_old_price'          => 'yes',
             'old_price_font_weight'   => 400,
             'old_price_font_size'     => 13,
-            // Badge styling (Pro). The three label types each get their own colors.
-            'label_hot_bg'            => '#e53935',
-            'label_hot_text'          => '#ffffff',
-            'label_popular_bg'        => '#7b3fd1',
-            'label_popular_text'      => '#ffffff',
-            'label_bestdeal_bg'       => '#16a34a',
-            'label_bestdeal_text'     => '#ffffff',
-            'save_badge_bg'           => '#10976a',
-            'save_badge_text'         => '#ffffff',
-            'shipping_badge_bg'       => '#1b1c18',
-            'shipping_badge_text'     => '#ffffff',
         );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $defaults = array_merge($defaults, self::badge_design_defaults__premium_only());
+        }
+
+        return $defaults;
     }
 
     /**
-     * Design-settings keys that are Pro-only (badge styling). Stripped from the
-     * payload on save when the site isn't premium.
+     * Default colors for the promotional badges.
+     * This whole function will be auto removed from the Free version.
      */
-    public static function premium_design_keys()
+    public static function badge_design_defaults__premium_only()
     {
         return array(
-            'label_hot_bg', 'label_hot_text',
-            'label_popular_bg', 'label_popular_text',
-            'label_bestdeal_bg', 'label_bestdeal_text',
-            'save_badge_bg', 'save_badge_text',
-            'shipping_badge_bg', 'shipping_badge_text',
+            'label_hot_bg'        => '#e53935',
+            'label_hot_text'      => '#ffffff',
+            'label_popular_bg'    => '#7b3fd1',
+            'label_popular_text'  => '#ffffff',
+            'label_bestdeal_bg'   => '#16a34a',
+            'label_bestdeal_text' => '#ffffff',
+            'save_badge_bg'       => '#10976a',
+            'save_badge_text'     => '#ffffff',
+            'shipping_badge_bg'   => '#1b1c18',
+            'shipping_badge_text' => '#ffffff',
         );
     }
 
@@ -174,12 +175,6 @@ class BLKBST_BulkBoost_Admin
             true
         );
 
-        $is_premium = false;
-        // This "if" block will be auto removed from the Free version.
-        if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $is_premium = true;
-        }
-
         $currency = class_exists('WooCommerce') ? get_woocommerce_currency_symbol() : '$';
         $saved = get_option('bulkboost_settings', array());
         wp_localize_script('bulkboost-dashboard', 'BulkBoostDash', array(
@@ -188,7 +183,6 @@ class BLKBST_BulkBoost_Admin
             'currency'   => html_entity_decode($currency),
             'defaults'   => self::design_defaults(),
             'settings'   => is_array($saved) ? $saved : array(),
-            'isPremium'  => $is_premium,
         ));
     }
 
@@ -200,12 +194,12 @@ class BLKBST_BulkBoost_Admin
         $colors = array(
             'background_color_active', 'text_color_active', 'accent_color',
             'border_color_inactive',
-            'label_hot_bg', 'label_hot_text',
-            'label_popular_bg', 'label_popular_text',
-            'label_bestdeal_bg', 'label_bestdeal_text',
-            'save_badge_bg', 'save_badge_text',
-            'shipping_badge_bg', 'shipping_badge_text',
         );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $colors = array_merge($colors, array_keys(self::badge_design_defaults__premium_only()));
+        }
         $ints = array(
             'box_corner_radius', 'card_gap', 'label_font_weight', 'label_font_size',
             'description_font_weight', 'description_font_size', 'price_font_weight',
@@ -261,20 +255,9 @@ class BLKBST_BulkBoost_Admin
             ? map_deep(wp_unslash($_POST['settings']), 'sanitize_text_field')
             : array();
 
+        // Badge keys only exist in the Pro version's key whitelist, so the Free
+        // version never sees or stores them.
         $clean = $this->sanitize_design_settings($input);
-
-        $is_premium = false;
-        // This "if" block will be auto removed from the Free version.
-        if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $is_premium = true;
-        }
-
-        // Pro-only keys (badge styling) are dropped for non-premium sites.
-        if (!$is_premium) {
-            foreach (self::premium_design_keys() as $pro_key) {
-                unset($clean[$pro_key]);
-            }
-        }
 
         $existing = get_option('bulkboost_settings', array());
         $merged = array_merge(is_array($existing) ? $existing : array(), $clean);
@@ -612,13 +595,8 @@ class BLKBST_BulkBoost_Admin
 
     public function BLKBST_quantity_breaks_product_data_panels($post_id)
     {
-        $is_premium = false;
-        // This "if" block will be auto removed from the Free version.
-        if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $is_premium = true;
-        }
         ?>
-        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo $is_premium ? '' : 'bb-free'; ?>">
+        <div id="bulkboost" class="panel woocommerce_options_panel hidden">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
            
@@ -677,13 +655,6 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
-                <?php if (!$is_premium) : ?>
-                <div class="bb-pd-pro-note">
-                    <strong>★ Badges are a Pro feature.</strong>
-                    Label, savings &amp; free-shipping badges are available in BulkBoost Pro.
-                    <a href="<?php echo esc_url(bulkboost_upgrade_url()); ?>">Upgrade</a>
-                </div>
-                <?php endif; ?>
                 <div id="bulkboost_container"></div>
                 <div style="padding:20px">
                     <button type="button" id="add_quantity_discount" class="button">Add Quantity Discount</button>
@@ -741,13 +712,12 @@ class BLKBST_BulkBoost_Admin
             '_bulkboost_qd_min_max_enabled',
             '_bulkboost_qd_min_value',
             '_bulkboost_qd_max_value',
-            '_bulkboost_qd_badge_text',
-            // --- Badge fields (per quantity-discount block) ---
-            '_bulkboost_qd_badge_label',          // none|hot|popular|bestdeal
-            '_bulkboost_qd_badge_free_shipping',   // yes|no
-            '_bulkboost_qd_badge_save_enabled',    // yes|no
-            '_bulkboost_qd_badge_save_override',   // manual % text override, blank = auto-calc
         ];
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $fields = array_merge($fields, self::badge_meta_fields__premium_only());
+        }
         // Tier fields are only required when the quantity-breaks feature is
         // actually enabled on this product. Otherwise an empty/leftover block
         // must not trigger a validation error.
@@ -793,21 +763,52 @@ class BLKBST_BulkBoost_Admin
                 }
 
                 update_post_meta($post_id, $field, $value);
-            } elseif (in_array($field, [
-                '_bulkboost_qd_badge_label',
-                '_bulkboost_qd_badge_free_shipping',
-                '_bulkboost_qd_badge_save_enabled',
-                '_bulkboost_qd_badge_save_override',
-            ])) {
-                // Checkboxes/selects that weren't submitted for some blocks still need
-                // to be normalised to a value per block so indexes stay aligned with
-                // quantity/price arrays. Default everything to "off"/"none"/empty.
-                $default = ($field === '_bulkboost_qd_badge_label') ? 'none' : (
-                    ($field === '_bulkboost_qd_badge_save_override') ? '' : 'no'
-                );
-                update_post_meta($post_id, $field, array_fill(0, $block_count, $default));
+                continue;
+            }
+
+            // This "if" block will be auto removed from the Free version.
+            if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                $this->normalize_badge_meta__premium_only($post_id, $field, $block_count);
             }
         }
+    }
+
+    /**
+     * Per-block badge meta fields.
+     * This whole function will be auto removed from the Free version.
+     */
+    public static function badge_meta_fields__premium_only()
+    {
+        return array(
+            '_bulkboost_qd_badge_text',
+            '_bulkboost_qd_badge_label',          // none|hot|popular|bestdeal
+            '_bulkboost_qd_badge_free_shipping',  // yes|no
+            '_bulkboost_qd_badge_save_enabled',   // yes|no
+            '_bulkboost_qd_badge_save_override',  // manual % text override, blank = auto-calc
+        );
+    }
+
+    /**
+     * Checkboxes/selects that weren't submitted for some blocks still need to be
+     * normalised to a value per block so indexes stay aligned with the
+     * quantity/price arrays. Defaults everything to "off"/"none"/empty.
+     * This whole function will be auto removed from the Free version.
+     */
+    private function normalize_badge_meta__premium_only($post_id, $field, $block_count)
+    {
+        if (!in_array($field, array(
+            '_bulkboost_qd_badge_label',
+            '_bulkboost_qd_badge_free_shipping',
+            '_bulkboost_qd_badge_save_enabled',
+            '_bulkboost_qd_badge_save_override',
+        ), true)) {
+            return;
+        }
+
+        $default = ($field === '_bulkboost_qd_badge_label') ? 'none' : (
+            ($field === '_bulkboost_qd_badge_save_override') ? '' : 'no'
+        );
+        update_post_meta($post_id, $field, array_fill(0, $block_count, $default));
     }
 
 
@@ -863,12 +864,16 @@ class BLKBST_BulkBoost_Admin
                 'min_max_enabled' => get_post_meta($post_id, '_bulkboost_qd_min_max_enabled', true),
                 'min_value' => get_post_meta($post_id, '_bulkboost_qd_min_value', true),
                 'max_value' => get_post_meta($post_id, '_bulkboost_qd_max_value', true),
-                // --- Badge data passed to admin JS for the live preview ---
-                'badge_labels' => get_post_meta($post_id, '_bulkboost_qd_badge_label', true),
-                'badge_free_shipping' => get_post_meta($post_id, '_bulkboost_qd_badge_free_shipping', true),
-                'badge_save_enabled' => get_post_meta($post_id, '_bulkboost_qd_badge_save_enabled', true),
-                'badge_save_override' => get_post_meta($post_id, '_bulkboost_qd_badge_save_override', true),
             );
+
+            // Badge data for the admin live preview.
+            // This "if" block will be auto removed from the Free version.
+            if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                $bulkboost['badge_labels'] = get_post_meta($post_id, '_bulkboost_qd_badge_label', true);
+                $bulkboost['badge_free_shipping'] = get_post_meta($post_id, '_bulkboost_qd_badge_free_shipping', true);
+                $bulkboost['badge_save_enabled'] = get_post_meta($post_id, '_bulkboost_qd_badge_save_enabled', true);
+                $bulkboost['badge_save_override'] = get_post_meta($post_id, '_bulkboost_qd_badge_save_override', true);
+            }
 
             wp_localize_script($this->plugin_name, 'bulkboost_data', $bulkboost);
         }
@@ -1007,12 +1012,12 @@ JS;
             'radio_bg_color_active', 'radio_bg_color_inactive', 'radio_bg_color_hover',
             'radio_border_color_active', 'radio_border_color_inactive', 'radio_border_color_hover',
             'accent_color',
-            'label_hot_bg', 'label_hot_text',
-            'label_popular_bg', 'label_popular_text',
-            'label_bestdeal_bg', 'label_bestdeal_text',
-            'save_badge_bg', 'save_badge_text',
-            'shipping_badge_bg', 'shipping_badge_text',
         );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $color_keys = array_merge($color_keys, array_keys(self::badge_design_defaults__premium_only()));
+        }
         $int_keys = array(
             'box_corner_radius', 'card_gap', 'radio_button_size',
             'label_font_weight', 'label_font_size',

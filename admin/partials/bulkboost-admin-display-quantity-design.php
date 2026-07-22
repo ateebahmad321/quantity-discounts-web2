@@ -104,17 +104,17 @@ blkbst_admin_shell_open(array(
     'dashboard' => true,
 ));
 
-$blkbst_is_premium = false;
-// This "if" block will be auto removed from the Free version.
-if (blkbst_fs()->can_use_premium_code__premium_only()) {
-    $blkbst_is_premium = true;
-}
 ?>
 
 <div class="bb-tabs" role="tablist">
     <button type="button" class="bb-tab is-active" data-tab="design">Design</button>
     <button type="button" class="bb-tab" data-tab="typography">Typography</button>
-    <button type="button" class="bb-tab" data-tab="badge">Badge<?php if (!$blkbst_is_premium) : ?> <span class="bb-pro-pill">PRO</span><?php endif; ?></button>
+    <?php
+    // This "if" block will be auto removed from the Free version.
+    if (blkbst_fs()->can_use_premium_code__premium_only()) {
+        echo '<button type="button" class="bb-tab" data-tab="badge">Badge</button>';
+    }
+    ?>
 </div>
 
 <!-- ============ DESIGN ============ -->
@@ -205,6 +205,11 @@ if (blkbst_fs()->can_use_premium_code__premium_only()) {
     </div>
 </div>
 
+<?php
+// The entire Badge tab exists only in the Pro version.
+// This "if" block will be auto removed from the Free version.
+if (blkbst_fs()->can_use_premium_code__premium_only()) {
+    ?>
 <!-- ============ BADGE ============ -->
 <div data-tab-panel="badge" style="display:none;">
     <div class="bb-intro">
@@ -212,11 +217,6 @@ if (blkbst_fs()->can_use_premium_code__premium_only()) {
         <p>Style the three promotional badges. Turn each one on per offer inside a product's BulkBoost panel.</p>
     </div>
 
-    <?php
-    // The badge styling controls only exist in the Pro version.
-    // This "if" block will be auto removed from the Free version.
-    if (blkbst_fs()->can_use_premium_code__premium_only()) {
-        ?>
     <div class="bb-premium-gate">
         <div class="bb-card">
             <div class="bb-card-label">Label badge — HOT</div>
@@ -298,18 +298,10 @@ if (blkbst_fs()->can_use_premium_code__premium_only()) {
             </div>
         </div>
     </div>
-        <?php
-    }
-
-    // ---- Free (or unlicensed): upsell only, no locked controls ----
-    if (!$blkbst_is_premium) {
-        blkbst_admin_upsell(
-            'Badges are a Pro feature',
-            'Unlock label, savings and free-shipping badge styling with BulkBoost Pro.'
-        );
-    }
-    ?>
 </div>
+    <?php
+}
+?>
 
 <?php
 ob_start();

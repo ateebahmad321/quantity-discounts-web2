@@ -107,7 +107,7 @@ if (!function_exists('blkbst_admin_upsell')) {
      */
     function blkbst_admin_upsell($title, $desc)
     {
-        $url = function_exists('bulkboost_upgrade_url') ? bulkboost_upgrade_url() : admin_url('admin.php?page=bulkboost-bulkboost-pricing');
+        $url = function_exists('bulkboost_upgrade_url') ? bulkboost_upgrade_url() : admin_url('admin.php?page=bulkboost-bulkboost-pricing&trial=true');
         ?>
         <div class="bb-upsell">
             <div class="bb-upsell-badge">PRO</div>

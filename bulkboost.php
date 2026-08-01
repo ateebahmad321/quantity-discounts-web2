@@ -106,7 +106,8 @@ if (function_exists('blkbst_fs')) {
     function bulkboost_upgrade_url()
     {
         // The Freemius-generated pricing page lives under the plugin's admin menu.
-        return apply_filters('bulkboost_upgrade_url', admin_url('admin.php?page=bulkboost-bulkboost-pricing'));
+        // trial=true opens it with the free-trial option preselected.
+        return apply_filters('bulkboost_upgrade_url', admin_url('admin.php?page=bulkboost-bulkboost-pricing&trial=true'));
     }
 
     /**

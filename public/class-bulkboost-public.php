@@ -132,15 +132,18 @@ class BLKBST_BulkBoost_Public
         $radio_border_color_hover = esc_html($bulkboost_settings['radio_border_color_hover'] ?? '');
         $radio_button_size = esc_html($bulkboost_settings['radio_button_size']);
 
-        $labelFontWeight = esc_html($bulkboost_settings['label_font_weight']);
-        $labelFontSize = esc_html($bulkboost_settings['label_font_size']);
-        $descriptionFontWeight = esc_html($bulkboost_settings['description_font_weight']);
-        $descriptionFontSize = esc_html($bulkboost_settings['description_font_size']);
-        $priceFontWeight = esc_html($bulkboost_settings['price_font_weight']);
-        $priceFontSize = esc_html($bulkboost_settings['price_font_size']);
-        $oldPriceFontWeight = esc_html($bulkboost_settings['old_price_font_weight']);
-        $oldPriceFontSize = esc_html($bulkboost_settings['old_price_font_size']);
-        $showOldPrice = esc_html($bulkboost_settings['show_old_price']);
+        // Font weights/sizes fall back to sensible defaults so a missing or 0
+        // value never collapses the text to font-size:0 (invisible). '0' and ''
+        // are falsy in PHP, so `?:` substitutes the default in both cases.
+        $labelFontWeight = esc_html($bulkboost_settings['label_font_weight'] ?? '') ?: '600';
+        $labelFontSize = esc_html($bulkboost_settings['label_font_size'] ?? '') ?: '17';
+        $descriptionFontWeight = esc_html($bulkboost_settings['description_font_weight'] ?? '') ?: '400';
+        $descriptionFontSize = esc_html($bulkboost_settings['description_font_size'] ?? '') ?: '13';
+        $priceFontWeight = esc_html($bulkboost_settings['price_font_weight'] ?? '') ?: '700';
+        $priceFontSize = esc_html($bulkboost_settings['price_font_size'] ?? '') ?: '18';
+        $oldPriceFontWeight = esc_html($bulkboost_settings['old_price_font_weight'] ?? '') ?: '400';
+        $oldPriceFontSize = esc_html($bulkboost_settings['old_price_font_size'] ?? '') ?: '13';
+        $showOldPrice = esc_html($bulkboost_settings['show_old_price'] ?? 'yes');
 
         $halfPadding = $min_max_size / 2;
         $button_size = $radio_button_size - 5;

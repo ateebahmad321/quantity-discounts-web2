@@ -30,13 +30,14 @@
         descWeight: 'description_font_weight', descSize: 'description_font_size',
         priceWeight: 'price_font_weight', priceSize: 'price_font_size',
         showOld: 'show_old_price',
-        oldWeight: 'old_price_font_weight', oldSize: 'old_price_font_size',
-        labelHotBg: 'label_hot_bg', labelHotText: 'label_hot_text',
-        labelPopularBg: 'label_popular_bg', labelPopularText: 'label_popular_text',
-        labelBestdealBg: 'label_bestdeal_bg', labelBestdealText: 'label_bestdeal_text',
-        saveBadgeBg: 'save_badge_bg', saveBadgeText: 'save_badge_text',
-        shippingBadgeBg: 'shipping_badge_bg', shippingBadgeText: 'shipping_badge_text'
+        oldWeight: 'old_price_font_weight', oldSize: 'old_price_font_size'
     };
+    // A Pro add-on (loaded before this script) may register extra keys.
+    if (window.bulkboostDashboardExtraKeymap) {
+        Object.keys(window.bulkboostDashboardExtraKeymap).forEach(function (k) {
+            KEYMAP[k] = window.bulkboostDashboardExtraKeymap[k];
+        });
+    }
     var BOOLS = { showOld: 1 };       // stored as yes/no
     var NUMS = {
         radius: 1, borderW: 1, gap: 1, labelSize: 1, descSize: 1,
@@ -146,7 +147,10 @@
         });
         // accent-driven CSS var (sliders, etc.)
         root.style.setProperty('--bb-accent', state.accent || '#10976a');
-        renderBadgeChips();
+        // Pro add-on styles its sample chips, when present.
+        if (window.bulkboostDashboardExtras && typeof window.bulkboostDashboardExtras.chips === 'function') {
+            window.bulkboostDashboardExtras.chips(root, state);
+        }
         renderStatus();
     }
 
@@ -250,26 +254,12 @@
     ];
     function money(n) { return cur + n; }
 
-    // Live sample chips in the Badge tab, one per badge type.
-    function renderBadgeChips() {
-        var map = {
-            hot: ['labelHotBg', 'labelHotText'],
-            popular: ['labelPopularBg', 'labelPopularText'],
-            bestdeal: ['labelBestdealBg', 'labelBestdealText'],
-            save: ['saveBadgeBg', 'saveBadgeText'],
-            shipping: ['shippingBadgeBg', 'shippingBadgeText']
-        };
-        root.querySelectorAll('[data-badge-chip]').forEach(function (el) {
-            var keys = map[el.dataset.badgeChip];
-            if (!keys) { return; }
-            el.style.background = state[keys[0]];
-            el.style.color = state[keys[1]];
-        });
-    }
-
     function renderPreview() {
         var s = state;
-        renderBadgeChips();
+        // Pro add-on styles its sample chips, when present.
+        if (window.bulkboostDashboardExtras && typeof window.bulkboostDashboardExtras.chips === 'function') {
+            window.bulkboostDashboardExtras.chips(root, s);
+        }
         var wrap = root.querySelector('[data-bb-offers]');
         if (!wrap) { return; }
         wrap.style.gap = s.gap + 'px';
@@ -293,24 +283,9 @@
                 s.selected = i; renderPreview();
             });
 
-            // A different label badge per tier so all three styles preview live.
-            var labelText = ['HOT', 'MOST POPULAR', 'BEST DEAL'][i];
-            var labelKeys = [
-                ['labelHotBg', 'labelHotText'],
-                ['labelPopularBg', 'labelPopularText'],
-                ['labelBestdealBg', 'labelBestdealText']
-            ][i];
-            if (labelText) {
-                var badge = document.createElement('div');
-                badge.textContent = labelText;
-                var bs = badge.style;
-                bs.position = 'absolute'; bs.top = '-9px'; bs.left = '16px';
-                bs.padding = '4px 9px'; bs.borderRadius = '999px';
-                bs.fontSize = '10px'; bs.fontWeight = '700'; bs.letterSpacing = '.06em';
-                bs.textTransform = 'uppercase'; bs.whiteSpace = 'nowrap';
-                bs.background = s[labelKeys[0]]; bs.color = s[labelKeys[1]];
-                bs.boxShadow = '0 3px 8px -2px rgba(0,0,0,.3)';
-                card.appendChild(badge);
+            // Pro add-on decorates the tier card, when present.
+            if (window.bulkboostDashboardExtras && typeof window.bulkboostDashboardExtras.label === 'function') {
+                window.bulkboostDashboardExtras.label(card, i, s);
             }
 
             // left
@@ -356,31 +331,17 @@
             price.style.fontWeight = s.priceWeight; price.style.fontSize = s.priceSize + 'px'; price.style.color = tCol;
             right.appendChild(price);
 
-            // Save % badge (pill under the price).
-            if (o.old && o.old > o.price) {
-                var pct = Math.round(((o.old - o.price) / o.old) * 100);
-                var sb = document.createElement('span');
-                sb.textContent = 'Save ' + pct + '%';
-                var sbs = sb.style;
-                sbs.display = 'inline-block'; sbs.marginTop = '5px';
-                sbs.padding = '2px 8px'; sbs.borderRadius = '999px';
-                sbs.fontSize = '10px'; sbs.fontWeight = '700'; sbs.letterSpacing = '.03em';
-                sbs.background = s.saveBadgeBg; sbs.color = s.saveBadgeText;
-                right.appendChild(sb);
+            // Pro add-on adds an element under the price, when present.
+            if (window.bulkboostDashboardExtras && typeof window.bulkboostDashboardExtras.save === 'function') {
+                window.bulkboostDashboardExtras.save(right, o, s);
             }
 
             card.appendChild(right);
             wrap.appendChild(card);
 
-            // Free shipping banner under the best-value tier.
-            if (i === BASE.length - 1) {
-                var ship = document.createElement('div');
-                ship.textContent = '🚚 FREE Shipping';
-                var shs = ship.style;
-                shs.padding = '8px 14px'; shs.borderRadius = '8px'; shs.textAlign = 'center';
-                shs.fontSize = '12px'; shs.fontWeight = '600';
-                shs.background = s.shippingBadgeBg; shs.color = s.shippingBadgeText;
-                wrap.appendChild(ship);
+            // Pro add-on appends an element under the last tier, when present.
+            if (i === BASE.length - 1 && window.bulkboostDashboardExtras && typeof window.bulkboostDashboardExtras.shipping === 'function') {
+                window.bulkboostDashboardExtras.shipping(wrap, s);
             }
         });
     }

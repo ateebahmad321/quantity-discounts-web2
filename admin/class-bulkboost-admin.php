@@ -46,7 +46,7 @@ class BLKBST_BulkBoost_Admin
 
         wp_enqueue_script(
             $this->plugin_name,
-            plugin_dir_url(__FILE__) . 'js/bulkboost-admin.min.js',
+            plugin_dir_url(__FILE__) . 'js/bulkboost-admin.js',
             array('jquery'),
             $this->version,
             false
@@ -167,6 +167,21 @@ class BLKBST_BulkBoost_Admin
             array(),
             $this->version
         );
+
+        // Pro badge styling for the dashboard preview. Loaded before the core
+        // dashboard script so it can register its keys/hooks in time. The code
+        // lives in a separate file that is excluded from the Free build.
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            wp_enqueue_script(
+                'bulkboost-dashboard-badges',
+                plugin_dir_url(__FILE__) . 'js/bulkboost-dashboard-badges__premium_only.js',
+                array(),
+                $this->version,
+                true
+            );
+        }
+
         wp_enqueue_script(
             'bulkboost-dashboard',
             plugin_dir_url(__FILE__) . 'js/bulkboost-dashboard.js',
@@ -886,6 +901,20 @@ class BLKBST_BulkBoost_Admin
             false
         );
         wp_localize_script($this->plugin_name, 'bulkboost_data_extra', $bulkboost_extra);
+
+        // Per-tier badge fields are a Pro feature. The code lives in a separate
+        // file (excluded from the Free build) and augments the core panel via
+        // the window.bulkboostAdminBlockExtras hook.
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            wp_enqueue_script(
+                'bulkboost-admin-badges',
+                plugin_dir_url(__FILE__) . 'js/bulkboost-admin-badges__premium_only.js',
+                array($this->plugin_name),
+                $this->version,
+                false
+            );
+        }
     }
 
     public function BLKBST_enqueue_min_max_scripts($hook)

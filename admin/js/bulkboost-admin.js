@@ -17,29 +17,12 @@
 
         var container = $('#bulkboost_container');
 
-        // Badge label options shown in the per-block dropdown
-        var BADGE_LABEL_OPTIONS = [
-            { value: 'none', text: 'No label badge' },
-            { value: 'hot', text: 'HOT' },
-            { value: 'popular', text: 'POPULAR' },
-            { value: 'bestdeal', text: 'BEST DEAL' }
-        ];
-
-        function buildBadgeLabelSelect(index, selected) {
-            var html = '<select id="_bulkboost_qd_badge_label_' + index + '" name="_bulkboost_qd_badge_label[' + index + ']">';
-            BADGE_LABEL_OPTIONS.forEach(function (opt) {
-                var isSelected = (opt.value === selected) ? 'selected' : '';
-                html += '<option value="' + opt.value + '" ' + isSelected + '>' + opt.text + '</option>';
-            });
-            html += '</select>';
-            return html;
-        }
-
-        function addQuantityDiscountBlock(index, quantity = '', price = '', label = '', description = '', badge_text = '', badgeLabel = 'none', badgeFreeShipping = 'no', badgeSaveEnabled = 'no', badgeSaveOverride = '') {
-            var formattedPrice = formatPrice(price);
-            var badgeLabelSelectHtml = buildBadgeLabelSelect(index, badgeLabel);
-            var freeShippingChecked = (badgeFreeShipping === 'yes') ? 'checked' : '';
-            var saveEnabledChecked = (badgeSaveEnabled === 'yes') ? 'checked' : '';
+        function addQuantityDiscountBlock(index, quantity = '', price = '', label = '', description = '') {
+            // Optional per-block extra fields are provided by an add-on when
+            // present; the core block never contains them.
+            var extraFieldsHtml = (window.bulkboostAdminBlockExtras && typeof window.bulkboostAdminBlockExtras.fieldsRow === 'function')
+                ? window.bulkboostAdminBlockExtras.fieldsRow(index)
+                : '';
 
             var block = `
                 <div class="quantity_discount_block">
@@ -61,31 +44,16 @@
                             <textarea id="_bulkboost_qd_description_${index}" placeholder="Description" name="_bulkboost_qd_description[${index}]">${description}</textarea>
                         </div>
                     </div>
-                    <div class="badge-fields-row">
-                        <div class="badge-field-block">
-                            <h4 style="margin:0; padding:0;">Label Badge</h4>
-                            ${badgeLabelSelectHtml}
-                        </div>
-                        <div class="badge-field-block">
-                            <h4 style="margin:0; padding:0;">Free Shipping Badge</h4>
-                            <label class="badge-checkbox-label">
-                                <input type="checkbox" id="_bulkboost_qd_badge_free_shipping_${index}" name="_bulkboost_qd_badge_free_shipping[${index}]" value="yes" ${freeShippingChecked}>
-                                Show "Free Shipping"
-                            </label>
-                        </div>
-                        <div class="badge-field-block">
-                            <h4 style="margin:0; padding:0;">Save % Badge</h4>
-                            <label class="badge-checkbox-label">
-                                <input type="checkbox" class="badge-save-enabled" id="_bulkboost_qd_badge_save_enabled_${index}" name="_bulkboost_qd_badge_save_enabled[${index}]" value="yes" ${saveEnabledChecked}>
-                                Show savings badge
-                            </label>
-                            <input type="text" class="badge-save-override" id="_bulkboost_qd_badge_save_override_${index}" name="_bulkboost_qd_badge_save_override[${index}]" placeholder="Auto-calculated (or type e.g. 20%)" value="${badgeSaveOverride}">
-                        </div>
-                    </div>
+                    ${extraFieldsHtml}
                     <button type="button" class="delete_quantity_discount">Delete</button>
                 </div>
             `;
             container.append(block);
+
+            // Let the add-on populate its own fields if present.
+            if (window.bulkboostAdminBlockExtras && typeof window.bulkboostAdminBlockExtras.applyValues === 'function') {
+                window.bulkboostAdminBlockExtras.applyValues(index);
+            }
         }
 
         function formatPrice(price, currency) {
@@ -119,11 +87,6 @@
             var prices = bulkboost_data.prices || [];
             var labels = bulkboost_data.labels || [];
             var descriptions = bulkboost_data.descriptions || [];
-            var badge_text = bulkboost_data.badge_text || [];
-            var badgeLabels = bulkboost_data.badge_labels || [];
-            var badgeFreeShipping = bulkboost_data.badge_free_shipping || [];
-            var badgeSaveEnabled = bulkboost_data.badge_save_enabled || [];
-            var badgeSaveOverride = bulkboost_data.badge_save_override || [];
 
             for (var i = 0; i < quantities.length; i++) {
                 addQuantityDiscountBlock(
@@ -131,12 +94,7 @@
                     quantities[i],
                     prices[i],
                     labels[i],
-                    descriptions[i],
-                    badge_text[i],
-                    badgeLabels[i] || 'none',
-                    badgeFreeShipping[i] || 'no',
-                    badgeSaveEnabled[i] || 'no',
-                    badgeSaveOverride[i] || ''
+                    descriptions[i]
                 );
             }
         } else if ($('#post_ID').val()) {
@@ -151,59 +109,6 @@
             updateQuantityDiscountsPreview();
         });
 
-        /**
-         * Builds the label-tab badge HTML (HOT / MOST POPULAR / BEST DEAL \ud83d\udd25)
-         * that overlaps the top-left corner of the preview card.
-         */
-        function buildLabelTabHtml(badgeLabel) {
-            var labelMap = {
-                hot: { text: 'HOT', cls: 'bulkboost-tab-hot' },
-                popular: { text: 'MOST POPULAR', cls: 'bulkboost-tab-popular' },
-                bestdeal: { text: 'BEST DEAL \ud83d\udd25', cls: 'bulkboost-tab-bestdeal' }
-            };
-
-            if (!badgeLabel || badgeLabel === 'none' || !labelMap[badgeLabel]) {
-                return '';
-            }
-
-            var info = labelMap[badgeLabel];
-            return '<div class="bulkboost-label-tab ' + info.cls + '">' + info.text + '</div>';
-        }
-
-        /**
-         * Builds the "Save X%" pill shown under the price, inside the card.
-         */
-        function buildSaveBadgeHtml(saveEnabledChecked, saveOverrideVal, autoSavePercent) {
-            if (!saveEnabledChecked) {
-                return '';
-            }
-
-            var saveText = (saveOverrideVal && saveOverrideVal.trim() !== '')
-                ? saveOverrideVal.trim()
-                : (autoSavePercent !== null && autoSavePercent > 0 ? ('Save ' + autoSavePercent + '%') : '');
-
-            if (!saveText) {
-                return '';
-            }
-
-            if (saveText.indexOf('%') === -1 && /^\d+(\.\d+)?$/.test(saveText)) {
-                saveText = 'Save ' + saveText + '%';
-            }
-
-            return '<span class="bulkboost-badge bulkboost-badge-save">' + saveText + '</span>';
-        }
-
-        /**
-         * Builds the full-width "+ FREE Shipping" banner shown directly below
-         * the preview card.
-         */
-        function buildShippingBannerHtml(freeShippingChecked) {
-            if (!freeShippingChecked) {
-                return '';
-            }
-            return '<div class="bulkboost-shipping-banner"><span class="bulkboost-shipping-icon">\ud83d\ude9a</span> + FREE Shipping</div>';
-        }
-
         function updateQuantityDiscountsPreview() {
             var container = $('#bulkboost_container');
             var previewContainer = $('#bulkboost_preview');
@@ -216,11 +121,6 @@
                 var price = $(this).find('input[name^="_bulkboost_qd_price"]').val();
                 var label = $(this).find('input[name^="_bulkboost_qd_label"]').val();
                 var description = $(this).find('textarea[name^="_bulkboost_qd_description"]').val();
-
-                var badgeLabel = $(this).find('select[name^="_bulkboost_qd_badge_label"]').val();
-                var freeShippingChecked = $(this).find('input[name^="_bulkboost_qd_badge_free_shipping"]').is(':checked');
-                var saveEnabledChecked = $(this).find('input[name^="_bulkboost_qd_badge_save_enabled"]').is(':checked');
-                var saveOverrideVal = $(this).find('input[name^="_bulkboost_qd_badge_save_override"]').val();
 
                 if (quantity == 1) {
                     singleItemPrice = price;
@@ -236,14 +136,18 @@
                     }
                 }
 
-                var labelTabHtml = buildLabelTabHtml(badgeLabel);
-                var saveBadgeHtml = buildSaveBadgeHtml(saveEnabledChecked, saveOverrideVal, autoSavePercent);
-                var shippingBannerHtml = buildShippingBannerHtml(freeShippingChecked);
-                var hasLabelTabClass = labelTabHtml ? ' has-label-tab' : '';
+                // Optional per-tier extras come from an add-on when present.
+                var extras = (window.bulkboostAdminBlockExtras && typeof window.bulkboostAdminBlockExtras.previewFor === 'function')
+                    ? window.bulkboostAdminBlockExtras.previewFor($(this), autoSavePercent)
+                    : { top: '', mid: '', bottom: '' };
+                var topHtml = extras.top || '';
+                var midHtml = extras.mid || '';
+                var bottomHtml = extras.bottom || '';
+                var hasTopClass = topHtml ? ' has-label-tab' : '';
 
                 var block = `
-                    <div class="bulkboost-tier-wrap${hasLabelTabClass}">
-                        ${labelTabHtml}
+                    <div class="bulkboost-tier-wrap${hasTopClass}">
+                        ${topHtml}
                         <span class="bulkboost-swatch" data-value="${quantity}">
                             <div class="bulkboost-inner">
                             <div class="one-block">
@@ -262,12 +166,12 @@
                                         <div class="old-price">${oldPrice}</div>
                                         <span class="bulkboost-price">${formatPrice(price)}</span>
                                     </div>
-                                    ${saveBadgeHtml}
+                                    ${midHtml}
                                 </div>
                             </div>
                             </div>
                         </span>
-                        ${shippingBannerHtml}
+                        ${bottomHtml}
                     </div>
                 `;
                 previewContainer.append(block);

@@ -113,7 +113,7 @@ if (!function_exists('blkbst_admin_upsell')) {
             <div class="bb-upsell-badge">PRO</div>
             <h2><?php echo esc_html($title); ?></h2>
             <p><?php echo esc_html($desc); ?></p>
-            <a class="bb-btn bb-btn-primary" href="<?php echo esc_url($url); ?>">Upgrade to Pro — 14 days free</a>
+            <a class="bb-btn bb-btn-primary" href="<?php echo esc_url($url); ?>">Upgrade to Pro — 3 days free</a>
         </div>
         <?php
     }

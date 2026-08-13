@@ -21,8 +21,14 @@ class BLKBST_BulkBoost_Admin
         $this->version = $version;
     }
 
-    public function enqueue_styles()
+    public function enqueue_styles($hook = '')
     {
+        // BulkBoost markup only exists on our own screens and in the product
+        // editor's panel, so the stylesheet has no business anywhere else.
+        if (!$this->is_plugin_page() && 'post.php' !== $hook && 'post-new.php' !== $hook) {
+            return;
+        }
+
         wp_enqueue_style(
             $this->plugin_name,
             plugin_dir_url(__FILE__) . 'css/bulkboost-admin.css',
@@ -34,10 +40,6 @@ class BLKBST_BulkBoost_Admin
 
     public function enqueue_scripts($hook = '')
     {
-        // Color picker is used by the Min/Max settings page.
-        wp_enqueue_style('wp-color-picker');
-        wp_enqueue_script('wp-color-picker');
-
         // The product meta-box script + its data are only needed on the
         // product editor (where bulkboost_data is localized).
         if ('post.php' !== $hook && 'post-new.php' !== $hook) {
@@ -153,6 +155,80 @@ class BLKBST_BulkBoost_Admin
     }
 
     /**
+     * The design settings as they should be rendered: the saved values merged
+     * over the canonical defaults, so a missing or blank key never produces an
+     * empty CSS value. Shared by the dashboard, the product panel preview and
+     * the storefront so all three draw from one resolved set.
+     *
+     * @return array Option key => sanitized value.
+     */
+    public static function design_settings()
+    {
+        $saved = get_option('bulkboost_settings', array());
+        if (!is_array($saved)) {
+            $saved = array();
+        }
+
+        $settings = array();
+        foreach (self::design_defaults() as $key => $default) {
+            $value = (isset($saved[$key]) && '' !== $saved[$key]) ? $saved[$key] : $default;
+
+            // Every color default is a hex literal. An unparsable stored value
+            // would break the CSS declaration it lands in, so fall back to the
+            // default rather than emit it.
+            if (is_string($default) && 0 === strpos($default, '#')) {
+                $value = sanitize_hex_color(is_string($value) ? $value : '');
+                if (!$value) {
+                    $value = $default;
+                }
+            }
+
+            $settings[$key] = $value;
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Reads a hex color out of a settings array, falling back when the stored
+     * value is missing or not a valid hex color (an empty value would make the
+     * CSS declaration it lands in invalid).
+     *
+     * @param array  $settings Raw option array.
+     * @param string $key      Setting key to read.
+     * @param string $fallback Color to use when the stored value is unusable.
+     * @return string A valid hex color.
+     */
+    public static function hex_setting($settings, $key, $fallback)
+    {
+        $value = (is_array($settings) && isset($settings[$key]) && is_string($settings[$key]))
+            ? sanitize_hex_color($settings[$key])
+            : '';
+
+        return $value ? $value : $fallback;
+    }
+
+    /**
+     * Reads a font weight or size, falling back to the canonical default when
+     * the stored value is missing or 0 (which would render the text invisible).
+     *
+     * @param array  $settings Resolved design settings.
+     * @param string $key      Setting key to read.
+     * @return int
+     */
+    public static function font_setting($settings, $key)
+    {
+        $value = absint(isset($settings[$key]) ? $settings[$key] : 0);
+        if ($value) {
+            return $value;
+        }
+
+        $defaults = self::design_defaults();
+
+        return absint(isset($defaults[$key]) ? $defaults[$key] : 0);
+    }
+
+    /**
      * Enqueue the redesigned dashboard CSS/JS + webfonts on our pages only.
      */
     public function enqueue_dashboard_assets()
@@ -191,13 +267,12 @@ class BLKBST_BulkBoost_Admin
         );
 
         $currency = class_exists('WooCommerce') ? get_woocommerce_currency_symbol() : '$';
-        $saved = get_option('bulkboost_settings', array());
         wp_localize_script('bulkboost-dashboard', 'BulkBoostDash', array(
             'ajaxUrl'    => admin_url('admin-ajax.php'),
             'nonce'      => wp_create_nonce('bulkboost_save_design'),
             'currency'   => html_entity_decode($currency),
             'defaults'   => self::design_defaults(),
-            'settings'   => is_array($saved) ? $saved : array(),
+            'settings'   => self::design_settings(),
         ));
     }
 
@@ -711,8 +786,13 @@ class BLKBST_BulkBoost_Admin
         return $tabs;
     }
 
-    public function quantity_breaks_icon_change()
+    public function quantity_breaks_icon_change($hook = '')
     {
+        // The rule targets the product editor's data panel tab.
+        if ('post.php' !== $hook && 'post-new.php' !== $hook) {
+            return;
+        }
+
         wp_add_inline_style(
             $this->plugin_name,
             '#woocommerce-product-data ul.wc-tabs li.bulkboost_options a::before { content: "\f18e"; }'
@@ -1036,6 +1116,8 @@ class BLKBST_BulkBoost_Admin
         if (false === strpos((string) $hook, 'bulkboost-quantity-min-max')) {
             return;
         }
+        // The color picker is used by this page only.
+        wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
         $js = <<<'JS'
 jQuery(document).ready(function ($) {
@@ -1243,30 +1325,35 @@ JS;
         $bulkboost_settings    = get_option('bulkboost_settings', array());
         $minMaxQuantitySettings = get_option('bulkboost_min_max_settings', array());
 
-        $border_style             = esc_attr($bulkboost_settings['border_style'] ?? '');
-        $box_corner_radius        = esc_attr($bulkboost_settings['box_corner_radius'] ?? '0');
-        $border_color_inactive    = esc_attr($bulkboost_settings['border_color_inactive'] ?? '');
-        $background_color_inactive = esc_attr($bulkboost_settings['background_color_inactive'] ?? '');
-        $text_color_inactive      = esc_attr($bulkboost_settings['text_color_inactive'] ?? '');
-        $border_color_active      = esc_attr($bulkboost_settings['border_color_active'] ?? '');
-        $background_color_active  = esc_attr($bulkboost_settings['background_color_active'] ?? '');
-        $text_color_active        = esc_attr($bulkboost_settings['text_color_active'] ?? '');
-        $border_color_hover       = esc_attr($bulkboost_settings['border_color_hover'] ?? '');
-        $background_color_hover   = esc_attr($bulkboost_settings['background_color_hover'] ?? '');
-        $text_color_hover         = esc_attr($bulkboost_settings['text_color_hover'] ?? '');
-        $radio_bg_color_active    = esc_attr($bulkboost_settings['radio_bg_color_active'] ?? '');
-        $radio_border_color_inactive = esc_attr($bulkboost_settings['radio_border_color_inactive'] ?? '');
-        $radio_border_color_hover = esc_attr($bulkboost_settings['radio_border_color_hover'] ?? '');
-        $radio_button_size        = esc_attr($bulkboost_settings['radio_button_size'] ?? '20');
-        $labelFontWeight          = esc_attr($bulkboost_settings['label_font_weight'] ?? '');
-        $labelFontSize            = esc_attr($bulkboost_settings['label_font_size'] ?? '');
-        $descriptionFontWeight    = esc_attr($bulkboost_settings['description_font_weight'] ?? '');
-        $descriptionFontSize      = esc_attr($bulkboost_settings['description_font_size'] ?? '');
-        $priceFontWeight          = esc_attr($bulkboost_settings['price_font_weight'] ?? '');
-        $priceFontSize            = esc_attr($bulkboost_settings['price_font_size'] ?? '');
-        $oldPriceFontWeight       = esc_attr($bulkboost_settings['old_price_font_weight'] ?? '');
-        $oldPriceFontSize         = esc_attr($bulkboost_settings['old_price_font_size'] ?? '');
-        $showOldPrice             = esc_attr($bulkboost_settings['show_old_price'] ?? 'yes');
+        // Same resolved design settings the storefront renders with, so this
+        // preview and the product page can't drift apart.
+        $design = self::design_settings();
+
+        $border_style             = in_array($bulkboost_settings['border_style'] ?? '', array('solid', 'dashed', 'dotted', 'double', 'none'), true)
+            ? $bulkboost_settings['border_style']
+            : 'solid';
+        $box_corner_radius        = absint($design['box_corner_radius']);
+        $accent                   = $design['accent_color'];
+        $background_color_active  = $design['background_color_active'];
+        $text_color_active        = $design['text_color_active'];
+        $border_color_inactive    = $design['border_color_inactive'];
+        $background_color_inactive = self::hex_setting($bulkboost_settings, 'background_color_inactive', '#ffffff');
+        $text_color_inactive      = self::hex_setting($bulkboost_settings, 'text_color_inactive', '#1b1c18');
+        $border_color_hover       = self::hex_setting($bulkboost_settings, 'border_color_hover', $accent);
+        $background_color_hover   = self::hex_setting($bulkboost_settings, 'background_color_hover', $background_color_inactive);
+        $text_color_hover         = self::hex_setting($bulkboost_settings, 'text_color_hover', $text_color_inactive);
+        $radio_border_color_inactive = self::hex_setting($bulkboost_settings, 'radio_border_color_inactive', '#cfd0c8');
+        $radio_border_color_hover = self::hex_setting($bulkboost_settings, 'radio_border_color_hover', $accent);
+        $radio_button_size        = absint($bulkboost_settings['radio_button_size'] ?? 0) ?: 20;
+        $labelFontWeight          = self::font_setting($design, 'label_font_weight');
+        $labelFontSize            = self::font_setting($design, 'label_font_size');
+        $descriptionFontWeight    = self::font_setting($design, 'description_font_weight');
+        $descriptionFontSize      = self::font_setting($design, 'description_font_size');
+        $priceFontWeight          = self::font_setting($design, 'price_font_weight');
+        $priceFontSize            = self::font_setting($design, 'price_font_size');
+        $oldPriceFontWeight       = self::font_setting($design, 'old_price_font_weight');
+        $oldPriceFontSize         = self::font_setting($design, 'old_price_font_size');
+        $showOldPrice             = ($design['show_old_price'] === 'no') ? 'no' : 'yes';
 
         $minMaxBgColorActive      = esc_attr($minMaxQuantitySettings['min_max_background_color_active'] ?? '');
         $minMaxBgColorInactive    = esc_attr($minMaxQuantitySettings['min_max_background_color_inactive'] ?? '');
@@ -1279,7 +1366,7 @@ JS;
         $minMaxBorderColorHover   = esc_attr($minMaxQuantitySettings['min_max_border_color_hover'] ?? '');
         $minMaxSize               = esc_attr($minMaxQuantitySettings['min_max_size'] ?? '14');
         $minMaxSizeHalf           = (float) ($minMaxQuantitySettings['min_max_size'] ?? 14) / 2;
-        $button_size              = (int) ($bulkboost_settings['radio_button_size'] ?? 20) - 5;
+        $button_size              = $radio_button_size - 5;
 
         $css = "
         .minmax-buttons{padding:{$minMaxSizeHalf}px {$minMaxSize}px;margin:2px;display:inline-block;background-color:{$minMaxBgColorInactive};color:{$minMaxTextColorInactive};border:1px solid {$minMaxBorderColorInactive};font-size:16px;cursor:pointer;}
@@ -1287,15 +1374,15 @@ JS;
         .minmax-buttons:hover{background-color:{$minMaxBgColorHover};color:{$minMaxTextColorHover};border-color:{$minMaxBorderColorHover};}
         .bulkboost-swatch{border-style:{$border_style};border-radius:{$box_corner_radius}px;border-color:{$border_color_inactive};background-color:{$background_color_inactive};color:{$text_color_inactive};transition:all 0.3s ease;}
         .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border:1px solid {$radio_border_color_inactive};border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
-        .bulkboost-radio input[type='radio']:checked + span{border-color:{$radio_bg_color_active};}
-        .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;background:{$radio_bg_color_active};}
+        .bulkboost-radio input[type='radio']:checked + span{border-color:{$accent};}
+        .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;background:{$accent};}
         .bulkboost-radio span:hover{border-color:{$radio_border_color_hover};}
-        .bulkboost-swatch.active .bulkboost-radio span{border-color:green;}
+        .bulkboost-swatch.active .bulkboost-radio span{border-color:{$accent};background-color:transparent;}
         .bulkboost-heading{font-size:{$labelFontSize}px;font-weight:{$labelFontWeight};}
         .bulkboost-subheading{font-size:{$descriptionFontSize}px;font-weight:{$descriptionFontWeight};}
         .bulkboost-price{font-size:{$priceFontSize}px;font-weight:{$priceFontWeight};}
         .bulkboost-right .old-price{font-size:{$oldPriceFontSize}px;font-weight:{$oldPriceFontWeight};" . ($showOldPrice === 'no' ? 'display:none;' : '') . "}
-        .bulkboost-swatch.active{border-color:{$border_color_active};background-color:{$background_color_active};color:{$text_color_active};}
+        .bulkboost-swatch.active{border-color:{$accent};background-color:{$background_color_active};color:{$text_color_active};}
         .bulkboost-swatch:hover{border-color:{$border_color_hover};background-color:{$background_color_hover};color:{$text_color_hover};}
         ";
 

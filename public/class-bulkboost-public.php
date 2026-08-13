@@ -87,11 +87,16 @@ class BLKBST_BulkBoost_Public
         $min_max_border_color_hover = esc_html($min_max_settings['min_max_border_color_hover']);
         $min_max_size = esc_html($min_max_settings['min_max_size']);
 
-        // quantity design
-        $border_style = esc_html($bulkboost_settings['border_style']);
-        $box_corner_radius = esc_html($bulkboost_settings['box_corner_radius']);
-        $border_width = esc_html($bulkboost_settings['border_width'] ?? '1.5');
-        $card_gap = esc_html($bulkboost_settings['card_gap'] ?? '12');
+        // Quantity design, resolved against the dashboard's canonical defaults
+        // so a key the dashboard never wrote can't emit an empty CSS value.
+        $design = BLKBST_BulkBoost_Admin::design_settings();
+
+        $border_style = in_array($bulkboost_settings['border_style'] ?? '', array('solid', 'dashed', 'dotted', 'double', 'none'), true)
+            ? $bulkboost_settings['border_style']
+            : 'solid';
+        $box_corner_radius = absint($design['box_corner_radius']);
+        $border_width = (float) $design['border_width'];
+        $card_gap = absint($design['card_gap']);
 
         // This "if" block will be auto removed from the Free version.
         if (blkbst_fs()->can_use_premium_code__premium_only()) {
@@ -114,36 +119,34 @@ class BLKBST_BulkBoost_Public
                 . '.bulkboost-shipping-banner{background-color:' . $shipping_badge_bg . ';color:' . $shipping_badge_text . ';}'
                 . '.bulkboost-shipping-banner .bulkboost-shipping-icon{color:inherit;}';
         }
-        $border_color_inactive = esc_html($bulkboost_settings['border_color_inactive']);
-        $background_color_inactive = esc_html($bulkboost_settings['background_color_inactive']);
-        $text_color_inactive = esc_html($bulkboost_settings['text_color_inactive']);
-        $border_color_active = esc_html($bulkboost_settings['border_color_active']);
-        $background_color_active = esc_html($bulkboost_settings['background_color_active']);
-        $text_color_active = esc_html($bulkboost_settings['text_color_active']);
-        $border_color_hover = esc_html($bulkboost_settings['border_color_hover']);
-        $background_color_hover = esc_html($bulkboost_settings['background_color_hover']);
-        $text_color_hover = esc_html($bulkboost_settings['text_color_hover']);
+        // The accent drives the selected card's outline, the selected radio's
+        // ring and its fill — exactly what the Design Settings screen labels it.
+        $accent = $design['accent_color'];
+        $background_color_active = $design['background_color_active'];
+        $text_color_active = $design['text_color_active'];
+        $border_color_inactive = $design['border_color_inactive'];
 
-        $radio_bg_color_active = esc_html($bulkboost_settings['radio_bg_color_active']);
-        $radio_bg_color_inactive = esc_html($bulkboost_settings['radio_bg_color_inactive'] ?? '');
-        $radio_bg_color_hover = esc_html($bulkboost_settings['radio_bg_color_hover'] ?? '');
-        $radio_border_color_active = esc_html($bulkboost_settings['radio_border_color_active'] ?? '');
-        $radio_border_color_inactive = esc_html($bulkboost_settings['radio_border_color_inactive']);
-        $radio_border_color_hover = esc_html($bulkboost_settings['radio_border_color_hover'] ?? '');
-        $radio_button_size = esc_html($bulkboost_settings['radio_button_size']);
+        // Colors the Design Settings screen doesn't expose: a stored value is
+        // honored, otherwise these match what the screen's preview draws.
+        $background_color_inactive = BLKBST_BulkBoost_Admin::hex_setting($bulkboost_settings, 'background_color_inactive', '#ffffff');
+        $text_color_inactive = BLKBST_BulkBoost_Admin::hex_setting($bulkboost_settings, 'text_color_inactive', '#1b1c18');
+        $border_color_hover = BLKBST_BulkBoost_Admin::hex_setting($bulkboost_settings, 'border_color_hover', $accent);
+        $background_color_hover = BLKBST_BulkBoost_Admin::hex_setting($bulkboost_settings, 'background_color_hover', $background_color_inactive);
+        $text_color_hover = BLKBST_BulkBoost_Admin::hex_setting($bulkboost_settings, 'text_color_hover', $text_color_inactive);
+        $radio_border_color_inactive = BLKBST_BulkBoost_Admin::hex_setting($bulkboost_settings, 'radio_border_color_inactive', '#cfd0c8');
+        $radio_button_size = absint($bulkboost_settings['radio_button_size'] ?? 0) ?: 20;
 
-        // Font weights/sizes fall back to sensible defaults so a missing or 0
-        // value never collapses the text to font-size:0 (invisible). '0' and ''
-        // are falsy in PHP, so `?:` substitutes the default in both cases.
-        $labelFontWeight = esc_html($bulkboost_settings['label_font_weight'] ?? '') ?: '600';
-        $labelFontSize = esc_html($bulkboost_settings['label_font_size'] ?? '') ?: '17';
-        $descriptionFontWeight = esc_html($bulkboost_settings['description_font_weight'] ?? '') ?: '400';
-        $descriptionFontSize = esc_html($bulkboost_settings['description_font_size'] ?? '') ?: '13';
-        $priceFontWeight = esc_html($bulkboost_settings['price_font_weight'] ?? '') ?: '700';
-        $priceFontSize = esc_html($bulkboost_settings['price_font_size'] ?? '') ?: '18';
-        $oldPriceFontWeight = esc_html($bulkboost_settings['old_price_font_weight'] ?? '') ?: '400';
-        $oldPriceFontSize = esc_html($bulkboost_settings['old_price_font_size'] ?? '') ?: '13';
-        $showOldPrice = esc_html($bulkboost_settings['show_old_price'] ?? 'yes');
+        // Font weights/sizes fall back to the canonical defaults so a missing
+        // or 0 value never collapses the text to font-size:0 (invisible).
+        $labelFontWeight = BLKBST_BulkBoost_Admin::font_setting($design, 'label_font_weight');
+        $labelFontSize = BLKBST_BulkBoost_Admin::font_setting($design, 'label_font_size');
+        $descriptionFontWeight = BLKBST_BulkBoost_Admin::font_setting($design, 'description_font_weight');
+        $descriptionFontSize = BLKBST_BulkBoost_Admin::font_setting($design, 'description_font_size');
+        $priceFontWeight = BLKBST_BulkBoost_Admin::font_setting($design, 'price_font_weight');
+        $priceFontSize = BLKBST_BulkBoost_Admin::font_setting($design, 'price_font_size');
+        $oldPriceFontWeight = BLKBST_BulkBoost_Admin::font_setting($design, 'old_price_font_weight');
+        $oldPriceFontSize = BLKBST_BulkBoost_Admin::font_setting($design, 'old_price_font_size');
+        $showOldPrice = ($design['show_old_price'] === 'no') ? 'no' : 'yes';
 
         $halfPadding = $min_max_size / 2;
         $button_size = $radio_button_size - 5;
@@ -153,25 +156,26 @@ class BLKBST_BulkBoost_Public
     #quantity-buttons .quantity-button{padding:{$halfPadding}px {$min_max_size}px;margin:2px;line-height:1.3em;display:inline-block;background-color:{$min_max_background_color_inactive};color:{$min_max_text_color_inactive};border:1px solid {$min_max_border_color_inactive};cursor:pointer;}
     #quantity-buttons .quantity-button.active{background-color:{$min_max_background_color_active};color:{$min_max_text_color_active};border:1px solid {$min_max_border_color_active};}
     #quantity-buttons .quantity-button:hover{background-color:{$min_max_background_color_hover};color:{$min_max_text_color_hover};border:1px solid {$min_max_border_color_hover};}
-    .bulkboost-swatch.active{border-color:{$border_color_active};background-color:{$background_color_active};color:{$text_color_active};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
-    .bulkboost-radio span{border-color:{$radio_border_color_inactive};}
-    .bulkboost-radio input[type='radio']:checked + span{border-color:{$radio_border_color_active};}
-    .bulkboost-swatch.active .bulkboost-radio span{border-color:{$radio_border_color_active};}
+    .bulkboost-swatch.active{border-color:{$accent};background-color:{$background_color_active};color:{$text_color_active};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
     .bulkboost-swatch:not(.active){border-color:{$border_color_inactive};background-color:{$background_color_inactive} !important;color:{$text_color_inactive};border-style:{$border_style};border-width:{$border_width}px;border-radius:{$box_corner_radius}px;}
     .bulkboost-swatch:not(.active):hover{border-color:{$border_color_hover};background-color:{$background_color_hover} !important;color:{$text_color_hover};border-style:{$border_style};border-radius:{$box_corner_radius}px;}
     .bulkboost-heading{font-size:{$labelFontSize}px;font-weight:{$labelFontWeight};}
     .bulkboost-subheading{font-size:{$descriptionFontSize}px;font-weight:{$descriptionFontWeight};}
     .bulkboost-right span{font-size:{$priceFontSize}px;font-weight:{$priceFontWeight};}
     .bulkboost-right .old-price span{font-size:{$oldPriceFontSize}px;font-weight:{$oldPriceFontWeight};}
-    .bulkboost-radio input[type='radio']:checked + span::before{background-color:{$radio_bg_color_active};}
-    .bulkboost-radio input[type='radio'] + span::before{background-color:{$radio_bg_color_inactive};}
-    .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border-width:1px;border-style:solid;border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
-    .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;}
+    .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border-width:1px;border-style:solid;border-color:{$radio_border_color_inactive};border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
+    .bulkboost-radio input[type='radio']:checked + span{border-color:{$accent};}
+    .bulkboost-swatch.active .bulkboost-radio span{border-color:{$accent};background-color:transparent;}
+    .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;background-color:{$accent};}
     .custom-quantity-block .bulkboost-tier-wrap{margin-bottom:{$card_gap}px;}
     .custom-quantity-block.bb-selector-checkbox .bulkboost-radio span{border-radius:4px;}
     .custom-quantity-block.bb-selector-checkbox .bulkboost-radio input[type='radio']:checked + span::before{border-radius:2px;}
     .custom-quantity-block.bb-selector-none .bulkboost-radio{display:none;}
     ";
+
+        if ($showOldPrice === 'no') {
+            $css .= '.custom-quantity-block .bulkboost-right .old-price{display:none;}';
+        }
 
         // This "if" block will be auto removed from the Free version.
         if (blkbst_fs()->can_use_premium_code__premium_only()) {

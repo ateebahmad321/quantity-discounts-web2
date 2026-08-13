@@ -145,8 +145,8 @@
         root.querySelectorAll('[data-dim-key]').forEach(function (el) {
             el.classList.toggle('bb-dim', !state[el.dataset.dimKey]);
         });
-        // accent-driven CSS var (sliders, etc.)
-        root.style.setProperty('--bb-accent', state.accent || '#10976a');
+        // Note: the store's accent is a preview/storefront color only — it must
+        // not touch --bb-accent, which is this screen's own UI color.
         // Pro add-on styles its sample chips, when present.
         if (window.bulkboostDashboardExtras && typeof window.bulkboostDashboardExtras.chips === 'function') {
             window.bulkboostDashboardExtras.chips(root, state);
@@ -163,7 +163,6 @@
                 var k = b.dataset.key;
                 setVal(k, b.dataset.val);
                 syncColor(k);
-                if (k === 'accent') { root.style.setProperty('--bb-accent', b.dataset.val); }
             });
         });
         // native color picker
@@ -172,7 +171,6 @@
                 var k = c.dataset.key;
                 state[k] = c.value; markDirty();
                 syncColor(k, c);
-                if (k === 'accent') { root.style.setProperty('--bb-accent', c.value); }
                 renderPreview();
             });
         });
@@ -185,7 +183,6 @@
                 var k = h.dataset.key;
                 state[k] = v.toLowerCase(); markDirty();
                 syncColor(k, h);
-                if (k === 'accent') { root.style.setProperty('--bb-accent', state[k]); }
                 renderPreview();
             });
         });
@@ -294,12 +291,14 @@
             var outer = document.createElement('div');
             outer.className = 'bb-radio-outer';
             outer.style.borderRadius = s.selector === 'checkbox' ? '6px' : '50%';
-            outer.style.borderColor = active ? s.activeText : '#cfd0c8';
+            // The accent owns the selected ring and its fill, matching the
+            // storefront CSS and the control's own description.
+            outer.style.borderColor = active ? s.accent : '#cfd0c8';
             outer.style.display = s.selector === 'none' ? 'none' : 'flex';
             var inner = document.createElement('div');
             inner.className = 'bb-radio-inner';
             inner.style.borderRadius = s.selector === 'checkbox' ? '2px' : '50%';
-            inner.style.background = active ? s.activeText : 'transparent';
+            inner.style.background = active ? s.accent : 'transparent';
             inner.style.transform = active ? 'scale(1)' : 'scale(0)';
             outer.appendChild(inner); left.appendChild(outer);
 

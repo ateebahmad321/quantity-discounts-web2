@@ -4,7 +4,7 @@ Donate link: https://profiles.wordpress.org/ateebahamd
 Tags: woocommerce, quantity discount, bulk pricing, tiered pricing, discount
 Requires at least: 6.7
 Tested up to: 7.0
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -87,15 +87,20 @@ No. The plugin makes no remote calls of its own. The bundled Freemius SDK (used 
 
 == Screenshots ==
 
-1. Quantity-break offers on the product page.
-2. The Design Settings dashboard with the live preview.
-3. Typography controls for labels, descriptions, and prices.
-4. Per-product quantity tier setup in the Product data panel.
-5. Min / Max quantity selector.
-6. Promotional badges on the offer cards (Pro).
-7. Sales analytics report (Pro).
+1. Design settings — colours, corner radius, borders and the selector control for the offer cards, with a live preview alongside.
+2. Typography settings — font weight and size for the label, description and price on each offer card.
+3. Quantity Pricing — add a tier per quantity, each with its own total price, label and description.
+4. The offer table on the product page, where customers choose a quantity tier.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fixed: the Accent color now applies on the storefront — the selected offer's outline, the selector ring, and the selector fill all follow it. Previously it only showed in the admin preview.
+* Fixed: the Accent color no longer recolors the Design Settings screen's own buttons, tabs and controls.
+* Fixed: turning off "Show old price" now hides the compare-at price on the product page.
+* Fixed: the offer cards, the product panel preview, and the live preview now render from one resolved set of design settings, so a missing value can no longer produce empty CSS on the storefront.
+* Fixed: reactivating the plugin no longer overwrote saved Min / Max button colors.
+* Changed: the admin stylesheet and the color picker now load only on the screens that use them.
 
 = 1.0.0 =
 * Initial release.

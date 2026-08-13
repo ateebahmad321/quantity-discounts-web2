@@ -1,0 +1,17 @@
+# Enforce LF line endings for all text/source files so the Freemius-generated
+# free build (which strips code and rejoins with LF) never ends up with mixed
+# endings. Prevents WordPress Plugin Check's Internal.LineEndings.Mixed warning.
+* text=auto eol=lf
+
+# Binary types: never touch line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg binary
+*.mo binary
+*.zip binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary

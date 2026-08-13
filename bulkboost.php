@@ -8,7 +8,7 @@
  * @wordpress-plugin
  * Plugin Name:       BulkBoost – Quantity Discounts & Bundles
  * Description:       Boost average order value with tiered quantity discounts, breaks and bundle offers for WooCommerce products.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Requires at least: 6.7
  * Requires PHP:      7.4
  * Author:            BulkBoost
@@ -89,7 +89,7 @@ if (function_exists('blkbst_fs')) {
      * Start at version 1.0.0 and use SemVer - https://semver.org
      * Rename this for your plugin and update it as you release new versions.
      */
-    define('BLKBST_VERSION', '1.0.0');
+    define('BLKBST_VERSION', '1.0.1');
 
     /**
      * Declare compatibility with WooCommerce High-Performance Order Storage (HPOS).
@@ -106,7 +106,8 @@ if (function_exists('blkbst_fs')) {
     function bulkboost_upgrade_url()
     {
         // The Freemius-generated pricing page lives under the plugin's admin menu.
-        return apply_filters('bulkboost_upgrade_url', admin_url('admin.php?page=bulkboost-bulkboost-pricing'));
+        // trial=true opens it with the free-trial option preselected.
+        return apply_filters('bulkboost_upgrade_url', admin_url('admin.php?page=bulkboost-bulkboost-pricing&trial=true'));
     }
 
     /**
@@ -118,34 +119,15 @@ if (function_exists('blkbst_fs')) {
         if (class_exists('WooCommerce')) {
             require_once plugin_dir_path(__FILE__) . 'includes/class-bulkboost-activator.php';
             BulkBoost_Activator::activate();
+            // The Design Settings screen owns the offer-card styling, and its
+            // defaults live in BLKBST_BulkBoost_Admin::design_defaults() — a
+            // fresh site renders those until the screen is saved. Only the few
+            // keys that screen does not manage are seeded here.
             $defaults = [
                 'border_style' => 'solid',
-                'box_corner_radius' => '0',
-                'border_color_inactive' => '#0a0a0a',
                 'background_color_inactive' => '#ffffff',
-                'text_color_inactive' => '#0a0101',
-                'border_color_active' => '#0a0a0a',
-                'background_color_active' => '#0a0707',
-                'text_color_active' => '#ffffff',
-                'border_color_hover' => '',
-                'background_color_hover' => '',
-                'text_color_hover' => '#0a0505',
-                'radio_bg_color_active' => '#0a0505',
-                'radio_bg_color_inactive' => '',
-                'radio_bg_color_hover' => '',
-                'radio_border_color_active' => '#0a0505',
-                'radio_border_color_inactive' => '',
-                'radio_border_color_hover' => '',
-                'radio_button_size' => '15',
-                'label_font_weight' => '400',
-                'label_font_size' => '17',
-                'description_font_weight' => '300',
-                'description_font_size' => '12',
-                'price_font_weight' => '400',
-                'price_font_size' => '17',
-                'old_price_font_weight' => '300',
-                'old_price_font_size' => '13',
-                'show_old_price' => 'yes',
+                'text_color_inactive' => '#1b1c18',
+                'radio_button_size' => '20',
             ];
 
             $defaultsMinMax = [
@@ -162,7 +144,7 @@ if (function_exists('blkbst_fs')) {
             ];
 
             $options = get_option('bulkboost_settings');
-            $optionsMinMax = get_option('min_max_bulkboost_settings');
+            $optionsMinMax = get_option('bulkboost_min_max_settings');
 
             if (false === $options) {
                 update_option('bulkboost_settings', $defaults);
@@ -172,10 +154,12 @@ if (function_exists('blkbst_fs')) {
             }
 
             if (false === $optionsMinMax) {
-                update_option('min_max_bulkboost_settings', $defaultsMinMax);
+                update_option('bulkboost_min_max_settings', $defaultsMinMax);
             } else {
-                $updated_options = wp_parse_args($options, $defaultsMinMax);
-                update_option('min_max_bulkboost_settings', $updated_options);
+                // Merge onto the saved Min/Max option — merging the design
+                // option here would overwrite the saved Min/Max colors.
+                $updated_options = wp_parse_args($optionsMinMax, $defaultsMinMax);
+                update_option('bulkboost_min_max_settings', $updated_options);
             }
         } else {
             deactivate_plugins(plugin_basename(__FILE__));
@@ -206,7 +190,7 @@ if (function_exists('blkbst_fs')) {
     {
         // Delete the plugin settings from the database
         delete_option('bulkboost_settings');
-        delete_option('min_max_bulkboost_settings');
+        delete_option('bulkboost_min_max_settings');
         delete_option('bulkboost_general_settings');
     }
 

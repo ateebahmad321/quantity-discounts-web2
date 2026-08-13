@@ -25,7 +25,7 @@ blkbst_admin_shell_open(array(
     <div class="bb-rowx">
         <div>
             <div class="name">🎨 Quantity Discount Design</div>
-            <div class="help">Customize colors, typography and badges for the offer widget.</div>
+            <div class="help">Customize colors and typography for the offer widget.</div>
         </div>
         <a class="bb-btn bb-btn-secondary" href="<?php echo esc_url(admin_url('admin.php?page=bulkboost-quantity-design')); ?>">Open</a>
     </div>

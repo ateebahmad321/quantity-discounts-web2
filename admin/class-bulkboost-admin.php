@@ -21,8 +21,14 @@ class BLKBST_BulkBoost_Admin
         $this->version = $version;
     }
 
-    public function enqueue_styles()
+    public function enqueue_styles($hook = '')
     {
+        // BulkBoost markup only exists on our own screens and in the product
+        // editor's panel, so the stylesheet has no business anywhere else.
+        if (!$this->is_plugin_page() && 'post.php' !== $hook && 'post-new.php' !== $hook) {
+            return;
+        }
+
         wp_enqueue_style(
             $this->plugin_name,
             plugin_dir_url(__FILE__) . 'css/bulkboost-admin.css',
@@ -34,10 +40,6 @@ class BLKBST_BulkBoost_Admin
 
     public function enqueue_scripts($hook = '')
     {
-        // Color picker is used by the Min/Max settings page.
-        wp_enqueue_style('wp-color-picker');
-        wp_enqueue_script('wp-color-picker');
-
         // The product meta-box script + its data are only needed on the
         // product editor (where bulkboost_data is localized).
         if ('post.php' !== $hook && 'post-new.php' !== $hook) {
@@ -46,7 +48,7 @@ class BLKBST_BulkBoost_Admin
 
         wp_enqueue_script(
             $this->plugin_name,
-            plugin_dir_url(__FILE__) . 'js/bulkboost-admin.min.js',
+            plugin_dir_url(__FILE__) . 'js/bulkboost-admin.js',
             array('jquery'),
             $this->version,
             false
@@ -55,14 +57,14 @@ class BLKBST_BulkBoost_Admin
             $currency_symbol = get_woocommerce_currency_symbol();
 
             $bulkboost_settings = get_option('bulkboost_settings', array());
-            $qualityDiscountsMinMaxSettings = get_option('min_max_bulkboost_settings', []);
+            $qualityDiscountsMinMaxSettings = get_option('bulkboost_min_max_settings', []);
 
             $formatted_price_placeholder = str_replace('0', '%s', wc_price(0));
 
             $bulkboost_settings['currencySymbol'] = $currency_symbol;
             $bulkboost_settings['formattedPricePlaceholder'] = $formatted_price_placeholder;
             $bulkboost_settings['min_max'] = $qualityDiscountsMinMaxSettings;
-            wp_localize_script($this->plugin_name, 'quantityDiscountsSettings', $bulkboost_settings);
+            wp_localize_script($this->plugin_name, 'bulkboostQuantitySettings', $bulkboost_settings);
         }
     }
 
@@ -104,7 +106,7 @@ class BLKBST_BulkBoost_Admin
      */
     public static function design_defaults()
     {
-        return array(
+        $defaults = array(
             'background_color_active' => '#16231d',
             'text_color_active'       => '#ffffff',
             'accent_color'            => '#10976a',
@@ -122,33 +124,108 @@ class BLKBST_BulkBoost_Admin
             'show_old_price'          => 'yes',
             'old_price_font_weight'   => 400,
             'old_price_font_size'     => 13,
-            // Badge styling (Pro). The three label types each get their own colors.
-            'label_hot_bg'            => '#e53935',
-            'label_hot_text'          => '#ffffff',
-            'label_popular_bg'        => '#7b3fd1',
-            'label_popular_text'      => '#ffffff',
-            'label_bestdeal_bg'       => '#16a34a',
-            'label_bestdeal_text'     => '#ffffff',
-            'save_badge_bg'           => '#10976a',
-            'save_badge_text'         => '#ffffff',
-            'shipping_badge_bg'       => '#1b1c18',
-            'shipping_badge_text'     => '#ffffff',
+        );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $defaults = array_merge($defaults, self::badge_design_defaults__premium_only());
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * Default colors for the promotional badges.
+     * This whole function will be auto removed from the Free version.
+     */
+    public static function badge_design_defaults__premium_only()
+    {
+        return array(
+            'label_hot_bg'        => '#e53935',
+            'label_hot_text'      => '#ffffff',
+            'label_popular_bg'    => '#7b3fd1',
+            'label_popular_text'  => '#ffffff',
+            'label_bestdeal_bg'   => '#16a34a',
+            'label_bestdeal_text' => '#ffffff',
+            'save_badge_bg'       => '#10976a',
+            'save_badge_text'     => '#ffffff',
+            'shipping_badge_bg'   => '#1b1c18',
+            'shipping_badge_text' => '#ffffff',
         );
     }
 
     /**
-     * Design-settings keys that are Pro-only (badge styling). Stripped from the
-     * payload on save when the site isn't premium.
+     * The design settings as they should be rendered: the saved values merged
+     * over the canonical defaults, so a missing or blank key never produces an
+     * empty CSS value. Shared by the dashboard, the product panel preview and
+     * the storefront so all three draw from one resolved set.
+     *
+     * @return array Option key => sanitized value.
      */
-    public static function premium_design_keys()
+    public static function design_settings()
     {
-        return array(
-            'label_hot_bg', 'label_hot_text',
-            'label_popular_bg', 'label_popular_text',
-            'label_bestdeal_bg', 'label_bestdeal_text',
-            'save_badge_bg', 'save_badge_text',
-            'shipping_badge_bg', 'shipping_badge_text',
-        );
+        $saved = get_option('bulkboost_settings', array());
+        if (!is_array($saved)) {
+            $saved = array();
+        }
+
+        $settings = array();
+        foreach (self::design_defaults() as $key => $default) {
+            $value = (isset($saved[$key]) && '' !== $saved[$key]) ? $saved[$key] : $default;
+
+            // Every color default is a hex literal. An unparsable stored value
+            // would break the CSS declaration it lands in, so fall back to the
+            // default rather than emit it.
+            if (is_string($default) && 0 === strpos($default, '#')) {
+                $value = sanitize_hex_color(is_string($value) ? $value : '');
+                if (!$value) {
+                    $value = $default;
+                }
+            }
+
+            $settings[$key] = $value;
+        }
+
+        return $settings;
+    }
+
+    /**
+     * Reads a hex color out of a settings array, falling back when the stored
+     * value is missing or not a valid hex color (an empty value would make the
+     * CSS declaration it lands in invalid).
+     *
+     * @param array  $settings Raw option array.
+     * @param string $key      Setting key to read.
+     * @param string $fallback Color to use when the stored value is unusable.
+     * @return string A valid hex color.
+     */
+    public static function hex_setting($settings, $key, $fallback)
+    {
+        $value = (is_array($settings) && isset($settings[$key]) && is_string($settings[$key]))
+            ? sanitize_hex_color($settings[$key])
+            : '';
+
+        return $value ? $value : $fallback;
+    }
+
+    /**
+     * Reads a font weight or size, falling back to the canonical default when
+     * the stored value is missing or 0 (which would render the text invisible).
+     *
+     * @param array  $settings Resolved design settings.
+     * @param string $key      Setting key to read.
+     * @return int
+     */
+    public static function font_setting($settings, $key)
+    {
+        $value = absint(isset($settings[$key]) ? $settings[$key] : 0);
+        if ($value) {
+            return $value;
+        }
+
+        $defaults = self::design_defaults();
+
+        return absint(isset($defaults[$key]) ? $defaults[$key] : 0);
     }
 
     /**
@@ -166,6 +243,21 @@ class BLKBST_BulkBoost_Admin
             array(),
             $this->version
         );
+
+        // Pro badge styling for the dashboard preview. Loaded before the core
+        // dashboard script so it can register its keys/hooks in time. The code
+        // lives in a separate file that is excluded from the Free build.
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            wp_enqueue_script(
+                'bulkboost-dashboard-badges',
+                plugin_dir_url(__FILE__) . 'js/bulkboost-dashboard-badges__premium_only.js',
+                array(),
+                $this->version,
+                true
+            );
+        }
+
         wp_enqueue_script(
             'bulkboost-dashboard',
             plugin_dir_url(__FILE__) . 'js/bulkboost-dashboard.js',
@@ -174,21 +266,13 @@ class BLKBST_BulkBoost_Admin
             true
         );
 
-        $is_premium = false;
-        // This "if" block will be auto removed from the Free version.
-        if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $is_premium = true;
-        }
-
         $currency = class_exists('WooCommerce') ? get_woocommerce_currency_symbol() : '$';
-        $saved = get_option('bulkboost_settings', array());
         wp_localize_script('bulkboost-dashboard', 'BulkBoostDash', array(
             'ajaxUrl'    => admin_url('admin-ajax.php'),
             'nonce'      => wp_create_nonce('bulkboost_save_design'),
             'currency'   => html_entity_decode($currency),
             'defaults'   => self::design_defaults(),
-            'settings'   => is_array($saved) ? $saved : array(),
-            'isPremium'  => $is_premium,
+            'settings'   => self::design_settings(),
         ));
     }
 
@@ -200,12 +284,12 @@ class BLKBST_BulkBoost_Admin
         $colors = array(
             'background_color_active', 'text_color_active', 'accent_color',
             'border_color_inactive',
-            'label_hot_bg', 'label_hot_text',
-            'label_popular_bg', 'label_popular_text',
-            'label_bestdeal_bg', 'label_bestdeal_text',
-            'save_badge_bg', 'save_badge_text',
-            'shipping_badge_bg', 'shipping_badge_text',
         );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $colors = array_merge($colors, array_keys(self::badge_design_defaults__premium_only()));
+        }
         $ints = array(
             'box_corner_radius', 'card_gap', 'label_font_weight', 'label_font_size',
             'description_font_weight', 'description_font_size', 'price_font_weight',
@@ -261,20 +345,9 @@ class BLKBST_BulkBoost_Admin
             ? map_deep(wp_unslash($_POST['settings']), 'sanitize_text_field')
             : array();
 
+        // Badge keys only exist in the Pro version's key whitelist, so the Free
+        // version never sees or stores them.
         $clean = $this->sanitize_design_settings($input);
-
-        $is_premium = false;
-        // This "if" block will be auto removed from the Free version.
-        if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $is_premium = true;
-        }
-
-        // Pro-only keys (badge styling) are dropped for non-premium sites.
-        if (!$is_premium) {
-            foreach (self::premium_design_keys() as $pro_key) {
-                unset($clean[$pro_key]);
-            }
-        }
 
         $existing = get_option('bulkboost_settings', array());
         $merged = array_merge(is_array($existing) ? $existing : array(), $clean);
@@ -591,6 +664,117 @@ class BLKBST_BulkBoost_Admin
         <?php
     }
 
+    /**
+     * Body of the Design Settings "Badge" tab. Shows the styling controls for
+     * licensed Pro users, and an upsell for everyone else — the same
+     * early-return + strip pattern used by the Analytics and Cart & Checkout
+     * pages, so the Free build keeps the upsell but none of the control code.
+     */
+    public function BLKBST_render_badge_settings()
+    {
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $this->BLKBST_render_badge_controls__premium_only();
+            return;
+        }
+
+        blkbst_admin_upsell(
+            'Badges are a Pro feature',
+            'Unlock label, savings and free-shipping badge styling with BulkBoost Pro.'
+        );
+    }
+
+    /**
+     * The Pro badge styling controls (color pickers for each badge type).
+     * This whole function is auto removed from the Free build.
+     */
+    public function BLKBST_render_badge_controls__premium_only()
+    {
+        ?>
+        <div class="bb-premium-gate">
+            <div class="bb-card">
+                <div class="bb-card-label">Label badge — HOT</div>
+                <div class="bb-rowx">
+                    <div><div class="name">Preview</div></div>
+                    <span class="bb-badge-chip" data-badge-chip="hot">HOT</span>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Background</div></div>
+                    <?php blkbst_color_row('labelHotBg', array('#e53935', '#e8643c', '#d4537e', '#1b1c18')); ?>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Text color</div></div>
+                    <?php blkbst_color_row('labelHotText', array('#ffffff', '#1b1c18')); ?>
+                </div>
+            </div>
+
+            <div class="bb-card">
+                <div class="bb-card-label">Label badge — Most popular</div>
+                <div class="bb-rowx">
+                    <div><div class="name">Preview</div></div>
+                    <span class="bb-badge-chip" data-badge-chip="popular">MOST POPULAR</span>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Background</div></div>
+                    <?php blkbst_color_row('labelPopularBg', array('#7b3fd1', '#4f5bd5', '#10976a', '#1b1c18')); ?>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Text color</div></div>
+                    <?php blkbst_color_row('labelPopularText', array('#ffffff', '#1b1c18')); ?>
+                </div>
+            </div>
+
+            <div class="bb-card">
+                <div class="bb-card-label">Label badge — Best deal</div>
+                <div class="bb-rowx">
+                    <div><div class="name">Preview</div></div>
+                    <span class="bb-badge-chip" data-badge-chip="bestdeal">BEST DEAL 🔥</span>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Background</div></div>
+                    <?php blkbst_color_row('labelBestdealBg', array('#16a34a', '#10976a', '#c2870e', '#1b1c18')); ?>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Text color</div></div>
+                    <?php blkbst_color_row('labelBestdealText', array('#ffffff', '#1b1c18')); ?>
+                </div>
+            </div>
+
+            <div class="bb-card">
+                <div class="bb-card-label">Savings badge</div>
+                <div class="bb-rowx">
+                    <div><div class="name">Preview</div><div class="help">Shows the percentage saved on a tier</div></div>
+                    <span class="bb-badge-chip" data-badge-chip="save">Save 20%</span>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Background</div></div>
+                    <?php blkbst_color_row('saveBadgeBg', array('#10976a', '#4f5bd5', '#e8643c', '#1b1c18')); ?>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Text color</div></div>
+                    <?php blkbst_color_row('saveBadgeText', array('#ffffff', '#1b1c18')); ?>
+                </div>
+            </div>
+
+            <div class="bb-card">
+                <div class="bb-card-label">Free shipping badge</div>
+                <div class="bb-rowx">
+                    <div><div class="name">Preview</div><div class="help">Banner shown under a tier</div></div>
+                    <span class="bb-badge-chip" data-badge-chip="shipping">🚚 Free shipping</span>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Background</div></div>
+                    <?php blkbst_color_row('shippingBadgeBg', array('#1b1c18', '#10976a', '#4f5bd5', '#e8643c')); ?>
+                </div>
+                <div class="bb-rowx">
+                    <div><div class="name">Text color</div></div>
+                    <?php blkbst_color_row('shippingBadgeText', array('#ffffff', '#1b1c18')); ?>
+                </div>
+            </div>
+        </div>
+        <?php
+    }
+
     public function BLKBST_bulkboost_product_data_tabs($tabs)
     {
         $tabs['bulkboost'] = [
@@ -602,8 +786,13 @@ class BLKBST_BulkBoost_Admin
         return $tabs;
     }
 
-    public function quantity_breaks_icon_change()
+    public function quantity_breaks_icon_change($hook = '')
     {
+        // The rule targets the product editor's data panel tab.
+        if ('post.php' !== $hook && 'post-new.php' !== $hook) {
+            return;
+        }
+
         wp_add_inline_style(
             $this->plugin_name,
             '#woocommerce-product-data ul.wc-tabs li.bulkboost_options a::before { content: "\f18e"; }'
@@ -612,13 +801,8 @@ class BLKBST_BulkBoost_Admin
 
     public function BLKBST_quantity_breaks_product_data_panels($post_id)
     {
-        $is_premium = false;
-        // This "if" block will be auto removed from the Free version.
-        if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $is_premium = true;
-        }
         ?>
-        <div id="bulkboost" class="panel woocommerce_options_panel hidden <?php echo $is_premium ? '' : 'bb-free'; ?>">
+        <div id="bulkboost" class="panel woocommerce_options_panel hidden">
             <?php wp_nonce_field('bulkboost_save_meta', 'bulkboost_meta_nonce'); ?>
 
            
@@ -677,13 +861,6 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
-                <?php if (!$is_premium) : ?>
-                <div class="bb-pd-pro-note">
-                    <strong>★ Badges are a Pro feature.</strong>
-                    Label, savings &amp; free-shipping badges are available in BulkBoost Pro.
-                    <a href="<?php echo esc_url(bulkboost_upgrade_url()); ?>">Upgrade</a>
-                </div>
-                <?php endif; ?>
                 <div id="bulkboost_container"></div>
                 <div style="padding:20px">
                     <button type="button" id="add_quantity_discount" class="button">Add Quantity Discount</button>
@@ -741,13 +918,12 @@ class BLKBST_BulkBoost_Admin
             '_bulkboost_qd_min_max_enabled',
             '_bulkboost_qd_min_value',
             '_bulkboost_qd_max_value',
-            '_bulkboost_qd_badge_text',
-            // --- Badge fields (per quantity-discount block) ---
-            '_bulkboost_qd_badge_label',          // none|hot|popular|bestdeal
-            '_bulkboost_qd_badge_free_shipping',   // yes|no
-            '_bulkboost_qd_badge_save_enabled',    // yes|no
-            '_bulkboost_qd_badge_save_override',   // manual % text override, blank = auto-calc
         ];
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $fields = array_merge($fields, self::badge_meta_fields__premium_only());
+        }
         // Tier fields are only required when the quantity-breaks feature is
         // actually enabled on this product. Otherwise an empty/leftover block
         // must not trigger a validation error.
@@ -793,21 +969,52 @@ class BLKBST_BulkBoost_Admin
                 }
 
                 update_post_meta($post_id, $field, $value);
-            } elseif (in_array($field, [
-                '_bulkboost_qd_badge_label',
-                '_bulkboost_qd_badge_free_shipping',
-                '_bulkboost_qd_badge_save_enabled',
-                '_bulkboost_qd_badge_save_override',
-            ])) {
-                // Checkboxes/selects that weren't submitted for some blocks still need
-                // to be normalised to a value per block so indexes stay aligned with
-                // quantity/price arrays. Default everything to "off"/"none"/empty.
-                $default = ($field === '_bulkboost_qd_badge_label') ? 'none' : (
-                    ($field === '_bulkboost_qd_badge_save_override') ? '' : 'no'
-                );
-                update_post_meta($post_id, $field, array_fill(0, $block_count, $default));
+                continue;
+            }
+
+            // This "if" block will be auto removed from the Free version.
+            if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                $this->normalize_badge_meta__premium_only($post_id, $field, $block_count);
             }
         }
+    }
+
+    /**
+     * Per-block badge meta fields.
+     * This whole function will be auto removed from the Free version.
+     */
+    public static function badge_meta_fields__premium_only()
+    {
+        return array(
+            '_bulkboost_qd_badge_text',
+            '_bulkboost_qd_badge_label',          // none|hot|popular|bestdeal
+            '_bulkboost_qd_badge_free_shipping',  // yes|no
+            '_bulkboost_qd_badge_save_enabled',   // yes|no
+            '_bulkboost_qd_badge_save_override',  // manual % text override, blank = auto-calc
+        );
+    }
+
+    /**
+     * Checkboxes/selects that weren't submitted for some blocks still need to be
+     * normalised to a value per block so indexes stay aligned with the
+     * quantity/price arrays. Defaults everything to "off"/"none"/empty.
+     * This whole function will be auto removed from the Free version.
+     */
+    private function normalize_badge_meta__premium_only($post_id, $field, $block_count)
+    {
+        if (!in_array($field, array(
+            '_bulkboost_qd_badge_label',
+            '_bulkboost_qd_badge_free_shipping',
+            '_bulkboost_qd_badge_save_enabled',
+            '_bulkboost_qd_badge_save_override',
+        ), true)) {
+            return;
+        }
+
+        $default = ($field === '_bulkboost_qd_badge_label') ? 'none' : (
+            ($field === '_bulkboost_qd_badge_save_override') ? '' : 'no'
+        );
+        update_post_meta($post_id, $field, array_fill(0, $block_count, $default));
     }
 
 
@@ -863,12 +1070,16 @@ class BLKBST_BulkBoost_Admin
                 'min_max_enabled' => get_post_meta($post_id, '_bulkboost_qd_min_max_enabled', true),
                 'min_value' => get_post_meta($post_id, '_bulkboost_qd_min_value', true),
                 'max_value' => get_post_meta($post_id, '_bulkboost_qd_max_value', true),
-                // --- Badge data passed to admin JS for the live preview ---
-                'badge_labels' => get_post_meta($post_id, '_bulkboost_qd_badge_label', true),
-                'badge_free_shipping' => get_post_meta($post_id, '_bulkboost_qd_badge_free_shipping', true),
-                'badge_save_enabled' => get_post_meta($post_id, '_bulkboost_qd_badge_save_enabled', true),
-                'badge_save_override' => get_post_meta($post_id, '_bulkboost_qd_badge_save_override', true),
             );
+
+            // Badge data for the admin live preview.
+            // This "if" block will be auto removed from the Free version.
+            if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                $bulkboost['badge_labels'] = get_post_meta($post_id, '_bulkboost_qd_badge_label', true);
+                $bulkboost['badge_free_shipping'] = get_post_meta($post_id, '_bulkboost_qd_badge_free_shipping', true);
+                $bulkboost['badge_save_enabled'] = get_post_meta($post_id, '_bulkboost_qd_badge_save_enabled', true);
+                $bulkboost['badge_save_override'] = get_post_meta($post_id, '_bulkboost_qd_badge_save_override', true);
+            }
 
             wp_localize_script($this->plugin_name, 'bulkboost_data', $bulkboost);
         }
@@ -881,13 +1092,32 @@ class BLKBST_BulkBoost_Admin
             false
         );
         wp_localize_script($this->plugin_name, 'bulkboost_data_extra', $bulkboost_extra);
+
+        // Per-tier badge fields are a Pro feature. The code lives in a separate
+        // file (excluded from the Free build) and augments the core panel via
+        // the window.bulkboostAdminBlockExtras hook.
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            wp_enqueue_script(
+                'bulkboost-admin-badges',
+                plugin_dir_url(__FILE__) . 'js/bulkboost-admin-badges__premium_only.js',
+                array($this->plugin_name),
+                $this->version,
+                false
+            );
+        }
     }
 
     public function BLKBST_enqueue_min_max_scripts($hook)
     {
-        if ('woocommerce_page_bulkboost-quantity-min-max' !== $hook) {
+        // The page's hook suffix is "{menu-title}_page_{slug}", and the menu
+        // title determines the prefix (here "bulkboost_page_..."). Match on the
+        // page slug so this keeps working regardless of the parent menu.
+        if (false === strpos((string) $hook, 'bulkboost-quantity-min-max')) {
             return;
         }
+        // The color picker is used by this page only.
+        wp_enqueue_style('wp-color-picker');
         wp_enqueue_script('wp-color-picker');
         $js = <<<'JS'
 jQuery(document).ready(function ($) {
@@ -951,11 +1181,11 @@ JS;
         );
 
         register_setting(
-            'min_max_bulkboost_settings',
-            'min_max_bulkboost_settings',
+            'bulkboost_min_max_settings',
+            'bulkboost_min_max_settings',
             array(
                 'type'              => 'array',
-                'sanitize_callback' => array($this, 'min_max_bulkboost_settings_validate'),
+                'sanitize_callback' => array($this, 'bulkboost_min_max_settings_validate'),
             )
         );
 
@@ -1004,12 +1234,12 @@ JS;
             'radio_bg_color_active', 'radio_bg_color_inactive', 'radio_bg_color_hover',
             'radio_border_color_active', 'radio_border_color_inactive', 'radio_border_color_hover',
             'accent_color',
-            'label_hot_bg', 'label_hot_text',
-            'label_popular_bg', 'label_popular_text',
-            'label_bestdeal_bg', 'label_bestdeal_text',
-            'save_badge_bg', 'save_badge_text',
-            'shipping_badge_bg', 'shipping_badge_text',
         );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $color_keys = array_merge($color_keys, array_keys(self::badge_design_defaults__premium_only()));
+        }
         $int_keys = array(
             'box_corner_radius', 'card_gap', 'radio_button_size',
             'label_font_weight', 'label_font_size',
@@ -1052,10 +1282,10 @@ JS;
     }
 
     /**
-     * Strict, whitelist-based sanitizer for the `min_max_bulkboost_settings`
+     * Strict, whitelist-based sanitizer for the `bulkboost_min_max_settings`
      * option: hex colors for every color key, integer for the button size.
      */
-    function min_max_bulkboost_settings_validate($input)
+    function bulkboost_min_max_settings_validate($input)
     {
         if (!is_array($input)) {
             return array();
@@ -1093,32 +1323,37 @@ JS;
         }
 
         $bulkboost_settings    = get_option('bulkboost_settings', array());
-        $minMaxQuantitySettings = get_option('min_max_bulkboost_settings', array());
+        $minMaxQuantitySettings = get_option('bulkboost_min_max_settings', array());
 
-        $border_style             = esc_attr($bulkboost_settings['border_style'] ?? '');
-        $box_corner_radius        = esc_attr($bulkboost_settings['box_corner_radius'] ?? '0');
-        $border_color_inactive    = esc_attr($bulkboost_settings['border_color_inactive'] ?? '');
-        $background_color_inactive = esc_attr($bulkboost_settings['background_color_inactive'] ?? '');
-        $text_color_inactive      = esc_attr($bulkboost_settings['text_color_inactive'] ?? '');
-        $border_color_active      = esc_attr($bulkboost_settings['border_color_active'] ?? '');
-        $background_color_active  = esc_attr($bulkboost_settings['background_color_active'] ?? '');
-        $text_color_active        = esc_attr($bulkboost_settings['text_color_active'] ?? '');
-        $border_color_hover       = esc_attr($bulkboost_settings['border_color_hover'] ?? '');
-        $background_color_hover   = esc_attr($bulkboost_settings['background_color_hover'] ?? '');
-        $text_color_hover         = esc_attr($bulkboost_settings['text_color_hover'] ?? '');
-        $radio_bg_color_active    = esc_attr($bulkboost_settings['radio_bg_color_active'] ?? '');
-        $radio_border_color_inactive = esc_attr($bulkboost_settings['radio_border_color_inactive'] ?? '');
-        $radio_border_color_hover = esc_attr($bulkboost_settings['radio_border_color_hover'] ?? '');
-        $radio_button_size        = esc_attr($bulkboost_settings['radio_button_size'] ?? '20');
-        $labelFontWeight          = esc_attr($bulkboost_settings['label_font_weight'] ?? '');
-        $labelFontSize            = esc_attr($bulkboost_settings['label_font_size'] ?? '');
-        $descriptionFontWeight    = esc_attr($bulkboost_settings['description_font_weight'] ?? '');
-        $descriptionFontSize      = esc_attr($bulkboost_settings['description_font_size'] ?? '');
-        $priceFontWeight          = esc_attr($bulkboost_settings['price_font_weight'] ?? '');
-        $priceFontSize            = esc_attr($bulkboost_settings['price_font_size'] ?? '');
-        $oldPriceFontWeight       = esc_attr($bulkboost_settings['old_price_font_weight'] ?? '');
-        $oldPriceFontSize         = esc_attr($bulkboost_settings['old_price_font_size'] ?? '');
-        $showOldPrice             = esc_attr($bulkboost_settings['show_old_price'] ?? 'yes');
+        // Same resolved design settings the storefront renders with, so this
+        // preview and the product page can't drift apart.
+        $design = self::design_settings();
+
+        $border_style             = in_array($bulkboost_settings['border_style'] ?? '', array('solid', 'dashed', 'dotted', 'double', 'none'), true)
+            ? $bulkboost_settings['border_style']
+            : 'solid';
+        $box_corner_radius        = absint($design['box_corner_radius']);
+        $accent                   = $design['accent_color'];
+        $background_color_active  = $design['background_color_active'];
+        $text_color_active        = $design['text_color_active'];
+        $border_color_inactive    = $design['border_color_inactive'];
+        $background_color_inactive = self::hex_setting($bulkboost_settings, 'background_color_inactive', '#ffffff');
+        $text_color_inactive      = self::hex_setting($bulkboost_settings, 'text_color_inactive', '#1b1c18');
+        $border_color_hover       = self::hex_setting($bulkboost_settings, 'border_color_hover', $accent);
+        $background_color_hover   = self::hex_setting($bulkboost_settings, 'background_color_hover', $background_color_inactive);
+        $text_color_hover         = self::hex_setting($bulkboost_settings, 'text_color_hover', $text_color_inactive);
+        $radio_border_color_inactive = self::hex_setting($bulkboost_settings, 'radio_border_color_inactive', '#cfd0c8');
+        $radio_border_color_hover = self::hex_setting($bulkboost_settings, 'radio_border_color_hover', $accent);
+        $radio_button_size        = absint($bulkboost_settings['radio_button_size'] ?? 0) ?: 20;
+        $labelFontWeight          = self::font_setting($design, 'label_font_weight');
+        $labelFontSize            = self::font_setting($design, 'label_font_size');
+        $descriptionFontWeight    = self::font_setting($design, 'description_font_weight');
+        $descriptionFontSize      = self::font_setting($design, 'description_font_size');
+        $priceFontWeight          = self::font_setting($design, 'price_font_weight');
+        $priceFontSize            = self::font_setting($design, 'price_font_size');
+        $oldPriceFontWeight       = self::font_setting($design, 'old_price_font_weight');
+        $oldPriceFontSize         = self::font_setting($design, 'old_price_font_size');
+        $showOldPrice             = ($design['show_old_price'] === 'no') ? 'no' : 'yes';
 
         $minMaxBgColorActive      = esc_attr($minMaxQuantitySettings['min_max_background_color_active'] ?? '');
         $minMaxBgColorInactive    = esc_attr($minMaxQuantitySettings['min_max_background_color_inactive'] ?? '');
@@ -1131,7 +1366,7 @@ JS;
         $minMaxBorderColorHover   = esc_attr($minMaxQuantitySettings['min_max_border_color_hover'] ?? '');
         $minMaxSize               = esc_attr($minMaxQuantitySettings['min_max_size'] ?? '14');
         $minMaxSizeHalf           = (float) ($minMaxQuantitySettings['min_max_size'] ?? 14) / 2;
-        $button_size              = (int) ($bulkboost_settings['radio_button_size'] ?? 20) - 5;
+        $button_size              = $radio_button_size - 5;
 
         $css = "
         .minmax-buttons{padding:{$minMaxSizeHalf}px {$minMaxSize}px;margin:2px;display:inline-block;background-color:{$minMaxBgColorInactive};color:{$minMaxTextColorInactive};border:1px solid {$minMaxBorderColorInactive};font-size:16px;cursor:pointer;}
@@ -1139,15 +1374,15 @@ JS;
         .minmax-buttons:hover{background-color:{$minMaxBgColorHover};color:{$minMaxTextColorHover};border-color:{$minMaxBorderColorHover};}
         .bulkboost-swatch{border-style:{$border_style};border-radius:{$box_corner_radius}px;border-color:{$border_color_inactive};background-color:{$background_color_inactive};color:{$text_color_inactive};transition:all 0.3s ease;}
         .bulkboost-radio span{display:inline-block;height:{$radio_button_size}px;width:{$radio_button_size}px;border:1px solid {$radio_border_color_inactive};border-radius:50%;position:relative;cursor:pointer;vertical-align:middle;}
-        .bulkboost-radio input[type='radio']:checked + span{border-color:{$radio_bg_color_active};}
-        .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;background:{$radio_bg_color_active};}
+        .bulkboost-radio input[type='radio']:checked + span{border-color:{$accent};}
+        .bulkboost-radio input[type='radio']:checked + span::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:{$button_size}px;width:{$button_size}px;border-radius:50%;background:{$accent};}
         .bulkboost-radio span:hover{border-color:{$radio_border_color_hover};}
-        .bulkboost-swatch.active .bulkboost-radio span{border-color:green;}
+        .bulkboost-swatch.active .bulkboost-radio span{border-color:{$accent};background-color:transparent;}
         .bulkboost-heading{font-size:{$labelFontSize}px;font-weight:{$labelFontWeight};}
         .bulkboost-subheading{font-size:{$descriptionFontSize}px;font-weight:{$descriptionFontWeight};}
         .bulkboost-price{font-size:{$priceFontSize}px;font-weight:{$priceFontWeight};}
         .bulkboost-right .old-price{font-size:{$oldPriceFontSize}px;font-weight:{$oldPriceFontWeight};" . ($showOldPrice === 'no' ? 'display:none;' : '') . "}
-        .bulkboost-swatch.active{border-color:{$border_color_active};background-color:{$background_color_active};color:{$text_color_active};}
+        .bulkboost-swatch.active{border-color:{$accent};background-color:{$background_color_active};color:{$text_color_active};}
         .bulkboost-swatch:hover{border-color:{$border_color_hover};background-color:{$background_color_hover};color:{$text_color_hover};}
         ";
 

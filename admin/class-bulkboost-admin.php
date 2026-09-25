@@ -777,10 +777,19 @@ class BLKBST_BulkBoost_Admin
 
     public function BLKBST_bulkboost_product_data_tabs($tabs)
     {
+        // Variable products are supported by Pro only, so the Free version
+        // keeps hiding the panel for them.
+        $classes = ['hide_if_variable', 'hide_if_external', 'hide_if_grouped'];
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $classes = ['hide_if_external', 'hide_if_grouped'];
+        }
+
         $tabs['bulkboost'] = [
             'label' => __('BulkBoost', 'bulkboost'),
             'target' => 'bulkboost',
-            'class' => ['hide_if_variable', 'hide_if_external', 'hide_if_grouped'],
+            'class' => $classes,
             'priority' => 70
         ];
         return $tabs;
@@ -861,6 +870,20 @@ class BLKBST_BulkBoost_Admin
                 </div>
             </div>
             <div id="quantity_pricing" class="panel">
+                <?php
+                // This "if" block will be auto removed from the Free version.
+                if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                    ?>
+                    <div class="show_if_variable" style="padding:12px 20px 0;">
+                        <div class="inline notice woocommerce-message">
+                            <p style="margin:0;">
+                                <?php esc_html_e('On a variable product each tier asks the customer to choose the options for every item in the bundle — a "Buy 3" tier shows three sets of dropdowns. The tier price below is the total for the whole bundle, whichever variations are picked.', 'bulkboost'); ?>
+                            </p>
+                        </div>
+                    </div>
+                    <?php
+                }
+                ?>
                 <div id="bulkboost_container"></div>
                 <div style="padding:20px">
                     <button type="button" id="add_quantity_discount" class="button">Add Quantity Discount</button>

@@ -17,6 +17,20 @@ blkbst_admin_shell_open(array(
     'title'  => 'Welcome to BulkBoost',
     'wide'   => true,
 ));
+
+$blkbst_has_pro = false;
+
+// This "if" block will be auto removed from the Free version.
+if (blkbst_fs()->can_use_premium_code__premium_only()) {
+    $blkbst_has_pro = true;
+}
+
+if (!$blkbst_has_pro) {
+    blkbst_admin_upsell(
+        'Variable products are a Pro feature',
+        'Run quantity breaks on variable products too. Each tier lets the customer choose the options for every item in the bundle — pick a size and color per shirt in a "Buy 3" offer — at one bundle price.'
+    );
+}
 ?>
 
 

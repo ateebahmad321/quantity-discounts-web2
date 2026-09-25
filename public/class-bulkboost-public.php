@@ -41,10 +41,92 @@ class BLKBST_BulkBoost_Public
             $this->version,
             false
         );
+
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $this->enqueue_bundle_script__premium_only();
+        }
+    }
+
+    /**
+     * Loads the per-unit bundle script, and with it a compact map of this
+     * product's variations, on variable products that use quantity breaks.
+     *
+     * This whole function will be auto removed from the Free version.
+     */
+    private function enqueue_bundle_script__premium_only()
+    {
+        if (!is_product()) {
+            return;
+        }
+
+        $product_id = get_the_ID();
+        if (!$this->is_variable_bundle_product__premium_only($product_id)) {
+            return;
+        }
+
+        $product    = wc_get_product($product_id);
+        $variations = array();
+
+        foreach ($product->get_children() as $variation_id) {
+            $variation = wc_get_product($variation_id);
+            if (!$variation || !$variation->variation_is_visible()) {
+                continue;
+            }
+
+            $variations[] = array(
+                'id'         => (int) $variation_id,
+                'attributes' => $variation->get_variation_attributes(),
+                'in_stock'   => ($variation->is_purchasable() && $variation->is_in_stock()),
+            );
+        }
+
+        wp_enqueue_script(
+            'bulkboost-bundle',
+            plugin_dir_url(__FILE__) . 'js/bulkboost-public-variable__premium_only.js',
+            array('jquery', $this->plugin_name),
+            $this->version,
+            true
+        );
+
+        wp_localize_script('bulkboost-bundle', 'BulkBoostBundle', array(
+            'variations' => $variations,
+            'i18n'       => array(
+                'incomplete'  => __('Please choose the options for every item in this bundle.', 'bulkboost'),
+                'unavailable' => __('That combination is unavailable. Please pick different options.', 'bulkboost'),
+            ),
+        ));
     }
 
     function BLKBST_add_custom_quantity_block()
     {
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            if ($this->is_variable_bundle_product__premium_only(get_the_ID())) {
+                // Rendered by BLKBST_add_bundle_block__premium_only() instead:
+                // this hook fires inside .single_variation_wrap, which core
+                // keeps hidden until a variation is chosen — and on a variable
+                // product the block is what does the choosing.
+                return;
+            }
+        }
+
+        $this->display_bulkboost();
+    }
+
+    /**
+     * Renders the offer block for variable products, directly after core's
+     * attribute table: still inside the add-to-cart form, but above the
+     * variation wrapper that core shows and hides.
+     *
+     * This whole function will be auto removed from the Free version.
+     */
+    public function BLKBST_add_bundle_block__premium_only()
+    {
+        if (!$this->is_variable_bundle_product__premium_only(get_the_ID())) {
+            return;
+        }
+
         $this->display_bulkboost();
     }
 
@@ -110,6 +192,21 @@ class BLKBST_BulkBoost_Public
             $save_badge_text     = sanitize_hex_color($bulkboost_settings['save_badge_text'] ?? '') ?: '#ffffff';
             $shipping_badge_bg   = sanitize_hex_color($bulkboost_settings['shipping_badge_bg'] ?? '') ?: '#1b1c18';
             $shipping_badge_text = sanitize_hex_color($bulkboost_settings['shipping_badge_text'] ?? '') ?: '#ffffff';
+
+            // Per-unit bundle pickers. The tier's pickers are only shown while
+            // that tier is selected, and core's own attribute table is hidden
+            // because every item in the bundle has its own.
+            $blkbst_bundle_css =
+                '.custom-quantity-block.bb-variable [data-bulkboost-units]{display:none;}'
+                . '.custom-quantity-block.bb-variable [data-bulkboost-units].is-active{display:block;margin-top:8px;}'
+                . '.bulkboost-unit{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;}'
+                . '.bulkboost-unit-label{font-size:12px;opacity:.75;min-width:52px;}'
+                . '.bulkboost-unit-field{display:inline-flex;align-items:center;gap:4px;}'
+                . '.bulkboost-unit-field label{font-size:12px;opacity:.75;}'
+                . '.bulkboost-unit-select{max-width:160px;}'
+                . '.bulkboost-unit.bb-unit-invalid .bulkboost-unit-select{border-color:#e53935;}'
+                . '.bulkboost-bundle-notice{margin-top:10px;padding:8px 12px;border-radius:6px;background:#fdecea;color:#b71c1c;font-size:13px;}'
+                . 'form.variations_form.bb-bundle-active table.variations{display:none;}';
 
             $blkbst_badge_css =
                 '.bulkboost-label-tab.bulkboost-tab-hot{background:' . $label_hot_bg . ';color:' . $label_hot_text . ';}'
@@ -179,7 +276,7 @@ class BLKBST_BulkBoost_Public
 
         // This "if" block will be auto removed from the Free version.
         if (blkbst_fs()->can_use_premium_code__premium_only()) {
-            $css .= $blkbst_badge_css;
+            $css .= $blkbst_badge_css . $blkbst_bundle_css;
         }
 
         wp_add_inline_style($this->plugin_name, $css);
@@ -321,7 +418,18 @@ class BLKBST_BulkBoost_Public
                 return;
             }
 
-            echo '<div class="custom-quantity-block bb-selector-' . esc_attr($selector_style) . '">';
+            $block_class = 'custom-quantity-block bb-selector-' . $selector_style;
+
+            // This "if" block will be auto removed from the Free version.
+            if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                if ($this->is_variable_bundle_product__premium_only($post_id)) {
+                    // Switches the block into per-unit mode: every tier renders
+                    // one attribute picker per item in the bundle.
+                    $block_class .= ' bb-variable';
+                }
+            }
+
+            echo '<div class="' . esc_attr($block_class) . '">';
             $count = count($data['_bulkboost_qd_quantity']); // Get the number of sets
             $quantity_one_price = isset($data['_bulkboost_qd_price'][0]) ? $data['_bulkboost_qd_price'][0] : 0;
             for ($i = 0; $i < $count; $i++) {
@@ -373,6 +481,11 @@ class BLKBST_BulkBoost_Public
                 echo '<div class="bulkboost-middle">';
                 echo '<div class="bulkboost-heading">' . esc_html($data['_bulkboost_qd_label'][$i]) . '</div>';
                 echo '<div class="bulkboost-subheading">' . esc_html($data['_bulkboost_qd_description'][$i]) . '</div>';
+
+                // This "if" block will be auto removed from the Free version.
+                if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                    $this->render_tier_units__premium_only($post_id, $i, (int) $quantity);
+                }
                 echo '</div>';
                 echo '</div>';
                 echo '<div class="third-block">';
@@ -402,6 +515,15 @@ class BLKBST_BulkBoost_Public
                 }
                 echo '</div>'; // .bulkboost-tier-wrap
             }
+
+            // This "if" block will be auto removed from the Free version.
+            if (blkbst_fs()->can_use_premium_code__premium_only()) {
+                if ($this->is_variable_bundle_product__premium_only($post_id)) {
+                    // Tells the server which tier's pickers to read on submit.
+                    echo '<input type="hidden" name="bulkboost_tier" data-bulkboost-tier-input value="0">';
+                }
+            }
+
             echo '</div>';
         } elseif ($minMaxEnabled === 'enable') {
             $minValue = get_post_meta($post_id, '_bulkboost_qd_min_value')[0];
@@ -414,6 +536,138 @@ class BLKBST_BulkBoost_Public
             }
             echo '</div>';
         }
+    }
+
+    /**
+     * Whether this product should render the per-unit bundle pickers: a
+     * variable product with quantity breaks enabled and at least one tier.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param int $product_id Parent product ID.
+     * @return bool
+     */
+    private function is_variable_bundle_product__premium_only($product_id)
+    {
+        if (get_post_meta($product_id, '_bulkboost_qd_quantity_enabled', true) !== 'enable') {
+            return false;
+        }
+
+        $product = wc_get_product($product_id);
+        if (!$product || !$product->is_type('variable')) {
+            return false;
+        }
+
+        $quantities = get_post_meta($product_id, '_bulkboost_qd_quantity', true);
+
+        return (is_array($quantities) && !empty($quantities));
+    }
+
+    /**
+     * Renders one attribute picker per item in a tier, so a customer buying a
+     * bundle of three can choose a different variation for each one.
+     *
+     * Field names are namespaced per tier and per unit, which keeps them clear
+     * of WooCommerce's own `attribute_*` inputs — the first unit is mirrored
+     * into those by the front-end script so core resolves the variation, shows
+     * its price and enables the add-to-cart button exactly as it always does.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param int $product_id Parent product ID.
+     * @param int $tier_index Zero-based tier index.
+     * @param int $quantity   Number of items in this tier.
+     */
+    private function render_tier_units__premium_only($product_id, $tier_index, $quantity)
+    {
+        if ($quantity < 1 || !$this->is_variable_bundle_product__premium_only($product_id)) {
+            return;
+        }
+
+        $product    = wc_get_product($product_id);
+        $attributes = $product->get_variation_attributes();
+        if (empty($attributes)) {
+            return;
+        }
+
+        echo '<div class="bulkboost-units" data-bulkboost-units data-tier="' . esc_attr($tier_index) . '">';
+
+        for ($unit = 1; $unit <= $quantity; $unit++) {
+            echo '<div class="bulkboost-unit" data-unit="' . esc_attr($unit) . '">';
+
+            if ($quantity > 1) {
+                printf(
+                    '<span class="bulkboost-unit-label">%s</span>',
+                    /* translators: %d: position of this item within the bundle. */
+                    esc_html(sprintf(__('Item %d', 'bulkboost'), $unit))
+                );
+            }
+
+            foreach ($attributes as $attribute_name => $options) {
+                // Core names its own inputs attribute_{sanitized}, and stores
+                // variation attributes under the same key — custom (non
+                // taxonomy) attributes only match once sanitized.
+                $attribute_key = sanitize_title($attribute_name);
+                $field_id      = sprintf(
+                    'bulkboost-%d-%d-%s',
+                    (int) $tier_index,
+                    (int) $unit,
+                    sanitize_html_class($attribute_key)
+                );
+
+                echo '<span class="bulkboost-unit-field">';
+                printf(
+                    '<label for="%1$s">%2$s</label>',
+                    esc_attr($field_id),
+                    esc_html(wc_attribute_label($attribute_name, $product))
+                );
+                printf(
+                    '<select id="%1$s" class="bulkboost-unit-select" name="bulkboost_units[%2$d][%3$d][%4$s]" data-attribute_name="attribute_%4$s">',
+                    esc_attr($field_id),
+                    (int) $tier_index,
+                    (int) $unit,
+                    esc_attr($attribute_key)
+                );
+                printf(
+                    '<option value="">%s</option>',
+                    esc_html__('Choose an option', 'bulkboost')
+                );
+                foreach ($options as $option) {
+                    printf(
+                        '<option value="%s">%s</option>',
+                        esc_attr($option),
+                        esc_html($this->attribute_option_label__premium_only($attribute_name, $option))
+                    );
+                }
+                echo '</select>';
+                echo '</span>';
+            }
+
+            echo '</div>';
+        }
+
+        echo '</div>';
+    }
+
+    /**
+     * Human-readable label for one attribute option. Taxonomy attributes store
+     * a term slug; custom product attributes store the value itself.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param string $attribute_name Attribute name (taxonomy or custom).
+     * @param string $option         Stored option value.
+     * @return string
+     */
+    private function attribute_option_label__premium_only($attribute_name, $option)
+    {
+        if (!taxonomy_exists($attribute_name)) {
+            return $option;
+        }
+
+        $term = get_term_by('slug', $option, $attribute_name);
+
+        return ($term && !is_wp_error($term)) ? $term->name : $option;
     }
 
     function BLKBST_add_custom_product_data_to_cart($cart_item_data, $product_id, $variation_id)
@@ -434,9 +688,26 @@ class BLKBST_BulkBoost_Public
             return;
         }
 
+        // This "if" block will be auto removed from the Free version.
+        if (blkbst_fs()->can_use_premium_code__premium_only()) {
+            $this->price_bundle_items__premium_only($cart);
+        }
+
         foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
             $product_id = $cart_item['product_id'];
             $quantity_in_cart = $cart_item['quantity'];
+
+            // Bundle items are priced as a group above.
+            if (!empty($cart_item['bulkboost_bundle'])) {
+                continue;
+            }
+
+            // Only products that actually use BulkBoost are re-priced here;
+            // everything else keeps the price WooCommerce (or another plugin)
+            // resolved for it.
+            if (!$this->is_bulkboost_product($product_id)) {
+                continue;
+            }
 
             // Get custom pricing rules from product metadata
             $custom_quantities = get_post_meta($product_id, '_bulkboost_qd_quantity', true);
@@ -471,6 +742,380 @@ class BLKBST_BulkBoost_Public
                 }
             }
         }
+    }
+
+    /**
+     * Reads the per-unit pickers posted with an add-to-cart request and
+     * resolves each one to a real variation of this product.
+     *
+     * Nothing posted by the browser is trusted: the variation is looked up from
+     * the submitted attributes against the product's own variations, so a
+     * tampered request can only ever resolve to a variation that genuinely
+     * belongs to this product (or to nothing at all).
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param int $product_id Parent product ID.
+     * @return array {
+     *     @type int   $tier         Zero-based tier index.
+     *     @type int   $tier_qty     Items the tier is meant to contain.
+     *     @type float $tier_total   Price of the whole tier.
+     *     @type array $units        List of ['variation_id' => int, 'attributes' => array].
+     * } Empty array when the request carries no bundle.
+     */
+    private function posted_bundle_units__premium_only($product_id)
+    {
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Runs on WooCommerce's own add-to-cart request, which has no nonce of its own. Every value is sanitized here and validated against the product's own variations.
+        if (!isset($_POST['bulkboost_tier']) || !isset($_POST['bulkboost_units']) || !is_array($_POST['bulkboost_units'])) {
+            return array();
+        }
+
+        $tier      = absint(wp_unslash($_POST['bulkboost_tier']));
+        $raw_units = map_deep(wp_unslash($_POST['bulkboost_units']), 'sanitize_text_field');
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
+
+        if (!isset($raw_units[$tier]) || !is_array($raw_units[$tier])) {
+            return array();
+        }
+
+        if (!$this->is_variable_bundle_product__premium_only($product_id)) {
+            return array();
+        }
+
+        $quantities = get_post_meta($product_id, '_bulkboost_qd_quantity', true);
+        $prices     = get_post_meta($product_id, '_bulkboost_qd_price', true);
+        if (!isset($quantities[$tier]) || !isset($prices[$tier])) {
+            return array();
+        }
+
+        $tier_qty = absint($quantities[$tier]);
+        if ($tier_qty < 1) {
+            return array();
+        }
+
+        $product    = wc_get_product($product_id);
+        $data_store = WC_Data_Store::load('product');
+        $units      = array();
+
+        for ($unit = 1; $unit <= $tier_qty; $unit++) {
+            if (!isset($raw_units[$tier][$unit]) || !is_array($raw_units[$tier][$unit])) {
+                return array();
+            }
+
+            $attributes = array();
+            foreach ($raw_units[$tier][$unit] as $attribute_name => $value) {
+                if ('' === $value) {
+                    return array();
+                }
+                $attributes['attribute_' . sanitize_title($attribute_name)] = $value;
+            }
+
+            $variation_id = $data_store->find_matching_product_variation($product, $attributes);
+            if (!$variation_id) {
+                return array();
+            }
+
+            $units[] = array(
+                'variation_id' => (int) $variation_id,
+                'attributes'   => $attributes,
+            );
+        }
+
+        return array(
+            'tier'       => $tier,
+            'tier_qty'   => $tier_qty,
+            'tier_total' => (float) $prices[$tier],
+            'units'      => $units,
+        );
+    }
+
+    /**
+     * Blocks an add-to-cart whose bundle is incomplete, unresolvable, or has an
+     * item that cannot actually be bought.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param bool $passed     Validation result so far.
+     * @param int  $product_id Parent product ID.
+     * @return bool
+     */
+    public function BLKBST_validate_bundle__premium_only($passed, $product_id)
+    {
+        if (!$passed || !$this->is_variable_bundle_product__premium_only($product_id)) {
+            return $passed;
+        }
+
+        // Only requests that came from the offer block are checked. Adds from
+        // anywhere else — re-ordering, a programmatic add, the Store API —
+        // stay WooCommerce's business.
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Presence check only, on WooCommerce's own add-to-cart request; the values themselves are sanitized and validated in posted_bundle_units__premium_only().
+        if (!isset($_POST['bulkboost_tier'])) {
+            return $passed;
+        }
+
+        $bundle = $this->posted_bundle_units__premium_only($product_id);
+        if (empty($bundle)) {
+            wc_add_notice(
+                esc_html__('Please choose the options for every item in this bundle.', 'bulkboost'),
+                'error'
+            );
+            return false;
+        }
+
+        foreach ($bundle['units'] as $unit) {
+            $variation = wc_get_product($unit['variation_id']);
+            if (!$variation || !$variation->is_purchasable() || !$variation->is_in_stock()) {
+                wc_add_notice(
+                    esc_html__('One of the items you chose is unavailable. Please pick different options.', 'bulkboost'),
+                    'error'
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Tags the first item of a bundle with the data the cart needs to price the
+     * group as one offer. Items added for the remaining units carry the same
+     * data, which is what ties the group together.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param array $cart_item_data Cart item data being built.
+     * @param int   $product_id     Parent product ID.
+     * @return array
+     */
+    public function BLKBST_tag_bundle_cart_item__premium_only($cart_item_data, $product_id)
+    {
+        if (isset($cart_item_data['bulkboost_bundle'])) {
+            // Carried over from the first unit; leave it alone.
+            return $cart_item_data;
+        }
+
+        $bundle = $this->posted_bundle_units__premium_only($product_id);
+        if (empty($bundle)) {
+            return $cart_item_data;
+        }
+
+        $labels = get_post_meta($product_id, '_bulkboost_qd_label', true);
+
+        $cart_item_data['bulkboost_bundle'] = array(
+            'id'    => uniqid('bb', true),
+            'label' => isset($labels[$bundle['tier']]) ? (string) $labels[$bundle['tier']] : '',
+            'qty'   => $bundle['tier_qty'],
+            'total' => $bundle['tier_total'],
+        );
+
+        return $cart_item_data;
+    }
+
+    /**
+     * Adds the rest of the bundle once WooCommerce has added its first unit.
+     * Units that resolve to the same variation merge into one line, which the
+     * group pricing handles by summing quantities rather than counting lines.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param string $cart_item_key  Key of the item just added.
+     * @param int    $product_id     Parent product ID.
+     * @param int    $quantity       Quantity added.
+     * @param int    $variation_id   Variation added.
+     * @param array  $variation      Variation attributes.
+     * @param array  $cart_item_data Cart item data of the item just added.
+     */
+    public function BLKBST_add_bundle_units__premium_only($cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data)
+    {
+        static $adding = false;
+
+        if ($adding || empty($cart_item_data['bulkboost_bundle'])) {
+            return;
+        }
+
+        $bundle = $this->posted_bundle_units__premium_only($product_id);
+        if (empty($bundle) || count($bundle['units']) < 2) {
+            return;
+        }
+
+        $adding = true;
+
+        // The first unit is the one WooCommerce just added.
+        foreach (array_slice($bundle['units'], 1) as $unit) {
+            WC()->cart->add_to_cart(
+                $product_id,
+                1,
+                $unit['variation_id'],
+                $unit['attributes'],
+                array('bulkboost_bundle' => $cart_item_data['bulkboost_bundle'])
+            );
+        }
+
+        $adding = false;
+    }
+
+    /**
+     * Prices every bundle in the cart as a group: the tier total spread across
+     * its items. A group whose quantity no longer matches a tier — because an
+     * item was removed or its quantity edited — falls back to the best tier it
+     * still qualifies for, and to the product's own price below that.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param WC_Cart $cart Cart being calculated.
+     */
+    private function price_bundle_items__premium_only($cart)
+    {
+        $bundles = array();
+
+        foreach ($cart->get_cart() as $cart_item_key => $cart_item) {
+            if (empty($cart_item['bulkboost_bundle']['id'])) {
+                continue;
+            }
+
+            $id = $cart_item['bulkboost_bundle']['id'];
+            if (!isset($bundles[$id])) {
+                $bundles[$id] = array(
+                    'product_id' => (int) $cart_item['product_id'],
+                    'quantity'   => 0,
+                    'items'      => array(),
+                );
+            }
+
+            $bundles[$id]['quantity'] += (int) $cart_item['quantity'];
+            $bundles[$id]['items'][]   = $cart_item_key;
+        }
+
+        foreach ($bundles as $bundle) {
+            $unit_price = $this->bundle_unit_price__premium_only($bundle['product_id'], $bundle['quantity']);
+            if (null === $unit_price) {
+                continue;
+            }
+
+            foreach ($bundle['items'] as $cart_item_key) {
+                $cart->cart_contents[$cart_item_key]['data']->set_price($unit_price);
+            }
+        }
+    }
+
+    /**
+     * Per-item price for a bundle of the given size: the matching tier's total
+     * divided by its quantity, or the best tier the group still qualifies for.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param int $product_id Parent product ID.
+     * @param int $quantity   Total items currently in the group.
+     * @return float|null Null when no tier applies.
+     */
+    private function bundle_unit_price__premium_only($product_id, $quantity)
+    {
+        $quantities = get_post_meta($product_id, '_bulkboost_qd_quantity', true);
+        $prices     = get_post_meta($product_id, '_bulkboost_qd_price', true);
+
+        if (!is_array($quantities) || !is_array($prices) || $quantity < 1) {
+            return null;
+        }
+
+        $best_quantity = 0;
+        $best_total    = null;
+
+        foreach ($quantities as $index => $tier_quantity) {
+            $tier_quantity = absint($tier_quantity);
+
+            if ($tier_quantity < 1 || $tier_quantity > $quantity || $tier_quantity < $best_quantity) {
+                continue;
+            }
+            if (!isset($prices[$index]) || '' === $prices[$index]) {
+                continue;
+            }
+
+            $best_quantity = $tier_quantity;
+            $best_total    = (float) $prices[$index];
+        }
+
+        if (null === $best_total || $best_quantity < 1) {
+            return null;
+        }
+
+        return $best_total / $best_quantity;
+    }
+
+    /**
+     * Shows which bundle a cart item belongs to, so three lines of the same
+     * product read as one offer rather than three unrelated items.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param array $item_data Existing item meta.
+     * @param array $cart_item Cart item.
+     * @return array
+     */
+    /**
+     * Label of the tier a bundle currently qualifies for. A group that has lost
+     * an item is charged at a lower tier, so the cart must not keep advertising
+     * the tier the customer originally picked.
+     *
+     * This whole function will be auto removed from the Free version.
+     *
+     * @param array $cart_item Cart item belonging to the bundle.
+     * @return string Tier label, or an empty string when none applies.
+     */
+    private function bundle_current_label__premium_only($cart_item)
+    {
+        $product_id = (int) $cart_item['product_id'];
+        $bundle_id  = $cart_item['bulkboost_bundle']['id'];
+        $quantity   = 0;
+
+        foreach (WC()->cart->get_cart() as $item) {
+            if (!empty($item['bulkboost_bundle']['id']) && $item['bulkboost_bundle']['id'] === $bundle_id) {
+                $quantity += (int) $item['quantity'];
+            }
+        }
+
+        $quantities = get_post_meta($product_id, '_bulkboost_qd_quantity', true);
+        $labels     = get_post_meta($product_id, '_bulkboost_qd_label', true);
+        if (!is_array($quantities) || !is_array($labels)) {
+            return '';
+        }
+
+        $best_quantity = 0;
+        $best_label    = '';
+
+        foreach ($quantities as $index => $tier_quantity) {
+            $tier_quantity = absint($tier_quantity);
+
+            if ($tier_quantity < 1 || $tier_quantity > $quantity || $tier_quantity < $best_quantity) {
+                continue;
+            }
+
+            $best_quantity = $tier_quantity;
+            $best_label    = isset($labels[$index]) ? (string) $labels[$index] : '';
+        }
+
+        return $best_label;
+    }
+
+    public function BLKBST_bundle_item_data__premium_only($item_data, $cart_item)
+    {
+        if (empty($cart_item['bulkboost_bundle']['qty'])) {
+            return $item_data;
+        }
+
+        $bundle = $cart_item['bulkboost_bundle'];
+        $label  = $this->bundle_current_label__premium_only($cart_item);
+
+        if ('' === $label) {
+            /* translators: %d: number of items in the bundle. */
+            $label = sprintf(_n('%d item', '%d items', $bundle['qty'], 'bulkboost'), $bundle['qty']);
+        }
+
+        $item_data[] = array(
+            'key'   => esc_html__('Bundle', 'bulkboost'),
+            'value' => esc_html($label),
+        );
+
+        return $item_data;
     }
 
     function BLKBST_add_custom_price_field_to_product_form()

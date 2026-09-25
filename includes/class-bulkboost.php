@@ -213,6 +213,13 @@ class BLKBST_BulkBoost
             $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'BLKBST_lock_checkout_quantity__premium_only', 20);
             // Block-based Cart & Checkout (Store API).
             $this->loader->add_filter('woocommerce_store_api_product_quantity_editable', $plugin_public, 'BLKBST_lock_block_quantity__premium_only', 10, 3);
+
+            // Variable products: one variation picker per item in the bundle.
+            $this->loader->add_action('woocommerce_after_variations_table', $plugin_public, 'BLKBST_add_bundle_block__premium_only');
+            $this->loader->add_filter('woocommerce_add_to_cart_validation', $plugin_public, 'BLKBST_validate_bundle__premium_only', 10, 2);
+            $this->loader->add_filter('woocommerce_add_cart_item_data', $plugin_public, 'BLKBST_tag_bundle_cart_item__premium_only', 20, 2);
+            $this->loader->add_action('woocommerce_add_to_cart', $plugin_public, 'BLKBST_add_bundle_units__premium_only', 20, 6);
+            $this->loader->add_filter('woocommerce_get_item_data', $plugin_public, 'BLKBST_bundle_item_data__premium_only', 10, 2);
         }
     }
 
